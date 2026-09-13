@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>System Administration Control | Living-Ora</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+
+  <!-- Navigation Bar Placeholder -->
+  <div id="navbar-placeholder"></div>
+
+  <main class="container" style="padding-top: 2.5rem; padding-bottom: 4rem;">
+    <!-- Admin Header -->
+    <div class="card" style="padding: 2rem; margin-bottom: 2rem;">
+      <span class="badge badge-gold" style="margin-bottom: 0.5rem;">System Control Center</span>
+      <h1 style="font-size: 2rem; font-weight: 800;">Administrator Operations & Security</h1>
+      <p style="color: var(--text-muted); font-size: 0.95rem;">Manage staff role permissions, client verification, account security, and audit events.</p>
+    </div>
+
+    <!-- Admin KPI Stats -->
+    <div class="kpi-grid">
+      <div class="kpi-card">
+        <div class="kpi-title">Total Users</div>
+        <div id="stat-total-users" class="kpi-value">0</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-title">Active Users</div>
+        <div id="stat-active-users" class="kpi-value" style="color: var(--success);">0</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-title">Pending Verifications</div>
+        <div id="stat-pending-verifications" class="kpi-value" style="color: var(--warning);">0</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-title">Locked Accounts</div>
+        <div id="stat-locked-accounts" class="kpi-value" style="color: var(--danger);">0</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-title">Internal Staff Users</div>
+        <div id="stat-internal-users" class="kpi-value" style="color: var(--primary);">0</div>
+      </div>
+    </div>
+
+    <!-- Admin Navigation Tabs -->
+    <div class="tabs-nav">
+      <button class="tab-btn active" data-admin-tab="dashboard">Dashboard Overview</button>
+      <button class="tab-btn" data-admin-tab="users">Internal Staff Accounts</button>
+      <button class="tab-btn" data-admin-tab="external">External Clients & Agents</button>
+      <button class="tab-btn" data-admin-tab="verifications">Verification Requests</button>
+      <button class="tab-btn" data-admin-tab="audit">Audit & Logs</button>
+    </div>
+
+    <!-- Tab 1: Dashboard Overview -->
+    <section id="tab-dashboard" class="admin-tab-panel">
+      <div class="grid-2">
+        <div class="card" style="padding: 1.5rem;">
+          <h3 style="font-size: 1.25rem; font-weight: 700; margin-bottom: 1rem;">Administrator Governance Areas</h3>
+          <ul style="list-style: square; padding-left: 1.25rem; color: var(--text-muted); line-height: 1.8; font-size: 0.92rem;">
+            <li>Role-Based Access Control (RBAC) across departments</li>
+            <li>KYC Verification for external client & agent registrations</li>
+            <li>Immediate account suspension / security locking</li>
+            <li>Audit trail verification and administrative logging</li>
+            <li>System integrity and API endpoint monitoring</li>
+          </ul>
+        </div>
+        <div class="card" style="padding: 1.5rem;">
+          <h3 style="font-size: 1.25rem; font-weight: 700; margin-bottom: 1rem;">System Architecture Status</h3>
+          <div style="display: flex; flex-direction: column; gap: 0.75rem; font-size: 0.9rem;">
+            <div style="display: flex; justify-content: space-between; border-bottom: 1px solid var(--border-color); padding-bottom: 0.5rem;">
+              <span>Database Connection</span>
+              <strong style="color: var(--success);">Spring Data JPA / MySQL Active</strong>
+            </div>
+            <div style="display: flex; justify-content: space-between; border-bottom: 1px solid var(--border-color); padding-bottom: 0.5rem;">
+              <span>REST API Gateway</span>
+              <strong style="color: var(--info);">http://localhost:8080/api</strong>
+            </div>
+            <div style="display: flex; justify-content: space-between;">
+              <span>Offline Resilience</span>
+              <strong style="color: var(--primary);">LocalStorage Cache Enabled</strong>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Tab 2: Internal Users -->
+    <section id="tab-users" class="admin-tab-panel" hidden>
+      <div class="grid-2" style="align-items: flex-start; gap: 2rem;">
+        <!-- Register/Edit Form -->
+        <div class="card" style="padding: 1.75rem;">
+          <h3 style="font-size: 1.3rem; margin-bottom: 1rem;">Create / Edit Staff Account</h3>
+          <form id="admin-internal-user-form">
+            <input type="hidden" id="editing-empid" />
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label" for="admin-user-firstname">First Name *</label>
+                <input type="text" id="admin-user-firstname" class="form-input" required />
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="admin-user-lastname">Last Name *</label>
+                <input type="text" id="admin-user-lastname" class="form-input" required />
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="admin-user-email">Login Email *</label>
+              <input type="email" id="admin-user-email" class="form-input" placeholder="user@livingora.lk" required />
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="admin-user-role">Department Role *</label>
+              <select id="admin-user-role" class="form-select">
+                <option value="SALES_MANAGER">Sales Manager</option>
+                <option value="MARKETING_MANAGER">Marketing Manager</option>
+                <option value="CUSTOMER_RELATIONS_OFFICER">Customer Relations Officer</option>
+                <option value="FINANCE_PAYMENTS_OFFICER">Finance & Payments Officer</option>
+                <option value="PROPERTY_DEVELOPMENT_MANAGER">Property Development Manager</option>
+                <option value="OPERATIONS_DIRECTOR">Operations Director</option>
+                <option value="ADMIN">System Administrator</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="admin-user-phone">Telephone</label>
+              <input type="tel" id="admin-user-phone" class="form-input" placeholder="+94 77 000 0000" />
+            </div>
+            <button type="submit" class="btn btn-primary btn-block">Save Staff Record</button>
+          </form>
+        </div>
+
+        <!-- Internal Users Table -->
+        <div class="table-responsive">
+          <table class="table">
+            <thead>
+              <tr>
+                <th>Emp ID</th>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Role</th>
+                <th>Phone</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody id="internal-users-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- Tab 3: External Users -->
+    <section id="tab-external" class="admin-tab-panel" hidden>
+      <div class="table-responsive">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>User ID</th>
+              <th>Email</th>
+              <th>Account Type</th>
+              <th>Verification</th>
+              <th>Status</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody id="external-users-tbody"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- Tab 4: Verifications -->
+    <section id="tab-verifications" class="admin-tab-panel" hidden>
+      <div class="table-responsive">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Identifier</th>
+              <th>Email</th>
+              <th>Role</th>
+              <th>Verification Status</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody id="verifications-tbody"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- Tab 5: Audit Logs -->
+    <section id="tab-audit" class="admin-tab-panel" hidden>
+      <div class="card" style="padding: 1.75rem;">
+        <h3 style="font-size: 1.25rem; margin-bottom: 1.25rem;">Security & Operational Audit Trail</h3>
+        <div id="audit-logs-list"></div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Footer Placeholder -->
+  <div id="footer-placeholder"></div>
+
+  <!-- Script Module -->
+  <script type="module" src="js/pages/admin-dashboard.js"></script>
+</body>
+</html>

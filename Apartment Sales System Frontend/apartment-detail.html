@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Development Details | Living-Ora</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+
+  <!-- Navigation Bar Placeholder -->
+  <div id="navbar-placeholder"></div>
+
+  <main id="apartment-detail-container" class="container" style="padding-top: 2.5rem; padding-bottom: 4rem;">
+    <!-- Back Link -->
+    <div style="margin-bottom: 1.5rem;">
+      <a href="apartments.html" class="btn btn-sm btn-secondary">&larr; Back to Residences</a>
+    </div>
+
+    <!-- Complex Header -->
+    <div class="card" style="overflow: hidden; margin-bottom: 2.5rem;">
+      <div style="display: grid; grid-template-columns: 1.2fr 1fr; gap: 0;">
+        <div style="height: 380px; overflow: hidden; background-color: #1a1d24;">
+          <img id="apt-image" src="images/luxury-complex-marina.jpg" alt="Complex View" style="width: 100%; height: 100%; object-fit: cover;" />
+        </div>
+        <div style="padding: 2rem; display: flex; flex-direction: column; justify-content: space-between;">
+          <div>
+            <span class="badge badge-gold" style="margin-bottom: 0.75rem;">Living-Ora Residence</span>
+            <h1 id="apt-name" style="font-size: 2.2rem; font-weight: 800; margin-bottom: 0.5rem;">Living-Ora Heights</h1>
+            <p id="apt-location" style="color: var(--text-muted); font-size: 1rem; margin-bottom: 1.25rem;">Marine Drive, Colombo 03</p>
+            <p id="apt-about" style="color: var(--text-main); font-size: 0.95rem; line-height: 1.6; margin-bottom: 1.5rem;">
+              A considered home for modern coastal living. Floor-to-ceiling glass, ocean vistas, and resort-grade amenities define this signature development.
+            </p>
+          </div>
+
+          <div style="border-top: 1px solid var(--border-color); padding-top: 1.25rem;">
+            <span style="display: block; color: var(--text-dim); font-size: 0.8rem; text-transform: uppercase;">Estimated Price Range</span>
+            <strong id="apt-price" style="font-size: 1.6rem; color: var(--primary);">$220,000 – $850,000</strong>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Key Amenities & Building Stats -->
+    <div class="kpi-grid">
+      <div class="kpi-card">
+        <div class="kpi-title">Building Height</div>
+        <div id="apt-floors" class="kpi-value">22 Floors</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-title">Pool Amenities</div>
+        <div id="apt-pools" class="kpi-value">2 Pools</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-title">Wellness Facility</div>
+        <div id="apt-gyms" class="kpi-value">1 Gym</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-title">Immediate Availability</div>
+        <div id="apt-units-count" class="kpi-value" style="color: var(--success);">10 Units</div>
+      </div>
+    </div>
+
+    <!-- Architecture & Interior Lounge Preview -->
+    <section class="card" style="padding: 2rem; margin-bottom: 3rem;">
+      <h2 style="font-size: 1.5rem; font-weight: 700; margin-bottom: 0.5rem;">Interior Concept & Floor Plan Preview</h2>
+      <p style="color: var(--text-muted); font-size: 0.92rem; margin-bottom: 1.5rem;">Each suite incorporates bespoke finishes, open-concept living lounges, and expansive glass terraces overlooking the ocean.</p>
+      <div style="max-height: 420px; overflow: hidden; border-radius: var(--radius-md); border: 1px solid var(--border-color);">
+        <img id="apt-floorplan-img" src="images/luxury-interior-lounge.jpg" alt="Interior Lounge Architecture" style="width: 100%; height: 100%; object-fit: cover;" />
+      </div>
+    </section>
+
+    <!-- Available Units Section -->
+    <section>
+      <div style="margin-bottom: 1.5rem;">
+        <span class="badge badge-gold" style="margin-bottom: 0.5rem;">Immediate Occupancy</span>
+        <h2 style="font-size: 1.75rem; font-weight: 800;">Available Units in this Complex</h2>
+      </div>
+
+      <div id="complex-units-grid" class="grid-3">
+        <!-- Injected by js/pages/apartment-detail.js -->
+      </div>
+    </section>
+  </main>
+
+  <!-- Booking Reservation Modal -->
+  <div id="booking-modal" class="modal-overlay">
+    <div class="modal-box">
+      <div class="modal-header">
+        <div>
+          <span class="badge badge-gold">Reservation Workflow</span>
+          <h2 class="modal-title" id="modal-unit-title">Reserve Suite Unit</h2>
+        </div>
+        <button class="modal-close" data-modal-close>&times;</button>
+      </div>
+
+      <div class="modal-body">
+        <div id="booking-success-box" class="alert alert-success" style="display: none; padding: 1.5rem; text-align: center;">
+          <h3 style="font-size: 1.25rem; margin-bottom: 0.5rem;">🎉 Reservation Submitted Successfully!</h3>
+          <p style="color: var(--text-main); font-size: 0.92rem;">Your unit reservation has been received. Our sales verification officer will inspect your payment proof and confirm your schedule.</p>
+        </div>
+
+        <form id="booking-reservation-form">
+          <div style="background-color: var(--bg-dark); padding: 1rem; border-radius: var(--radius-md); margin-bottom: 1.25rem; border: 1px solid var(--border-color);">
+            <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+              <span style="color: var(--text-muted); font-size: 0.88rem;">Total Suite Price:</span>
+              <strong id="modal-unit-price" style="color: var(--primary); font-size: 1.2rem;">$0</strong>
+            </div>
+            <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+              <span style="color: var(--text-muted); font-size: 0.88rem;">Calculated Down Payment:</span>
+              <strong id="modal-downpayment-amount" style="color: var(--text-main); font-size: 1.1rem;">$0</strong>
+            </div>
+            <div style="display: flex; justify-content: space-between;">
+              <span style="color: var(--text-muted); font-size: 0.88rem;">Estimated Monthly Installment:</span>
+              <strong id="modal-monthly-amount" style="color: var(--success); font-size: 1.1rem;">$0 / mo</strong>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label" for="modal-downpayment-ratio">Down Payment Ratio</label>
+              <select id="modal-downpayment-ratio" class="form-select">
+                <option value="10">10% Initial Deposit</option>
+                <option value="20" selected>20% Standard Deposit</option>
+                <option value="30">30% Preferred Deposit</option>
+                <option value="50">50% Half Payment</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="modal-months">Installment Schedule</label>
+              <select id="modal-months" class="form-select">
+                <option value="12">12 Months (1 Year)</option>
+                <option value="24">24 Months (2 Years)</option>
+                <option value="36" selected>36 Months (3 Years)</option>
+                <option value="48">48 Months (4 Years)</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="modal-payment-method">Payment Method</label>
+            <select id="modal-payment-method" class="form-select">
+              <option value="Bank Transfer">Bank Wire Transfer / SLIPS</option>
+              <option value="Bank Draft">Manager's Cheque / Bank Draft</option>
+              <option value="Online Credit Card">Corporate / Credit Card</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="modal-additions">Custom Interior Finishes (Optional)</label>
+            <input type="text" id="modal-additions" class="form-input" placeholder="e.g. Italian Marble upgrade, Smart Home package" />
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="modal-payment-proof">Proof of Payment / Wire Receipt (PDF or Image)</label>
+            <input type="file" id="modal-payment-proof" class="form-input" accept=".pdf,.jpg,.jpeg,.png" />
+          </div>
+
+          <button type="submit" id="submit-booking-btn" class="btn btn-primary btn-block" style="margin-top: 1rem;">
+            Submit Unit Reservation
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer Placeholder -->
+  <div id="footer-placeholder"></div>
+
+  <!-- Script Module -->
+  <script type="module" src="js/pages/apartment-detail.js"></script>
+</body>
+</html>

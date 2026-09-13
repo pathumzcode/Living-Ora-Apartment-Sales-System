@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Resale & External Listings | Living-Ora</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+
+  <!-- Navigation Bar Placeholder -->
+  <div id="navbar-placeholder"></div>
+
+  <main class="container" style="padding-top: 2.5rem; padding-bottom: 4rem;">
+    <div style="margin-bottom: 2rem;">
+      <span class="badge badge-gold" style="margin-bottom: 0.5rem;">Partner Marketplace</span>
+      <h1 style="font-size: 2.2rem; font-weight: 800;">Resale & External Apartment Properties</h1>
+      <p style="color: var(--text-muted); font-size: 1rem;">Browse verified secondary market condominium units or submit your apartment property as a sales agent or owner.</p>
+    </div>
+
+    <!-- Alert Box -->
+    <div id="external-alert" class="alert" style="display: none;"></div>
+
+    <!-- Listings Grid -->
+    <div id="external-apartments-grid" class="grid-3" style="margin-bottom: 3.5rem;">
+      <!-- Injected by js/pages/external.js -->
+    </div>
+
+    <!-- Add Resale Property Form -->
+    <section class="card" style="padding: 2rem; max-width: 800px; margin: 0 auto;">
+      <div style="margin-bottom: 1.5rem; border-bottom: 1px solid var(--border-color); padding-bottom: 1rem;">
+        <span class="badge badge-gold" style="margin-bottom: 0.5rem;">Agent & Owner Portal</span>
+        <h2 style="font-size: 1.5rem; font-weight: 700;">Submit a Resale Apartment Listing</h2>
+        <p style="color: var(--text-muted); font-size: 0.88rem;">Fill out property details to list an external condominium unit on the Living-Ora platform.</p>
+      </div>
+
+      <form id="add-external-apt-form">
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label" for="ex-location">Property Location / Address *</label>
+            <input type="text" id="ex-location" class="form-input" placeholder="e.g. Rajagiriya, Sri Lanka — Nawala Road" required />
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="ex-price">Total Price ($ USD) *</label>
+            <input type="number" id="ex-price" class="form-input" placeholder="185000" min="50000" required />
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label" for="ex-downpayment">Minimum Down Payment ($ USD) *</label>
+            <input type="number" id="ex-downpayment" class="form-input" placeholder="18500" min="5000" required />
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="ex-rooms">Bedrooms Count *</label>
+            <input type="number" id="ex-rooms" class="form-input" placeholder="2" min="1" max="10" required />
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="ex-ac">Climate Control</label>
+            <select id="ex-ac" class="form-select">
+              <option value="AC">Fully Air-Conditioned (AC)</option>
+              <option value="Non-AC">Non-AC</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="ex-about">Property Description</label>
+          <textarea id="ex-about" class="form-textarea" placeholder="Briefly describe the apartment condition, views, and floor..."></textarea>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="ex-info">Agent / Owner Contact & Additional Notes</label>
+          <input type="text" id="ex-info" class="form-input" placeholder="e.g. Direct owner listing, contact +94 77 123 4567" />
+        </div>
+
+        <button type="submit" class="btn btn-primary btn-block">Publish Resale Listing</button>
+      </form>
+    </section>
+  </main>
+
+  <!-- Footer Placeholder -->
+  <div id="footer-placeholder"></div>
+
+  <!-- Script Module -->
+  <script type="module" src="js/pages/external.js"></script>
+</body>
+</html>

@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Living-Ora | Luxury Apartment Sales & Residences</title>
+  <meta name="description" content="Living-Ora Luxury Apartment Sales System - Verified Premium Residences & Exclusive Living Units in Sri Lanka" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+
+  <!-- Navigation Bar Placeholder -->
+  <div id="navbar-placeholder"></div>
+
+  <!-- HERO SECTION (From Reference Design) -->
+  <section class="reference-hero-container">
+    <div class="container">
+      <div class="reference-hero-card">
+        <!-- Top Overlay Content -->
+        <div class="hero-overlay-content">
+          <div class="hero-top-pill">
+            <span>✨</span> Verified Luxury Residences &bull; Sri Lanka
+          </div>
+          <h1 class="reference-hero-title">
+            We Bring New Experience <br />of Your <span>Dream 🏛️ Property</span>
+          </h1>
+          <p class="reference-hero-subtitle">
+            Curated architectural apartments, beachfront penthouses, and high-yield condominium investments in prime Colombo addresses.
+          </p>
+        </div>
+
+        <!-- Floating Docked Search Bar (From Reference Design) -->
+        <div class="hero-docked-search-wrap">
+          <div class="hero-search-tabs">
+            <button class="search-tab-pill active" id="tab-search-buy">Buy Suites</button>
+            <button class="search-tab-pill" id="tab-search-reserve">Immediate Booking</button>
+            <button class="search-tab-pill" id="tab-search-resale">Secondary Resale</button>
+          </div>
+          
+          <div class="hero-search-fields-grid">
+            <div class="search-field-item">
+              <span class="search-field-label">Location / Landmark</span>
+              <input type="text" id="home-search-input" class="search-field-input" placeholder="Search Colombo 03, Marina, Heights..." />
+            </div>
+
+            <div class="search-field-item">
+              <span class="search-field-label">Development Type</span>
+              <select id="home-location-select" class="search-field-select">
+                <option value="">All Locations</option>
+                <option value="Colombo 03">Colombo 03 (Marine Drive)</option>
+                <option value="Colombo 07">Colombo 07 (Bauddhaloka)</option>
+                <option value="Mount Lavinia">Mount Lavinia Waterfront</option>
+              </select>
+            </div>
+
+            <div class="search-field-item">
+              <span class="search-field-label">Bedrooms</span>
+              <select id="home-beds-select" class="search-field-select">
+                <option value="0">Any Layout</option>
+                <option value="2">2+ Beds</option>
+                <option value="3">3+ Beds</option>
+                <option value="4">4+ Beds</option>
+              </select>
+            </div>
+
+            <div class="search-field-item">
+              <span class="search-field-label">Price Range</span>
+              <select id="home-price-select" class="search-field-select">
+                <option value="0">All Budgets</option>
+                <option value="350000">Under $350,000</option>
+                <option value="600000">Under $600,000</option>
+                <option value="1200000">Under $1,200,000</option>
+              </select>
+            </div>
+
+            <div>
+              <button id="home-search-btn" class="btn btn-primary" style="padding: 0.85rem 1.6rem;">Search Now</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- STATEMENT / ABOUT US (From Reference Design) -->
+  <section class="statement-section">
+    <div class="container">
+      <div style="text-align: center;">
+        <span class="badge-pill-tag">ABOUT</span>
+      </div>
+      <p class="statement-text">
+        We're your trusted partner in luxury real estate. With over <strong>10 years of architectural excellence in Sri Lanka</strong>, our team of dedicated property specialists is committed to delivering personalized service and securing your premier residence at the right milestone value.
+      </p>
+    </div>
+  </section>
+
+  <!-- FEATURED ARCHITECTURAL SHOWCASE BANNER (From Reference Design) -->
+  <section class="container">
+    <div class="feature-showcase-wrap">
+      <img src="images/luxury-interior-lounge.jpg" alt="Living-Ora Oceanview Villa" class="feature-showcase-img" />
+      <div class="feature-floating-tag">Available for Acquisition</div>
+      
+      <div class="feature-floating-card">
+        <div style="font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted); font-weight: 700; margin-bottom: 0.25rem;">Signature Residence</div>
+        <h3 style="font-size: 1.25rem; font-weight: 800; color: #0f172a; margin-bottom: 0.25rem;">Oceanview Sky Suite 14B</h3>
+        <p style="font-size: 0.86rem; color: var(--text-muted); margin-bottom: 0.85rem;">Marine Drive, Colombo 03 &bull; Private Infinity Pool Access</p>
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+          <div>
+            <span style="font-size: 0.72rem; color: var(--text-muted); font-weight: 700; text-transform: uppercase; display: block;">From Price</span>
+            <strong style="font-size: 1.35rem; font-weight: 800; color: #0f172a;">$780,000</strong>
+          </div>
+          <a href="apartments.html" class="btn btn-sm btn-primary">View Suite Details &rarr;</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- HOW IT WORKS SECTION (From Reference Design) -->
+  <section class="how-it-works-section">
+    <div class="container">
+      <div class="how-it-works-grid">
+        <!-- Left Steps Column -->
+        <div>
+          <span class="badge-pill-tag">HOW IT WORKS</span>
+          <h2 style="font-size: clamp(2rem, 3.5vw, 2.6rem); font-weight: 800; line-height: 1.2; margin-bottom: 2rem; color: #0f172a;">
+            Simple 3 Steps to <br />Reserve Your Suite
+          </h2>
+
+          <div class="step-item">
+            <div class="step-number">01</div>
+            <div class="step-content">
+              <h3>Verify & Authenticate</h3>
+              <p>Create your verified client profile to access complete unit architectural blueprints, deed registries, and installment plans.</p>
+            </div>
+          </div>
+
+          <div class="step-item">
+            <div class="step-number">02</div>
+            <div class="step-content">
+              <h3>Select Complex & Floor Suite</h3>
+              <p>Explore high-resolution tower views, bedroom configurations, square footage, and floor allocation filters tailored to your investment target.</p>
+            </div>
+          </div>
+
+          <div class="step-item">
+            <div class="step-number">03</div>
+            <div class="step-content">
+              <h3>Submit Down Payment & Verify</h3>
+              <p>Choose 10%, 20%, or 30% down payment terms, submit deposit confirmation, and receive real-time verification from our sales officers.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right Visual Showcase / Mockup Column -->
+        <div class="how-it-works-preview-box">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem;">
+            <div>
+              <span style="font-size: 0.75rem; text-transform: uppercase; font-weight: 700; color: var(--accent-gold);">Live Availability</span>
+              <h4 style="font-size: 1.1rem; font-weight: 800; color: #0f172a;">Fast-Track Units</h4>
+            </div>
+            <a href="apartments.html?tab=units" class="btn btn-sm btn-outline">Explore All Units &rarr;</a>
+          </div>
+
+          <div class="preview-cards-grid">
+            <div class="mini-preview-card">
+              <img src="images/luxury-condo-exterior.jpg" alt="Azure Heights" class="mini-preview-img" />
+              <div class="mini-preview-info">
+                <span class="badge badge-gold" style="font-size: 0.65rem; padding: 0.15rem 0.5rem;">Unit #402</span>
+                <div style="font-weight: 700; font-size: 0.92rem; margin-top: 0.35rem; color: #0f172a;">Azure Skyline Suite</div>
+                <div style="font-size: 0.85rem; color: var(--text-muted);">2 Beds &bull; 1,450 sqft</div>
+                <div style="font-weight: 800; color: #0f172a; margin-top: 0.4rem;">$380,000</div>
+              </div>
+            </div>
+
+            <div class="mini-preview-card">
+              <img src="images/luxury-complex-marina.jpg" alt="Marina Waterfront" class="mini-preview-img" />
+              <div class="mini-preview-info">
+                <span class="badge badge-success" style="font-size: 0.65rem; padding: 0.15rem 0.5rem;">Unit #705</span>
+                <div style="font-weight: 700; font-size: 0.92rem; margin-top: 0.35rem; color: #0f172a;">Marina Bay Horizon</div>
+                <div style="font-size: 0.85rem; color: var(--text-muted);">3 Beds &bull; 2,100 sqft</div>
+                <div style="font-weight: 800; color: #0f172a; margin-top: 0.4rem;">$550,000</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- EXPLORE OUR LATEST PROPERTY (From Reference Design) -->
+  <section class="container" style="padding: 2rem 1.5rem 5rem;">
+    <div class="section-header-wrap">
+      <span class="badge-pill-tag">EXPLORE</span>
+      <h2 class="section-title">Explore Our Flagship Residences</h2>
+      <p class="section-subtitle">A curated portfolio of landmark luxury developments in prime metropolitan locations.</p>
+    </div>
+
+    <!-- Featured Developments Grid (Injected by js/pages/home.js) -->
+    <div id="featured-apartments-grid" class="grid-3">
+      <!-- Dynamic cards rendered here -->
+    </div>
+  </section>
+
+  <!-- TOP PICKS / AVAILABLE UNITS (From Reference Design) -->
+  <section class="container" style="padding-bottom: 5rem;">
+    <div class="section-header-wrap">
+      <span class="badge-pill-tag">TOP PICKS</span>
+      <h2 class="section-title">Immediate Availability Suites</h2>
+      <p class="section-subtitle">Handpicked residences ready for down payment booking with verified title deeds.</p>
+    </div>
+
+    <div id="top-picks-units-grid" class="grid-3">
+      <!-- Dynamic unit cards rendered here by home.js -->
+    </div>
+  </section>
+
+  <!-- FREQUENTLY ASKED QUESTIONS (From Reference Design) -->
+  <section class="container">
+    <div class="faq-section">
+      <div style="text-align: center;">
+        <span class="badge-pill-tag">FAQ</span>
+        <h2 class="section-title" style="margin-bottom: 2rem;">Frequently Asked Questions</h2>
+      </div>
+
+      <details class="faq-item-ref" open>
+        <summary class="faq-summary-ref">
+          <span>How does the apartment reservation workflow work?</span>
+          <span class="faq-toggle-icon">+</span>
+        </summary>
+        <div class="faq-content-ref">
+          Browse through our active apartment complexes or individual suite units, select your desired unit, and click "Reserve Suite". You will configure your down payment ratio (10%, 20%, or 30%) and installment term. Once submitted with proof of transfer, our sales officers verify and lock the suite.
+        </div>
+      </details>
+
+      <details class="faq-item-ref">
+        <summary class="faq-summary-ref">
+          <span>What payment methods are supported for the down payment?</span>
+          <span class="faq-toggle-icon">+</span>
+        </summary>
+        <div class="faq-content-ref">
+          We accept bank wire transfers, inward investment accounts (IIA) for foreign or non-resident Sri Lankan buyers, manager's cheques, certified deposit slips, and direct online banking facilities verified by our Finance & Payments team.
+        </div>
+      </details>
+
+      <details class="faq-item-ref">
+        <summary class="faq-summary-ref">
+          <span>Can foreign nationals or non-resident Sri Lankans purchase units?</span>
+          <span class="faq-toggle-icon">+</span>
+        </summary>
+        <div class="faq-content-ref">
+          Yes. Non-resident Sri Lankans and international investors can legally acquire condominium units in Sri Lanka above the specified regulatory floors under existing property regulations. Full legal assistance is provided.
+        </div>
+      </details>
+
+      <details class="faq-item-ref">
+        <summary class="faq-summary-ref">
+          <span>How can external agents list properties on Living-Ora?</span>
+          <span class="faq-toggle-icon">+</span>
+        </summary>
+        <div class="faq-content-ref">
+          Registered external agents and verified property owners can list resale apartments through our Resale Listings page with complete specifications, deed validation, and pricing details.
+        </div>
+      </details>
+    </div>
+  </section>
+
+  <!-- DARK CONTRAST INQUIRY & CONTACT SECTION (From Reference Design) -->
+  <section class="container" id="inquiry-section">
+    <div class="dark-inquiry-box">
+      <div class="dark-inquiry-info">
+        <span class="badge badge-gold" style="margin-bottom: 1rem;">Direct Sales Desk</span>
+        <h2>Still not sure where to start? Contact us and fill out the form.</h2>
+        <p>Our senior real estate advisors will analyze your lifestyle preferences and investment horizon to recommend the ideal residence with tailored installment structures.</p>
+        <div style="display: flex; gap: 2rem; align-items: center;">
+          <div>
+            <div style="font-size: 1.8rem; font-weight: 800; color: #ffffff;">98%</div>
+            <div style="font-size: 0.8rem; color: #94a3b8; text-transform: uppercase;">Client Satisfaction</div>
+          </div>
+          <div style="width: 1px; height: 40px; background: rgba(255,255,255,0.15);"></div>
+          <div>
+            <div style="font-size: 1.8rem; font-weight: 800; color: #ffffff;">24h</div>
+            <div style="font-size: 0.8rem; color: #94a3b8; text-transform: uppercase;">Verification Turnaround</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Quick Contact Form -->
+      <div class="dark-inquiry-form-card">
+        <form id="home-inquiry-form">
+          <div class="form-group">
+            <label class="form-label" for="inquiry-fullname">Full Name</label>
+            <input type="text" id="inquiry-fullname" class="form-input" placeholder="e.g. Alexander Perera" required />
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="inquiry-email">Email Address</label>
+            <input type="email" id="inquiry-email" class="form-input" placeholder="e.g. alexander@example.com" required />
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="inquiry-message">Property Inquiry / Message</label>
+            <textarea id="inquiry-message" class="form-textarea" placeholder="Tell us about the suite or apartment complex you are interested in..." required></textarea>
+          </div>
+          <button type="submit" class="btn btn-primary" style="width: 100%; border-radius: var(--radius-sm); padding: 0.85rem;">
+            Submit Inquiry &rarr;
+          </button>
+        </form>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer Placeholder -->
+  <div id="footer-placeholder"></div>
+
+  <!-- Scripts -->
+  <script type="module" src="js/pages/home.js"></script>
+</body>
+</html>

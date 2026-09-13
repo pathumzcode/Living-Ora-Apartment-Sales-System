@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Staff Operations Workspace | Living-Ora</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+
+  <!-- Navigation Bar Placeholder -->
+  <div id="navbar-placeholder"></div>
+
+  <main class="container" style="padding-top: 2.5rem; padding-bottom: 4rem;">
+    <!-- Staff Header Card -->
+    <div class="card" style="padding: 2rem; margin-bottom: 2rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1.5rem;">
+      <div style="display: flex; align-items: center; gap: 1.25rem;">
+        <div style="width: 60px; height: 60px; border-radius: 50%; background-color: var(--primary-light); border: 2px solid var(--primary); display: flex; align-items: center; justify-content: center; font-size: 1.6rem;">
+          💼
+        </div>
+        <div>
+          <span class="badge badge-gold" id="staff-role-label" style="margin-bottom: 0.35rem;">Staff Officer</span>
+          <h1 style="font-size: 1.85rem; font-weight: 800;">Workspace: <span id="staff-name">Staff Member</span></h1>
+          <p style="color: var(--text-muted); font-size: 0.88rem;">
+            Employee ID: <strong id="staff-id" style="color: var(--text-main);">EMP-001</strong> &bull; Living-Ora Sales Engine
+          </p>
+        </div>
+      </div>
+
+      <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
+        <button id="open-add-apt-modal-btn" class="btn btn-sm btn-primary">+ Add Complex</button>
+        <button id="open-add-unit-modal-btn" class="btn btn-sm btn-outline">+ Add Suite Unit</button>
+      </div>
+    </div>
+
+    <!-- KPI Summary Cards -->
+    <div class="kpi-grid">
+      <div class="kpi-card">
+        <div class="kpi-title">Confirmed Sales Revenue</div>
+        <div id="kpi-revenue" class="kpi-value" style="color: var(--success);">$0</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-title">Pending Verification Queue</div>
+        <div id="kpi-pending" class="kpi-value" style="color: var(--warning);">0 Requests</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-title">Available Inventory Stock</div>
+        <div id="kpi-available" class="kpi-value" style="color: var(--info);">0 Units</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-title">Active Developments</div>
+        <div id="kpi-complexes" class="kpi-value">0 Complexes</div>
+      </div>
+    </div>
+
+    <!-- Tabs Navigation -->
+    <div class="tabs-nav">
+      <button id="tab-bookings-btn" class="tab-btn active">Booking Verifications</button>
+      <button id="tab-inventory-btn" class="tab-btn">Unit Stock Inventory</button>
+    </div>
+
+    <!-- Booking Requests Panel -->
+    <section id="bookings-panel">
+      <div class="table-responsive">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Booking ID</th>
+              <th>Client</th>
+              <th>Unit / Suite</th>
+              <th>Down Payment</th>
+              <th>Reserved Date</th>
+              <th>Status</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="bookings-tbody">
+            <!-- Injected by js/pages/staff-dashboard.js -->
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- Unit Stock Inventory Panel -->
+    <section id="inventory-panel" hidden>
+      <div class="table-responsive">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Unit Code</th>
+              <th>Location / Suite</th>
+              <th>Floor</th>
+              <th>Configuration</th>
+              <th>Full Price</th>
+              <th>Status</th>
+              <th>Update Status</th>
+            </tr>
+          </thead>
+          <tbody id="inventory-tbody">
+            <!-- Injected by js/pages/staff-dashboard.js -->
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+
+  <!-- Add Complex Modal -->
+  <div id="add-apt-modal" class="modal-overlay">
+    <div class="modal-box">
+      <div class="modal-header">
+        <h2 class="modal-title">Add Apartment Complex</h2>
+        <button class="modal-close" data-modal-close>&times;</button>
+      </div>
+      <div class="modal-body">
+        <form id="add-apartment-form">
+          <div class="form-group">
+            <label class="form-label" for="apt-form-name">Complex Name *</label>
+            <input type="text" id="apt-form-name" class="form-input" placeholder="e.g. Living-Ora Sapphire Towers" required />
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="apt-form-location">Location / Street *</label>
+            <input type="text" id="apt-form-location" class="form-input" placeholder="e.g. Colombo 04 — Marine Drive" required />
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label" for="apt-form-floors">Total Floors *</label>
+              <input type="number" id="apt-form-floors" class="form-input" value="18" min="1" required />
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="apt-form-pools">Swimming Pools</label>
+              <input type="number" id="apt-form-pools" class="form-input" value="1" min="0" required />
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="apt-form-gyms">Fitness Centers</label>
+              <input type="number" id="apt-form-gyms" class="form-input" value="1" min="0" required />
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="apt-form-pricerange">Price Range</label>
+            <input type="text" id="apt-form-pricerange" class="form-input" placeholder="$250,000 – $750,000" />
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="apt-form-about">Development Overview</label>
+            <textarea id="apt-form-about" class="form-textarea" placeholder="Describe the architecture, finishes and location..."></textarea>
+          </div>
+          <button type="submit" class="btn btn-primary btn-block">Save Apartment Complex</button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Add Suite Unit Modal -->
+  <div id="add-unit-modal" class="modal-overlay">
+    <div class="modal-box">
+      <div class="modal-header">
+        <h2 class="modal-title">Add Suite Unit to Inventory</h2>
+        <button class="modal-close" data-modal-close>&times;</button>
+      </div>
+      <div class="modal-body">
+        <form id="add-unit-form">
+          <div class="form-group">
+            <label class="form-label" for="unit-form-apt">Parent Apartment Complex *</label>
+            <select id="unit-form-apt" class="form-select" required></select>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label" for="unit-form-location">Unit Suite Title *</label>
+              <input type="text" id="unit-form-location" class="form-input" placeholder="e.g. 14th Floor — Corner Ocean Suite" required />
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="unit-form-floor">Floor Number *</label>
+              <input type="number" id="unit-form-floor" class="form-input" value="14" min="1" required />
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label" for="unit-form-price">Purchase Price ($ USD) *</label>
+              <input type="number" id="unit-form-price" class="form-input" placeholder="380000" min="50000" required />
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="unit-form-beds">Bedrooms</label>
+              <input type="number" id="unit-form-beds" class="form-input" value="2" min="1" max="10" required />
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="unit-form-baths">Bathrooms</label>
+              <input type="number" id="unit-form-baths" class="form-input" value="2" min="1" max="10" required />
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label" for="unit-form-ac">Climate Control</label>
+              <select id="unit-form-ac" class="form-select">
+                <option value="AC">Central AC</option>
+                <option value="Non-AC">Non-AC</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="unit-form-furnitures">Furnishing Level</label>
+              <select id="unit-form-furnitures" class="form-select">
+                <option value="Fully Furnished">Fully Furnished</option>
+                <option value="Partially Furnished">Partially Furnished</option>
+                <option value="Unfurnished">Unfurnished</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="unit-form-about">Suite Notes</label>
+            <textarea id="unit-form-about" class="form-textarea" placeholder="Describe view, marble finishes, balcony layout..."></textarea>
+          </div>
+          <button type="submit" class="btn btn-primary btn-block">Add Suite to Stock</button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer Placeholder -->
+  <div id="footer-placeholder"></div>
+
+  <!-- Script Module -->
+  <script type="module" src="js/pages/staff-dashboard.js"></script>
+</body>
+</html>

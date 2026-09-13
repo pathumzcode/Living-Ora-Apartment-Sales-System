@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Residences & Available Units | Living-Ora</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+
+  <!-- Navigation Bar Placeholder -->
+  <div id="navbar-placeholder"></div>
+
+  <main class="container" style="padding-top: 2.5rem; padding-bottom: 4rem;">
+    <!-- Page Header -->
+    <div style="margin-bottom: 2rem;">
+      <span class="badge badge-gold" style="margin-bottom: 0.5rem;">Inventory Catalog</span>
+      <h1 style="font-size: 2.2rem; font-weight: 800;">Living-Ora Residences & Available Suites</h1>
+      <p style="color: var(--text-muted); font-size: 1rem;">Filter developments by location or explore individual suite units ready for immediate reservation.</p>
+    </div>
+
+    <!-- Filter Toolbar -->
+    <div class="card" style="padding: 1.25rem; margin-bottom: 2rem;">
+      <div style="display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 1rem; align-items: flex-end;">
+        <div class="form-group" style="margin-bottom: 0;">
+          <label class="form-label" for="apartments-search-input">Search Residences or Units</label>
+          <input type="text" id="apartments-search-input" class="form-input" placeholder="Search by name, floor, or location..." />
+        </div>
+        <div class="form-group" style="margin-bottom: 0;">
+          <label class="form-label" for="beds-filter">Bedrooms</label>
+          <select id="beds-filter" class="form-select">
+            <option value="0">Any Bedrooms</option>
+            <option value="2">2+ Bedrooms</option>
+            <option value="3">3+ Bedrooms</option>
+            <option value="4">4+ Bedrooms</option>
+          </select>
+        </div>
+        <div class="form-group" style="margin-bottom: 0;">
+          <label class="form-label" for="price-filter">Max Budget</label>
+          <select id="price-filter" class="form-select">
+            <option value="0">Any Price</option>
+            <option value="400000">Up to $400,000</option>
+            <option value="600000">Up to $600,000</option>
+            <option value="1000000">Up to $1,000,000</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tab Buttons -->
+    <div class="tabs-nav">
+      <button id="tab-complexes-btn" class="tab-btn active">Apartment Complexes</button>
+      <button id="tab-units-btn" class="tab-btn">Individual Suite Units</button>
+    </div>
+
+    <!-- Complexes Section -->
+    <section id="complexes-section">
+      <div id="complexes-grid" class="grid-3">
+        <!-- Injected by js/pages/apartments.js -->
+      </div>
+    </section>
+
+    <!-- Units Section -->
+    <section id="units-section" hidden>
+      <div id="units-grid" class="grid-3">
+        <!-- Injected by js/pages/apartments.js -->
+      </div>
+    </section>
+  </main>
+
+  <!-- Booking Reservation Modal -->
+  <div id="booking-modal" class="modal-overlay">
+    <div class="modal-box">
+      <div class="modal-header">
+        <div>
+          <span class="badge badge-gold">Reservation Workflow</span>
+          <h2 class="modal-title" id="modal-unit-title">Reserve Suite Unit</h2>
+        </div>
+        <button class="modal-close" data-modal-close>&times;</button>
+      </div>
+
+      <div class="modal-body">
+        <!-- Success Confirmation Message -->
+        <div id="booking-success-box" class="alert alert-success" style="display: none; padding: 1.5rem; text-align: center;">
+          <h3 style="font-size: 1.25rem; margin-bottom: 0.5rem;">🎉 Reservation Submitted Successfully!</h3>
+          <p style="color: var(--text-main); font-size: 0.92rem;">Your unit reservation has been received. Our sales verification officer will inspect your payment proof and confirm your schedule.</p>
+        </div>
+
+        <!-- Form -->
+        <form id="booking-reservation-form">
+          <div style="background-color: var(--bg-dark); padding: 1rem; border-radius: var(--radius-md); margin-bottom: 1.25rem; border: 1px solid var(--border-color);">
+            <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+              <span style="color: var(--text-muted); font-size: 0.88rem;">Total Suite Price:</span>
+              <strong id="modal-unit-price" style="color: var(--primary); font-size: 1.2rem;">$0</strong>
+            </div>
+            <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+              <span style="color: var(--text-muted); font-size: 0.88rem;">Calculated Down Payment:</span>
+              <strong id="modal-downpayment-amount" style="color: var(--text-main); font-size: 1.1rem;">$0</strong>
+            </div>
+            <div style="display: flex; justify-content: space-between;">
+              <span style="color: var(--text-muted); font-size: 0.88rem;">Estimated Monthly Installment:</span>
+              <strong id="modal-monthly-amount" style="color: var(--success); font-size: 1.1rem;">$0 / mo</strong>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label" for="modal-downpayment-ratio">Down Payment Ratio</label>
+              <select id="modal-downpayment-ratio" class="form-select">
+                <option value="10">10% Initial Deposit</option>
+                <option value="20" selected>20% Standard Deposit</option>
+                <option value="30">30% Preferred Deposit</option>
+                <option value="50">50% Half Payment</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="modal-months">Installment Schedule</label>
+              <select id="modal-months" class="form-select">
+                <option value="12">12 Months (1 Year)</option>
+                <option value="24">24 Months (2 Years)</option>
+                <option value="36" selected>36 Months (3 Years)</option>
+                <option value="48">48 Months (4 Years)</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="modal-payment-method">Payment Method</label>
+            <select id="modal-payment-method" class="form-select">
+              <option value="Bank Transfer">Bank Wire Transfer / SLIPS</option>
+              <option value="Bank Draft">Manager's Cheque / Bank Draft</option>
+              <option value="Online Credit Card">Corporate / Credit Card</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="modal-additions">Custom Interior Finishes (Optional)</label>
+            <input type="text" id="modal-additions" class="form-input" placeholder="e.g. Italian Marble upgrade, Smart Home package" />
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="modal-payment-proof">Proof of Payment / Wire Receipt (PDF or Image)</label>
+            <input type="file" id="modal-payment-proof" class="form-input" accept=".pdf,.jpg,.jpeg,.png" />
+          </div>
+
+          <button type="submit" id="submit-booking-btn" class="btn btn-primary btn-block" style="margin-top: 1rem;">
+            Submit Unit Reservation
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer Placeholder -->
+  <div id="footer-placeholder"></div>
+
+  <!-- Script Module -->
+  <script type="module" src="js/pages/apartments.js"></script>
+</body>
+</html>

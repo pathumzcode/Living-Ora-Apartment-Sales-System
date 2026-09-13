@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Customer Dashboard | Living-Ora</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+
+  <!-- Navigation Bar Placeholder -->
+  <div id="navbar-placeholder"></div>
+
+  <main class="container" style="padding-top: 2.5rem; padding-bottom: 4rem;">
+    <!-- Client Header Card -->
+    <div class="card" style="padding: 2rem; margin-bottom: 2.5rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1.5rem;">
+      <div style="display: flex; align-items: center; gap: 1.25rem;">
+        <div style="width: 64px; height: 64px; border-radius: 50%; background-color: var(--primary-light); border: 2px solid var(--primary); display: flex; align-items: center; justify-content: center; font-size: 1.8rem;">
+          👤
+        </div>
+        <div>
+          <span class="badge badge-gold" style="margin-bottom: 0.35rem;" id="client-status">Verified Client Portal</span>
+          <h1 style="font-size: 1.85rem; font-weight: 800;">Welcome, <span id="client-name">Valued Client</span></h1>
+          <p style="color: var(--text-muted); font-size: 0.88rem;">
+            Account ID: <strong id="client-uid" style="color: var(--text-main);">USR-EXT-5001</strong> &bull; Email: <span id="client-email">client@livingora.lk</span>
+          </p>
+        </div>
+      </div>
+
+      <a href="apartments.html" class="btn btn-primary">Browse More Suites &rarr;</a>
+    </div>
+
+    <!-- Reservations Section -->
+    <div style="margin-bottom: 1.5rem;">
+      <h2 style="font-size: 1.75rem; font-weight: 800; margin-bottom: 0.4rem;">My Suite Reservations</h2>
+      <p style="color: var(--text-muted); font-size: 0.92rem;">Review verification progress, down payment status, and installment schedules for your booked properties.</p>
+    </div>
+
+    <div id="reservations-list">
+      <!-- Injected by js/pages/customer-dashboard.js -->
+    </div>
+  </main>
+
+  <!-- Footer Placeholder -->
+  <div id="footer-placeholder"></div>
+
+  <!-- Script Module -->
+  <script type="module" src="js/pages/customer-dashboard.js"></script>
+</body>
+</html>

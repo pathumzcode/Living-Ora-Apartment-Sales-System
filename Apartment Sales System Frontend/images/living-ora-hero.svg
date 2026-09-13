@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 900" role="img" aria-labelledby="title desc">
+  <title id="title">Monochrome Living Ora residence</title><desc id="desc">A modern apartment facade in a black and white editorial style.</desc>
+  <defs><linearGradient id="sky" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#e7e7e2"/><stop offset="1" stop-color="#8d8d87"/></linearGradient><linearGradient id="shade" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#111" stop-opacity="0"/><stop offset="1" stop-color="#111" stop-opacity=".72"/></linearGradient></defs>
+  <rect width="1600" height="900" fill="url(#sky)"/><path d="M0 650 280 520l220 78 230-190 220 98 300-210 350 160v444H0z" fill="#b6b6af" opacity=".55"/>
+  <g fill="#151515"><path d="M220 210h710v520H220z"/><path d="M870 130h420v600H870z"/><path d="M1080 85h245v645h-245z"/></g>
+  <g fill="#ededeb"><path d="M270 260h105v92H270zm150 0h105v92H420zm150 0h105v92H570zm150 0h105v92H720zM270 400h105v92H270zm150 0h105v92H420zm150 0h105v92H570zm150 0h105v92H720zM270 540h105v92H270zm150 0h105v92H420zm150 0h105v92H570zm150 0h105v92H720z"/><path d="M920 190h78v98h-78zm120 0h78v98h-78zm120 0h78v98h-78zM920 350h78v98h-78zm120 0h78v98h-78zm120 0h78v98h-78zM920 510h78v98h-78zm120 0h78v98h-78zm120 0h78v98h-78z"/></g>
+  <g fill="#222"><path d="M0 730h1600v170H0z"/><path d="m70 730 110-170 110 170zm280 0 90-135 90 135zm950 0 100-160 100 160z"/></g><rect width="1600" height="900" fill="url(#shade)"/>
+</svg>
