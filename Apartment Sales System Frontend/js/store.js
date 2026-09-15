@@ -231,6 +231,30 @@ class DataStore {
     await this.refresh();
     return created;
   }
+
+  async createPromotion(data) {
+    const created = await promotionsApi.create(data);
+    await this.refresh();
+    return created;
+  }
+
+  async updatePromotion(id, data) {
+    const updated = await promotionsApi.update(id, data);
+    await this.refresh();
+    return updated;
+  }
+
+  async deletePromotion(id) {
+    const result = await promotionsApi.remove(id);
+    await this.refresh();
+    return result;
+  }
+
+  async togglePromotionStatus(id) {
+    const result = await promotionsApi.toggleStatus(id);
+    await this.refresh();
+    return result;
+  }
 }
 
 export const store = new DataStore();

@@ -33,6 +33,18 @@ public class Booking {
     @Column(name = "additions", length = 45)
     private String additions;
 
+    /** Promo code applied at booking time, if any. */
+    @Column(name = "promotionCode", length = 50)
+    private String promotionCode;
+
+    /** Discount amount in dollars calculated from the promotion. */
+    @Column(name = "discountAmount", precision = 12, scale = 2)
+    private java.math.BigDecimal discountAmount;
+
+    /** Final price after promotion discount (paymentAmount - discountAmount). */
+    @Column(name = "discountedPrice", precision = 12, scale = 2)
+    private java.math.BigDecimal discountedPrice;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "payment_id")
     private Payment payment;
@@ -110,4 +122,15 @@ public class Booking {
     public void setPayment(Payment payment) {
         this.payment = payment;
     }
+
+    public String getPromotionCode() { return promotionCode; }
+    public void setPromotionCode(String promotionCode) { this.promotionCode = promotionCode; }
+
+    public java.math.BigDecimal getDiscountAmount() { return discountAmount; }
+    public void setDiscountAmount(java.math.BigDecimal discountAmount) { this.discountAmount = discountAmount; }
+
+    public java.math.BigDecimal getDiscountedPrice() { return discountedPrice; }
+    public void setDiscountedPrice(java.math.BigDecimal discountedPrice) { this.discountedPrice = discountedPrice; }
 }
+
+

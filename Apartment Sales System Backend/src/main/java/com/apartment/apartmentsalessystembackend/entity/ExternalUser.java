@@ -1,7 +1,8 @@
 package com.apartment.apartmentsalessystembackend.entity;
 
-import jakarta.persistence.*;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import jakarta.persistence.*;
+
 import java.time.LocalDate;
 
 @Entity
@@ -39,31 +40,68 @@ public class ExternalUser {
     @Column(name = "numOfApartments")
     private Integer numOfApartments;
 
+    /*
+     * MySQL column must be LONGTEXT.
+     *
+     * Run:
+     * ALTER TABLE `externalUser`
+     * MODIFY COLUMN `about` LONGTEXT NULL;
+     */
     @Lob
-    @Column(name = "about")
+    @Column(name = "about", columnDefinition = "LONGTEXT")
     private String about;
 
     @Column(name = "email", nullable = false, unique = true, length = 255)
     private String email;
 
-    @Column(name = "password", nullable = false, length = 255)
     @JsonIgnore
+    @Column(name = "password", nullable = false, length = 255)
     private String password;
 
     @Column(name = "registeredDate", nullable = false)
     private LocalDate registeredDate;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "userVerification_verificationID", nullable = false)
+    /*
+     * Every ExternalUser must have a UserVerification record.
+     */
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(
+            name = "userVerification_verificationID",
+            referencedColumnName = "verificationID",
+            nullable = false
+    )
     @JsonIgnore
     private UserVerification userVerification;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "externalApartment_exApartmentId", nullable = true)
+    /*
+     * An ExternalUser does NOT need to own/register an apartment
+     * when the account is initially created.
+     *
+     * Therefore this relationship is optional.
+     *
+     * MySQL column must also allow NULL.
+     */
+    @ManyToOne(fetch = FetchType.LAZY, optional = true)
+    @JoinColumn(
+            name = "externalApartment_exApartmentId",
+            referencedColumnName = "exApartmentId",
+            nullable = true
+    )
     @JsonIgnore
     private ExternalApartment externalApartment;
 
-    public ExternalUser() {}
+
+    // =========================================================
+    // Constructor
+    // =========================================================
+
+    public ExternalUser() {
+    }
+
+
+    // =========================================================
+    // Getters and Setters
+    // =========================================================
 
     public String getUid() {
         return uid;

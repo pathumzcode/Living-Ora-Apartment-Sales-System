@@ -223,19 +223,91 @@ export const paymentsApi = {
 };
 
 export const promotionsApi = {
+  /** Returns all promotions (excluding DELETED), ordered by startDate DESC. */
   getAll: async () => {
     const response = await fetch(`${API_BASE_URL}/promotions`, { headers: getHeaders() });
     return handleResponse(response);
   },
+  /** Returns only currently active promotions (public-facing page). */
+  getActive: async () => {
+    const response = await fetch(`${API_BASE_URL}/promotions/active`, { headers: getHeaders() });
+    return handleResponse(response);
+  },
+  /** Returns a single promotion by ID. */
+  getById: async (id) => {
+    const response = await fetch(`${API_BASE_URL}/promotions/${encodeURIComponent(id)}`, { headers: getHeaders() });
+    return handleResponse(response);
+  },
+  /** Returns a promotion by its promo code. */
+  getByCode: async (code) => {
+    const response = await fetch(`${API_BASE_URL}/promotions/code/${encodeURIComponent(code)}`, { headers: getHeaders() });
+    return handleResponse(response);
+  },
+  /** Search/filter promotions by title and optional status. */
+  search: async (q = '', status = '') => {
+    const params = new URLSearchParams();
+    if (q) params.set('q', q);
+    if (status) params.set('status', status);
+    const response = await fetch(`${API_BASE_URL}/promotions/search?${params.toString()}`, { headers: getHeaders() });
+    return handleResponse(response);
+  },
+  /** Create a new promotion. Requires management role. */
   create: async (promoData) => {
+    const user = JSON.parse(localStorage.getItem('livingora_user') || 'null');
     const response = await fetch(`${API_BASE_URL}/promotions`, {
       method: 'POST',
-      headers: getHeaders(),
+      headers: { ...getHeaders(), 'X-Staff-Emp-Id': user?.uid || user?.empId || '' },
       body: JSON.stringify(promoData)
+    });
+    return handleResponse(response);
+  },
+  /** Update an existing promotion. Requires management role. */
+  update: async (id, promoData) => {
+    const user = JSON.parse(localStorage.getItem('livingora_user') || 'null');
+    const response = await fetch(`${API_BASE_URL}/promotions/${encodeURIComponent(id)}`, {
+      method: 'PUT',
+      headers: { ...getHeaders(), 'X-Staff-Emp-Id': user?.uid || user?.empId || '' },
+      body: JSON.stringify(promoData)
+    });
+    return handleResponse(response);
+  },
+  /** Toggle promotion status between ACTIVE and INACTIVE. */
+  toggleStatus: async (id) => {
+    const user = JSON.parse(localStorage.getItem('livingora_user') || 'null');
+    const response = await fetch(`${API_BASE_URL}/promotions/${encodeURIComponent(id)}/status`, {
+      method: 'PATCH',
+      headers: { ...getHeaders(), 'X-Staff-Emp-Id': user?.uid || user?.empId || '' }
+    });
+    return handleResponse(response);
+  },
+  /** Soft-delete a promotion (sets status=DELETED). Admin only. */
+  remove: async (id) => {
+    const user = JSON.parse(localStorage.getItem('livingora_user') || 'null');
+    const response = await fetch(`${API_BASE_URL}/promotions/${encodeURIComponent(id)}`, {
+      method: 'DELETE',
+      headers: { ...getHeaders(), 'X-Staff-Emp-Id': user?.uid || user?.empId || '' }
+    });
+    return handleResponse(response);
+  },
+  /** Returns active promotions applicable to a specific apartment (includes global promos). */
+  getForApartment: async (apartmentId) => {
+    const response = await fetch(
+      `${API_BASE_URL}/promotions/apartment/${encodeURIComponent(apartmentId)}`,
+      { headers: getHeaders() }
+    );
+    return handleResponse(response);
+  },
+  /** Validates a promo code for a given apartment and returns discount preview. */
+  validateCode: async (code, apartmentId) => {
+    const response = await fetch(`${API_BASE_URL}/promotions/validate-code`, {
+      method: 'POST',
+      headers: getHeaders(),
+      body: JSON.stringify({ code: code.trim().toUpperCase(), apartmentId: apartmentId || '' })
     });
     return handleResponse(response);
   }
 };
+
 
 export const externalApartmentsApi = {
   getAll: async () => {

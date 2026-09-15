@@ -20,6 +20,10 @@ public class BookingMapper {
         dto.setExpireDate(entity.getExpireDate());
         dto.setStatus(entity.getStatus());
         dto.setAdditions(entity.getAdditions());
+        // Promotion discount fields
+        dto.setPromotionCode(entity.getPromotionCode());
+        dto.setDiscountAmount(entity.getDiscountAmount());
+        dto.setDiscountedPrice(entity.getDiscountedPrice());
         if (entity.getPayment() != null) {
             dto.setPaymentAmount(entity.getPayment().getPaymentAmount());
             dto.setPaymentProof(entity.getPayment().getPaymentProof());
@@ -35,6 +39,7 @@ public class BookingMapper {
         entity.setExpireDate(LocalDate.now().plusDays(15));
         entity.setStatus("Pending Approval");
         entity.setAdditions(dto.getAdditions());
+        entity.setPromotionCode(dto.getPromotionCode());
         return entity;
     }
 }

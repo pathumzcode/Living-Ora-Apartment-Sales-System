@@ -46,6 +46,9 @@ export function renderNavbar(activePage = '') {
           <li><a href="apartments.html?tab=units" class="nav-link ${activePage === 'units' ? 'active' : ''}">Available Units</a></li>
           <li><a href="promotions.html" class="nav-link ${activePage === 'promotions' ? 'active' : ''}">Promotions</a></li>
           <li><a href="external-apartments.html" class="nav-link ${activePage === 'external' ? 'active' : ''}">Resale Listings</a></li>
+          ${isInternal || (user && user.role === 'ADMIN') ? `
+          <li><a href="promotion-management.html" class="nav-link ${activePage === 'promotion-management' ? 'active' : ''}"
+                 style="color:var(--primary);font-weight:600;">🎯 Manage Promotions</a></li>` : ''}
         </ul>
         <div class="nav-actions">
           ${authLinksHtml}

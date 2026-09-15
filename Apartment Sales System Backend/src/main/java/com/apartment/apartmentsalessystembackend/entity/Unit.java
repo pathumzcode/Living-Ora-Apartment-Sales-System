@@ -20,9 +20,12 @@ public class Unit {
     @Column(name = "location", length = 255)
     private String location;
 
+    // Database column name is misspelled as "avilability",
+    // so keep this name unless you also rename the DB column.
     @Column(name = "avilability", length = 30)
     private String availability;
 
+    // Database column name is misspelled as "fernitures".
     @Column(name = "fernitures", length = 30)
     private String furnitures;
 
@@ -38,15 +41,16 @@ public class Unit {
     @Column(name = "acOrNonAC")
     private String acOrNonAC;
 
+    // Database column name is misspelled as "reccomendedPerson".
     @Column(name = "reccomendedPerson", length = 50)
     private String recommendedPerson;
 
     @Lob
-    @Column(name = "about")
+    @Column(name = "about", columnDefinition = "LONGTEXT")
     private String about;
 
     @Lob
-    @Column(name = "images")
+    @Column(name = "images", columnDefinition = "LONGTEXT")
     private String images;
 
     @Column(name = "apartment_id", length = 50)
@@ -56,7 +60,8 @@ public class Unit {
     @JoinColumn(name = "booking_id")
     private Booking booking;
 
-    public Unit() {}
+    public Unit() {
+    }
 
     public String getUnitId() {
         return unitId;
