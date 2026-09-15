@@ -63,10 +63,6 @@ public class InternalUser {
     @JoinColumn(name = "userVerification_verificationID", nullable = false)
     private UserVerification userVerification;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "promotion_promotionId")
-    private Promotion promotion;
-
     public InternalUser() {}
 
     public String getEmpId() {
@@ -203,13 +199,5 @@ public class InternalUser {
 
     public void setUserVerification(UserVerification userVerification) {
         this.userVerification = userVerification;
-    }
-
-    public Promotion getPromotion() {
-        return promotion;
-    }
-
-    public void setPromotion(Promotion promotion) {
-        this.promotion = promotion;
     }
 }

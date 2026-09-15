@@ -93,58 +93,160 @@
       <div class="grid-2" style="align-items: flex-start; gap: 2rem;">
         <!-- Register/Edit Form -->
         <div class="card" style="padding: 1.75rem;">
-          <h3 style="font-size: 1.3rem; margin-bottom: 1rem;">Create / Edit Staff Account</h3>
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem;">
+            <div>
+              <span class="badge badge-gold" id="form-mode-badge">Internal Role Assignment</span>
+              <h3 style="font-size: 1.35rem; font-weight: 700; margin-top: 0.25rem;" id="form-headline">Assign Staff Role & Details</h3>
+            </div>
+            <button type="button" id="btn-reset-form" class="btn btn-sm btn-secondary" style="font-size: 0.8rem;">+ New Registration</button>
+          </div>
+
           <form id="admin-internal-user-form">
             <input type="hidden" id="editing-empid" />
+
+            <!-- Auto-Generated Emp ID Header Display -->
+            <div style="background: rgba(201, 169, 110, 0.08); border: 1px dashed var(--primary); border-radius: 8px; padding: 0.85rem 1rem; margin-bottom: 1.25rem; display: flex; justify-content: space-between; align-items: center;">
+              <div>
+                <small style="color: var(--text-muted); display: block; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.5px;">Assigned Employee ID</small>
+                <span id="display-empid" style="font-size: 1.2rem; font-weight: 800; color: var(--primary); font-family: monospace;">EMP-LO-101</span>
+              </div>
+              <button type="button" id="btn-regenerate-empid" class="btn btn-sm btn-outline" style="font-size: 0.75rem; padding: 0.3rem 0.6rem;">
+                ↻ New Emp ID
+              </button>
+            </div>
+
+            <!-- Role Assignment & Department Characteristics -->
+            <div class="form-group">
+              <label class="form-label" for="admin-user-role">Assign Department Role *</label>
+              <select id="admin-user-role" class="form-select" required>
+                <option value="SALES_MANAGER" data-desc="Manages client deals, inventory negotiations, down payments, and team sales pipeline.">Sales Manager</option>
+                <option value="OPERATIONS_DIRECTOR" data-desc="Supervises operations, departmental governance, staff performance, and inventory logistics.">Operations Director</option>
+                <option value="CUSTOMER_RELATIONS_OFFICER" data-desc="Liaison for customer inquiries, KYC documentation, and client assistance.">Customer Relations Officer</option>
+                <option value="FINANCE_PAYMENTS_OFFICER" data-desc="Audits payment proofs, verifies down payments, and monitors installment schedules.">Finance & Payments Officer</option>
+                <option value="PROPERTY_DEVELOPMENT_MANAGER" data-desc="Oversees apartment towers, construction progress, floor plans, and amenities.">Property Development Manager</option>
+                <option value="MARKETING_MANAGER" data-desc="Directs marketing campaigns, public branding, and partner network promotions.">Marketing Manager</option>
+                <option value="ADMIN" data-desc="Full system administration, access governance, security lockouts, and auditing.">System Administrator</option>
+              </select>
+              <small id="role-characteristic-hint" style="display: block; margin-top: 0.35rem; color: var(--text-muted); font-size: 0.82rem; font-style: italic;">
+                Manages client deals, inventory negotiations, down payments, and team sales pipeline.
+              </small>
+            </div>
+
+            <!-- Personal Details -->
+            <div style="margin-top: 1.25rem; margin-bottom: 0.75rem; border-top: 1px solid var(--border-color); padding-top: 1rem;">
+              <h4 style="font-size: 0.95rem; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-muted); margin-bottom: 0.85rem;">Personal Information</h4>
+            </div>
+
             <div class="form-row">
               <div class="form-group">
                 <label class="form-label" for="admin-user-firstname">First Name *</label>
-                <input type="text" id="admin-user-firstname" class="form-input" required />
+                <input type="text" id="admin-user-firstname" class="form-input" placeholder="e.g. Kasun" required />
               </div>
               <div class="form-group">
                 <label class="form-label" for="admin-user-lastname">Last Name *</label>
-                <input type="text" id="admin-user-lastname" class="form-input" required />
+                <input type="text" id="admin-user-lastname" class="form-input" placeholder="e.g. Perera" required />
               </div>
             </div>
-            <div class="form-group">
-              <label class="form-label" for="admin-user-email">Login Email *</label>
-              <input type="email" id="admin-user-email" class="form-input" placeholder="user@livingora.lk" required />
+
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label" for="admin-user-nic">NIC / National ID *</label>
+                <input type="text" id="admin-user-nic" class="form-input" placeholder="e.g. 199412304560" required />
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="admin-user-phone">Phone Number *</label>
+                <input type="tel" id="admin-user-phone" class="form-input" placeholder="+94 77 123 4567" required />
+              </div>
             </div>
+
             <div class="form-group">
-              <label class="form-label" for="admin-user-role">Department Role *</label>
-              <select id="admin-user-role" class="form-select">
-                <option value="SALES_MANAGER">Sales Manager</option>
-                <option value="MARKETING_MANAGER">Marketing Manager</option>
-                <option value="CUSTOMER_RELATIONS_OFFICER">Customer Relations Officer</option>
-                <option value="FINANCE_PAYMENTS_OFFICER">Finance & Payments Officer</option>
-                <option value="PROPERTY_DEVELOPMENT_MANAGER">Property Development Manager</option>
-                <option value="OPERATIONS_DIRECTOR">Operations Director</option>
-                <option value="ADMIN">System Administrator</option>
-              </select>
+              <label class="form-label" for="admin-user-address">Residential Address</label>
+              <input type="text" id="admin-user-address" class="form-input" placeholder="e.g. No. 42, Galle Road, Colombo 03" />
             </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label" for="admin-user-dob">Date of Birth</label>
+                <input type="date" id="admin-user-dob" class="form-input" />
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="admin-user-age">Age</label>
+                <input type="number" id="admin-user-age" class="form-input" placeholder="30" min="18" max="75" />
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="admin-user-serviceyears">Service Years</label>
+                <input type="number" id="admin-user-serviceyears" class="form-input" placeholder="3" min="0" max="50" value="1" />
+              </div>
+            </div>
+
+            <!-- Credentials Generation Section -->
+            <div style="margin-top: 1.25rem; margin-bottom: 0.75rem; border-top: 1px solid var(--border-color); padding-top: 1rem;">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+                <h4 style="font-size: 0.95rem; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-muted); margin: 0;">Access Credentials</h4>
+                <button type="button" id="btn-generate-credentials" class="btn btn-sm btn-primary" style="font-size: 0.82rem; padding: 0.4rem 0.85rem;">
+                  ⚡ Generate Role Email & Password
+                </button>
+              </div>
+              <small style="color: var(--text-muted); font-size: 0.8rem; display: block; margin-bottom: 0.85rem;">
+                Generates corporate email format (<code style="color: var(--primary);">firstname.lastname@livingora.lk</code>) and initial password (<code style="color: var(--primary);">NIC@LivingOra</code>).
+              </small>
+            </div>
+
             <div class="form-group">
-              <label class="form-label" for="admin-user-phone">Telephone</label>
-              <input type="tel" id="admin-user-phone" class="form-input" placeholder="+94 77 000 0000" />
+              <label class="form-label" for="admin-user-email">Role Login Email *</label>
+              <input type="email" id="admin-user-email" class="form-input" placeholder="firstname.lastname@livingora.lk" required />
             </div>
-            <button type="submit" class="btn btn-primary btn-block">Save Staff Record</button>
+
+            <div class="form-group">
+              <label class="form-label" for="admin-user-password">Initial Password *</label>
+              <div style="display: flex; gap: 0.5rem;">
+                <input type="text" id="admin-user-password" class="form-input" placeholder="e.g. 199412304560@LivingOra" required />
+                <button type="button" id="btn-copy-creds" class="btn btn-sm btn-secondary" title="Copy Credentials">📋 Copy</button>
+              </div>
+            </div>
+
+            <!-- Preview Card for Generated Credentials -->
+            <div id="credentials-preview-card" style="display: none; background: rgba(34, 197, 94, 0.08); border: 1px solid rgba(34, 197, 94, 0.3); border-radius: 8px; padding: 0.85rem 1rem; margin-bottom: 1.25rem;">
+              <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.35rem;">
+                <span style="color: var(--success); font-weight: 700; font-size: 0.85rem;">✓ Generated Role Credentials Ready</span>
+              </div>
+              <div style="font-size: 0.85rem; color: var(--text-main); font-family: monospace;">
+                <div><strong>Email:</strong> <span id="preview-email">-</span></div>
+                <div><strong>Password:</strong> <span id="preview-password">-</span></div>
+              </div>
+            </div>
+
+            <button type="submit" id="btn-submit-internal-user" class="btn btn-primary btn-block" style="margin-top: 1rem; font-size: 1rem; padding: 0.85rem;">
+              Assign & Save Staff Role
+            </button>
           </form>
         </div>
 
-        <!-- Internal Users Table -->
-        <div class="table-responsive">
-          <table class="table">
-            <thead>
-              <tr>
-                <th>Emp ID</th>
-                <th>Name</th>
-                <th>Email</th>
-                <th>Role</th>
-                <th>Phone</th>
-                <th>Action</th>
-              </tr>
-            </thead>
-            <tbody id="internal-users-tbody"></tbody>
-          </table>
+        <!-- Internal Users Directory Table -->
+        <div>
+          <div class="card" style="padding: 1.25rem; margin-bottom: 1.25rem; display: flex; justify-content: space-between; align-items: center;">
+            <div>
+              <h3 style="font-size: 1.15rem; font-weight: 700;">Internal Staff Directory</h3>
+              <p style="color: var(--text-muted); font-size: 0.85rem; margin: 0;">Authorized department officers and leadership</p>
+            </div>
+            <span class="badge badge-gold" id="count-internal-staff">0 Staff Active</span>
+          </div>
+
+          <div class="table-responsive">
+            <table class="table">
+              <thead>
+                <tr>
+                  <th>Emp ID</th>
+                  <th>Name</th>
+                  <th>Assigned Role</th>
+                  <th>Company Email</th>
+                  <th>NIC & Phone</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="internal-users-tbody"></tbody>
+            </table>
+          </div>
         </div>
       </div>
     </section>

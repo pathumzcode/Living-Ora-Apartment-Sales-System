@@ -18,6 +18,7 @@ export default defineConfig({
         internalLogin: resolve(__dirname, 'internal-login.html'),
         customerDashboard: resolve(__dirname, 'customer-dashboard.html'),
         staffDashboard: resolve(__dirname, 'staff-dashboard.html'),
+        salesAgentDashboard: resolve(__dirname, 'sales-agent-dashboard.html'),
         adminDashboard: resolve(__dirname, 'admin-dashboard.html')
       }
     }

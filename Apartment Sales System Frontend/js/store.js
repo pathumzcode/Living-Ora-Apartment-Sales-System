@@ -231,6 +231,18 @@ class DataStore {
     await this.refresh();
     return created;
   }
+
+  async updateExternalApartment(id, data) {
+    const updated = await externalApartmentsApi.update(id, data);
+    await this.refresh();
+    return updated;
+  }
+
+  async deleteExternalApartment(id) {
+    const res = await externalApartmentsApi.delete(id);
+    await this.refresh();
+    return res;
+  }
 }
 
 export const store = new DataStore();

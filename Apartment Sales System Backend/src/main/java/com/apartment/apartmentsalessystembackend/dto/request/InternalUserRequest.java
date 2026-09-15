@@ -21,8 +21,10 @@ public class InternalUserRequest {
     @Email(message = "Company email should be valid") private String companyEmail;
     @Size(max = 255) private String cEmailPassword;
     @Min(value = 0, message = "Service years cannot be negative") private Integer serviceYears;
+    @Size(max = 30) private String empId;
     @Size(min = 8, max = 72, message = "Password must be between 8 and 72 characters") private String password;
 
+    public String getEmpId() { return empId; } public void setEmpId(String value) { empId = value; }
     public String getFirstName() { return firstName; } public void setFirstName(String value) { firstName = value; }
     public String getLastName() { return lastName; } public void setLastName(String value) { lastName = value; }
     public String getRole() { return role; } public void setRole(String value) { role = value; }

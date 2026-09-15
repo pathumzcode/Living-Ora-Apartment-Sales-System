@@ -242,12 +242,32 @@ export const externalApartmentsApi = {
     const response = await fetch(`${API_BASE_URL}/external-apartments`, { headers: getHeaders() });
     return handleResponse(response);
   },
+  getByAgent: async (uid) => {
+    const response = await fetch(`${API_BASE_URL}/external-apartments/agent/${encodeURIComponent(uid)}`, { headers: getHeaders() });
+    return handleResponse(response);
+  },
   create: async (exData) => {
     const response = await fetch(`${API_BASE_URL}/external-apartments`, {
       method: 'POST',
       headers: getHeaders(),
       body: JSON.stringify(exData)
     });
+    return handleResponse(response);
+  },
+  update: async (id, exData) => {
+    const response = await fetch(`${API_BASE_URL}/external-apartments/${encodeURIComponent(id)}`, {
+      method: 'PUT',
+      headers: getHeaders(),
+      body: JSON.stringify(exData)
+    });
+    return handleResponse(response);
+  },
+  delete: async (id) => {
+    const response = await fetch(`${API_BASE_URL}/external-apartments/${encodeURIComponent(id)}`, {
+      method: 'DELETE',
+      headers: getHeaders()
+    });
+    if (response.status === 204) return true;
     return handleResponse(response);
   }
 };
