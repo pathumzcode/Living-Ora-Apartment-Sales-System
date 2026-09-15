@@ -52,6 +52,7 @@
       <button class="tab-btn" data-admin-tab="users">Internal Staff Accounts</button>
       <button class="tab-btn" data-admin-tab="external">External Clients & Agents</button>
       <button class="tab-btn" data-admin-tab="verifications">Verification Requests</button>
+      <button class="tab-btn" data-admin-tab="inventory">Inventory Management</button>
       <button class="tab-btn" data-admin-tab="audit">Audit & Logs</button>
     </div>
 
@@ -288,7 +289,60 @@
       </div>
     </section>
 
-    <!-- Tab 5: Audit Logs -->
+
+    <!-- Tab 5: Inventory Management -->
+    <section id="tab-inventory" class="admin-tab-panel" hidden>
+      <!-- Search / Filter Bar -->
+      <div class="card" style="padding: 1.25rem; margin-bottom: 1.25rem; display: flex; gap: 1rem; flex-wrap: wrap; align-items: flex-end;">
+        <div class="form-group" style="margin: 0; flex: 1; min-width: 180px;">
+          <label class="form-label" style="font-size: 0.82rem; margin-bottom: 0.3rem;" for="admin-inv-filter-apt">Filter by Complex ID</label>
+          <input type="text" id="admin-inv-filter-apt" class="form-input" placeholder="e.g. APT-LO-001" style="padding: 0.45rem 0.75rem;" />
+        </div>
+        <div class="form-group" style="margin: 0; flex: 1; min-width: 160px;">
+          <label class="form-label" style="font-size: 0.82rem; margin-bottom: 0.3rem;" for="admin-inv-filter-status">Filter by Status</label>
+          <select id="admin-inv-filter-status" class="form-select" style="padding: 0.45rem 0.75rem;">
+            <option value="">All Statuses</option>
+            <option value="Available">Available</option>
+            <option value="Reserved">Reserved</option>
+            <option value="Sold">Sold</option>
+          </select>
+        </div>
+        <div style="display: flex; gap: 0.5rem;">
+          <button id="admin-inv-search-btn" class="btn btn-sm btn-primary" style="white-space: nowrap;">&#128269; Search</button>
+          <button id="admin-inv-reset-btn" class="btn btn-sm btn-secondary" style="white-space: nowrap;">&#10005; Reset</button>
+        </div>
+      </div>
+
+      <div class="card" style="padding: 1.25rem; margin-bottom: 1.25rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+        <div>
+          <span class="badge badge-gold" style="margin-bottom: 0.25rem;">Unit Inventory Registry</span>
+          <h3 style="font-size: 1.15rem; font-weight: 700; margin: 0;">All Apartment Unit Inventory</h3>
+          <p style="color: var(--text-muted); font-size: 0.85rem; margin: 0;">Full inventory view across all developments. Edit and manage units from the Staff Dashboard.</p>
+        </div>
+        <span class="badge badge-gold" id="admin-inv-count">0 Units</span>
+      </div>
+
+      <div class="table-responsive">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Unit ID</th>
+              <th>Location / Suite</th>
+              <th>Apartment Complex</th>
+              <th>Floor</th>
+              <th>Bedrooms</th>
+              <th>Price</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody id="admin-inventory-tbody">
+            <tr><td colspan="7" style="text-align: center; color: var(--text-muted); padding: 2rem;">Loading inventory...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- Tab 6: Audit Logs -->
     <section id="tab-audit" class="admin-tab-panel" hidden>
       <div class="card" style="padding: 1.75rem;">
         <h3 style="font-size: 1.25rem; margin-bottom: 1.25rem;">Security & Operational Audit Trail</h3>

@@ -9,4 +9,5 @@ import java.util.List;
 public interface UnitRepository extends JpaRepository<Unit, String> {
     List<Unit> findByApartmentId(String apartmentId);
     List<Unit> findByAvailability(String availability);
+    List<Unit> findByApartmentIdAndAvailability(String apartmentId, String availability);
 }
