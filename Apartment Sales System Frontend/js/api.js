@@ -167,11 +167,34 @@ export const unitsApi = {
     });
     return handleResponse(response);
   },
+  update: async (id, data) => {
+    const response = await fetch(`${API_BASE_URL}/units/${encodeURIComponent(id)}`, {
+      method: 'PUT',
+      headers: getHeaders(),
+      body: JSON.stringify(data)
+    });
+    return handleResponse(response);
+  },
+  delete: async (id) => {
+    const response = await fetch(`${API_BASE_URL}/units/${encodeURIComponent(id)}`, {
+      method: 'DELETE',
+      headers: getHeaders()
+    });
+    if (response.status === 204) return true;
+    return handleResponse(response);
+  },
   updateStatus: async (id, status) => {
     const response = await fetch(`${API_BASE_URL}/units/${id}/status?status=${encodeURIComponent(status)}`, {
       method: 'PATCH',
       headers: getHeaders()
     });
+    return handleResponse(response);
+  },
+  search: async (params = {}) => {
+    const qs = new URLSearchParams();
+    if (params.availability) qs.append('availability', params.availability);
+    if (params.apartmentId)  qs.append('apartmentId',  params.apartmentId);
+    const response = await fetch(`${API_BASE_URL}/units?${qs.toString()}`, { headers: getHeaders() });
     return handleResponse(response);
   }
 };

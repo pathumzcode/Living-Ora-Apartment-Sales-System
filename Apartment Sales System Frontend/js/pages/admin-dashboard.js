@@ -440,7 +440,88 @@ document.addEventListener('DOMContentLoaded', () => {
           p.setAttribute('hidden', 'true');
         }
       });
+
+      // Load inventory data when the inventory tab is clicked
+      if (target === 'inventory') {
+        renderInventory();
+      }
     });
+  });
+
+  // ── Inventory Management Tab ─────────────────────────────────────────────────
+
+  let allInventoryUnits = [];
+
+  async function renderInventory(filterParams = {}) {
+    const tbody   = document.getElementById('admin-inventory-tbody');
+    const countEl = document.getElementById('admin-inv-count');
+    if (!tbody) return;
+
+    tbody.innerHTML = `<tr><td colspan="7" style="text-align: center; color: var(--text-muted); padding: 2rem;">Loading inventory...</td></tr>`;
+
+    try {
+      const qs = new URLSearchParams();
+      if (filterParams.apartmentId)  qs.append('apartmentId',  filterParams.apartmentId);
+      if (filterParams.availability) qs.append('availability', filterParams.availability);
+      const url = `http://localhost:8080/api/units${qs.toString() ? '?' + qs.toString() : ''}`;
+
+      const res = await fetch(url, { headers: { 'Content-Type': 'application/json' } });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      allInventoryUnits = await res.json();
+    } catch (e) {
+      console.warn('[Admin] Could not fetch inventory from backend:', e.message);
+      tbody.innerHTML = `<tr><td colspan="7" style="text-align: center; color: var(--text-muted); padding: 2rem;">Backend unreachable — start the Spring Boot server to view live inventory.</td></tr>`;
+      if (countEl) countEl.textContent = '0 Units';
+      return;
+    }
+
+    if (countEl) countEl.textContent = `${allInventoryUnits.length} Units`;
+
+    if (allInventoryUnits.length === 0) {
+      tbody.innerHTML = `<tr><td colspan="7" style="text-align: center; color: var(--text-muted); padding: 2rem;">No inventory units found for the selected filters.</td></tr>`;
+      return;
+    }
+
+    tbody.innerHTML = allInventoryUnits.map(u => {
+      const avail = u.availability || 'Available';
+      const badgeClass =
+        avail === 'Available' ? 'badge-available' :
+        avail === 'Reserved'  ? 'badge-warning'   : 'badge-danger';
+
+      const price = u.unitPrice ? `$${Number(u.unitPrice).toLocaleString()}` : '-';
+
+      return `
+        <tr>
+          <td><strong style="color: var(--primary); font-family: monospace;">${u.unitId}</strong></td>
+          <td>${u.location || '-'}</td>
+          <td>
+            <small style="color: var(--text-muted); font-family: monospace;">${u.apartmentId || '-'}</small>
+          </td>
+          <td>Floor ${u.floor ?? '-'}</td>
+          <td>${u.numOfBeds ?? '-'} Beds, ${u.numOfBathRooms ?? '-'} Baths</td>
+          <td><strong>${price}</strong></td>
+          <td><span class="badge ${badgeClass}">${avail}</span></td>
+        </tr>
+      `;
+    }).join('');
+  }
+
+  // Wire inventory search / reset buttons
+  document.getElementById('admin-inv-search-btn')?.addEventListener('click', () => {
+    const aptId     = document.getElementById('admin-inv-filter-apt')?.value.trim() || '';
+    const statusVal = document.getElementById('admin-inv-filter-status')?.value     || '';
+    renderInventory({
+      apartmentId:  aptId     || undefined,
+      availability: statusVal || undefined
+    });
+  });
+
+  document.getElementById('admin-inv-reset-btn')?.addEventListener('click', () => {
+    const aptInput    = document.getElementById('admin-inv-filter-apt');
+    const statusInput = document.getElementById('admin-inv-filter-status');
+    if (aptInput)    aptInput.value    = '';
+    if (statusInput) statusInput.value = '';
+    renderInventory();
   });
 
   loadData();

@@ -226,6 +226,17 @@ class DataStore {
     return created;
   }
 
+  async updateUnit(unitId, data) {
+    const updated = await unitsApi.update(unitId, data);
+    await this.refresh();
+    return updated;
+  }
+
+  async deleteUnit(unitId) {
+    await unitsApi.delete(unitId);
+    await this.refresh();
+  }
+
   async addExternalApartment(data) {
     const created = await externalApartmentsApi.create(data);
     await this.refresh();

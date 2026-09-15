@@ -88,6 +88,27 @@
 
     <!-- Unit Stock Inventory Panel -->
     <section id="inventory-panel" hidden>
+      <!-- Search / Filter Bar -->
+      <div class="card" style="padding: 1.25rem; margin-bottom: 1.25rem; display: flex; gap: 1rem; flex-wrap: wrap; align-items: flex-end;">
+        <div class="form-group" style="margin: 0; flex: 1; min-width: 180px;">
+          <label class="form-label" style="font-size: 0.82rem; margin-bottom: 0.3rem;" for="inv-filter-apt">Filter by Complex ID</label>
+          <input type="text" id="inv-filter-apt" class="form-input" placeholder="e.g. APT-LO-001" style="padding: 0.45rem 0.75rem;" />
+        </div>
+        <div class="form-group" style="margin: 0; flex: 1; min-width: 160px;">
+          <label class="form-label" style="font-size: 0.82rem; margin-bottom: 0.3rem;" for="inv-filter-status">Filter by Status</label>
+          <select id="inv-filter-status" class="form-select" style="padding: 0.45rem 0.75rem;">
+            <option value="">All Statuses</option>
+            <option value="Available">Available</option>
+            <option value="Reserved">Reserved</option>
+            <option value="Sold">Sold</option>
+          </select>
+        </div>
+        <div style="display: flex; gap: 0.5rem;">
+          <button id="inv-search-btn" class="btn btn-sm btn-primary" style="white-space: nowrap;">🔍 Search</button>
+          <button id="inv-reset-btn" class="btn btn-sm btn-secondary" style="white-space: nowrap;">✕ Reset</button>
+        </div>
+      </div>
+
       <div class="table-responsive">
         <table class="table">
           <thead>
@@ -99,6 +120,7 @@
               <th>Full Price</th>
               <th>Status</th>
               <th>Update Status</th>
+              <th style="text-align: right;">Actions</th>
             </tr>
           </thead>
           <tbody id="inventory-tbody">
@@ -278,6 +300,105 @@
           </div>
           <button type="submit" class="btn btn-primary btn-block">Add Suite to Stock</button>
         </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Edit Suite Unit Modal -->
+  <div id="edit-unit-modal" class="modal-overlay">
+    <div class="modal-box">
+      <div class="modal-header">
+        <div>
+          <span class="badge badge-gold">Edit Inventory Record</span>
+          <h2 class="modal-title" style="margin-top: 0.25rem;">Edit Suite Unit</h2>
+        </div>
+        <button class="modal-close" data-modal-close>&times;</button>
+      </div>
+      <div class="modal-body">
+        <form id="edit-unit-form">
+          <input type="hidden" id="edit-unit-id" />
+          <div class="form-group">
+            <label class="form-label" for="edit-unit-apt">Parent Apartment Complex</label>
+            <input type="text" id="edit-unit-apt" class="form-input" placeholder="e.g. APT-LO-001" />
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label" for="edit-unit-location">Unit Suite Title *</label>
+              <input type="text" id="edit-unit-location" class="form-input" placeholder="e.g. 14th Floor — Corner Ocean Suite" required />
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="edit-unit-floor">Floor Number *</label>
+              <input type="number" id="edit-unit-floor" class="form-input" min="1" required />
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label" for="edit-unit-price">Purchase Price ($ USD) *</label>
+              <input type="number" id="edit-unit-price" class="form-input" min="1" required />
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="edit-unit-beds">Bedrooms</label>
+              <input type="number" id="edit-unit-beds" class="form-input" min="1" max="10" />
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="edit-unit-baths">Bathrooms</label>
+              <input type="number" id="edit-unit-baths" class="form-input" min="1" max="10" />
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label" for="edit-unit-ac">Climate Control</label>
+              <select id="edit-unit-ac" class="form-select">
+                <option value="AC">Central AC</option>
+                <option value="Non-AC">Non-AC</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="edit-unit-furnitures">Furnishing Level</label>
+              <select id="edit-unit-furnitures" class="form-select">
+                <option value="Fully Furnished">Fully Furnished</option>
+                <option value="Partially Furnished">Partially Furnished</option>
+                <option value="Unfurnished">Unfurnished</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="edit-unit-status">Availability Status</label>
+              <select id="edit-unit-status" class="form-select">
+                <option value="Available">Available</option>
+                <option value="Reserved">Reserved</option>
+                <option value="Sold">Sold</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="edit-unit-about">Suite Notes</label>
+            <textarea id="edit-unit-about" class="form-textarea" placeholder="Describe view, finishes, balcony layout..."></textarea>
+          </div>
+          <div style="display: flex; justify-content: flex-end; gap: 0.75rem; margin-top: 1rem; border-top: 1px solid var(--border-color); padding-top: 1rem;">
+            <button type="button" class="btn btn-secondary" data-modal-close>Cancel</button>
+            <button type="submit" class="btn btn-primary">Save Changes</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Delete Unit Confirmation Modal -->
+  <div id="delete-unit-modal" class="modal-overlay">
+    <div class="modal-box" style="max-width: 440px;">
+      <div class="modal-header">
+        <h2 class="modal-title" style="color: var(--danger);">Confirm Unit Deletion</h2>
+        <button class="modal-close" data-modal-close>&times;</button>
+      </div>
+      <div class="modal-body">
+        <p style="color: var(--text-muted); font-size: 0.95rem; margin-bottom: 1.25rem;">
+          Are you sure you want to permanently delete unit <strong id="delete-unit-code" style="color: var(--text-main);"></strong> from the inventory?
+          <br /><small style="color: var(--warning);">This action cannot be undone. Units with active bookings cannot be deleted.</small>
+        </p>
+        <div style="display: flex; justify-content: flex-end; gap: 0.75rem;">
+          <button type="button" class="btn btn-secondary" data-modal-close>Cancel</button>
+          <button type="button" id="confirm-delete-unit-btn" class="btn btn-danger">Delete Unit</button>
+        </div>
       </div>
     </div>
   </div>
