@@ -15,72 +15,108 @@
   <div id="navbar-placeholder"></div>
 
   <main class="container" style="padding-top: 2.5rem; padding-bottom: 4rem;">
-    <div style="margin-bottom: 2rem;">
-      <span class="badge badge-gold" style="margin-bottom: 0.5rem;">Partner Marketplace</span>
-      <h1 style="font-size: 2.2rem; font-weight: 800;">Resale & External Apartment Properties</h1>
-      <p style="color: var(--text-muted); font-size: 1rem;">Browse verified secondary market condominium units or submit your apartment property as a sales agent or owner.</p>
+    <!-- Marketplace Header -->
+    <div style="display: flex; justify-content: space-between; align-items: flex-end; flex-wrap: wrap; gap: 1.5rem; margin-bottom: 2rem;">
+      <div>
+        <span class="badge badge-gold" style="margin-bottom: 0.5rem;">Secondary Market Hub</span>
+        <h1 style="font-size: 2.2rem; font-weight: 800; margin: 0;">Verified Resale Apartments</h1>
+        <p style="color: var(--text-muted); font-size: 1rem; margin-top: 0.35rem;">
+          Explore exclusive secondary market units and condominium resales submitted by certified sales agents.
+        </p>
+      </div>
+
+      <div id="agent-portal-banner" style="background: var(--bg-surface); border: 1px solid var(--border-color); padding: 0.75rem 1.25rem; border-radius: var(--radius-md); display: flex; align-items: center; gap: 1rem;">
+        <div>
+          <small style="display: block; color: var(--text-dim); font-size: 0.75rem;">Are you a Sales Agent?</small>
+          <strong style="font-size: 0.9rem; color: var(--text-main);">Manage or register your properties</strong>
+        </div>
+        <a href="sales-agent-dashboard.html" class="btn btn-sm btn-primary">Agent Workspace &rarr;</a>
+      </div>
     </div>
 
     <!-- Alert Box -->
-    <div id="external-alert" class="alert" style="display: none;"></div>
+    <div id="external-alert" class="alert" style="display: none; margin-bottom: 1.5rem;"></div>
 
     <!-- Listings Grid -->
     <div id="external-apartments-grid" class="grid-3" style="margin-bottom: 3.5rem;">
       <!-- Injected by js/pages/external.js -->
     </div>
+  </main>
 
-    <!-- Add Resale Property Form -->
-    <section class="card" style="padding: 2rem; max-width: 800px; margin: 0 auto;">
-      <div style="margin-bottom: 1.5rem; border-bottom: 1px solid var(--border-color); padding-bottom: 1rem;">
-        <span class="badge badge-gold" style="margin-bottom: 0.5rem;">Agent & Owner Portal</span>
-        <h2 style="font-size: 1.5rem; font-weight: 700;">Submit a Resale Apartment Listing</h2>
-        <p style="color: var(--text-muted); font-size: 0.88rem;">Fill out property details to list an external condominium unit on the Living-Ora platform.</p>
+  <!-- Customer Purchase / Reserve Resale Apartment Modal -->
+  <div id="resale-purchase-modal" class="modal-overlay">
+    <div class="modal-box" style="max-width: 560px;">
+      <div class="modal-header">
+        <div>
+          <span class="badge badge-gold">Resale Acquisition</span>
+          <h2 class="modal-title" id="purchase-modal-title">Buy / Reserve Resale Unit</h2>
+        </div>
+        <button class="modal-close" id="close-purchase-modal-btn">&times;</button>
       </div>
 
-      <form id="add-external-apt-form">
-        <div class="form-row">
-          <div class="form-group">
-            <label class="form-label" for="ex-location">Property Location / Address *</label>
-            <input type="text" id="ex-location" class="form-input" placeholder="e.g. Rajagiriya, Sri Lanka — Nawala Road" required />
-          </div>
-          <div class="form-group">
-            <label class="form-label" for="ex-price">Total Price ($ USD) *</label>
-            <input type="number" id="ex-price" class="form-input" placeholder="185000" min="50000" required />
-          </div>
+      <div class="modal-body">
+        <div id="purchase-success-box" class="alert alert-success" style="display: none; margin-bottom: 1.25rem; text-align: center;">
+          <h4 style="margin-bottom: 0.35rem;">🎉 Reservation Confirmed!</h4>
+          <p style="font-size: 0.88rem; margin: 0;">Your reservation has been recorded. The listing sales agent will contact you to proceed with transfer deed documentation.</p>
         </div>
 
-        <div class="form-row">
-          <div class="form-group">
-            <label class="form-label" for="ex-downpayment">Minimum Down Payment ($ USD) *</label>
-            <input type="number" id="ex-downpayment" class="form-input" placeholder="18500" min="5000" required />
-          </div>
-          <div class="form-group">
-            <label class="form-label" for="ex-rooms">Bedrooms Count *</label>
-            <input type="number" id="ex-rooms" class="form-input" placeholder="2" min="1" max="10" required />
-          </div>
-          <div class="form-group">
-            <label class="form-label" for="ex-ac">Climate Control</label>
-            <select id="ex-ac" class="form-select">
-              <option value="AC">Fully Air-Conditioned (AC)</option>
-              <option value="Non-AC">Non-AC</option>
-            </select>
-          </div>
-        </div>
+        <form id="resale-purchase-form">
+          <input type="hidden" id="purchase-apt-id" value="" />
 
-        <div class="form-group">
-          <label class="form-label" for="ex-about">Property Description</label>
-          <textarea id="ex-about" class="form-textarea" placeholder="Briefly describe the apartment condition, views, and floor..."></textarea>
-        </div>
+          <div style="background: var(--bg-dark); padding: 1.25rem; border-radius: var(--radius-md); margin-bottom: 1.25rem; border: 1px solid var(--border-color);">
+            <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+              <span style="color: var(--text-dim); font-size: 0.88rem;">Property:</span>
+              <strong id="purchase-prop-location" style="color: var(--text-inverse); font-size: 0.95rem;">-</strong>
+            </div>
+            <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+              <span style="color: var(--text-dim); font-size: 0.88rem;">Full Purchase Price:</span>
+              <strong id="purchase-prop-price" style="color: var(--primary-light); font-size: 1.15rem; color: #60a5fa;">$0</strong>
+            </div>
+            <div style="display: flex; justify-content: space-between;">
+              <span style="color: var(--text-dim); font-size: 0.88rem;">Minimum Down Payment:</span>
+              <strong id="purchase-prop-downpayment" style="color: var(--accent-gold); font-size: 1.1rem;">$0</strong>
+            </div>
+          </div>
 
-        <div class="form-group">
-          <label class="form-label" for="ex-info">Agent / Owner Contact & Additional Notes</label>
-          <input type="text" id="ex-info" class="form-input" placeholder="e.g. Direct owner listing, contact +94 77 123 4567" />
-        </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label" for="buyer-name">Buyer Full Name *</label>
+              <input type="text" id="buyer-name" class="form-input" required />
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="buyer-email">Buyer Contact Email *</label>
+              <input type="email" id="buyer-email" class="form-input" required />
+            </div>
+          </div>
 
-        <button type="submit" class="btn btn-primary btn-block">Publish Resale Listing</button>
-      </form>
-    </section>
-  </main>
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label" for="buyer-phone">Phone / WhatsApp *</label>
+              <input type="text" id="buyer-phone" class="form-input" placeholder="+94 77 000 0000" required />
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="buyer-method">Deposit Method</label>
+              <select id="buyer-method" class="form-select">
+                <option value="Bank Transfer">Bank Wire Transfer / SLIPS</option>
+                <option value="Manager Cheque">Bank Draft / Manager's Cheque</option>
+                <option value="Credit Card">Online Deposit Guarantee</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="buyer-notes">Special Requests / Move-in Timeline</label>
+            <textarea id="buyer-notes" class="form-textarea" rows="2" placeholder="e.g. Inquire about immediate occupancy or deed transfer date..."></textarea>
+          </div>
+
+          <div style="display: flex; justify-content: flex-end; gap: 0.75rem; margin-top: 1.5rem;">
+            <button type="button" class="btn btn-secondary" id="cancel-purchase-btn">Close</button>
+            <button type="submit" class="btn btn-primary" id="confirm-purchase-btn">Submit Purchase Reservation</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
 
   <!-- Footer Placeholder -->
   <div id="footer-placeholder"></div>

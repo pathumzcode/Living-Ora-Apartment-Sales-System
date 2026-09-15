@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sales Agent Workspace & Performance | Living-Ora</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+
+  <!-- Navigation Bar Placeholder -->
+  <div id="navbar-placeholder"></div>
+
+  <main class="container" style="padding-top: 2.5rem; padding-bottom: 4rem;">
+    <!-- Agent Profile Header -->
+    <div class="card" style="padding: 2rem; margin-bottom: 2rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1.5rem;">
+      <div style="display: flex; align-items: center; gap: 1.25rem;">
+        <div style="width: 64px; height: 64px; border-radius: 50%; background-color: var(--primary-light); border: 2px solid var(--accent-gold); display: flex; align-items: center; justify-content: center; font-size: 1.8rem;">
+          🤝
+        </div>
+        <div>
+          <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.35rem;">
+            <span class="badge badge-gold" id="agent-badge">Licensed Sales Agent</span>
+            <span class="badge badge-success">Active Partner</span>
+          </div>
+          <h1 style="font-size: 1.85rem; font-weight: 800; margin: 0;">Sales Agent Portal: <span id="agent-name">Nimal Fernando</span></h1>
+          <p style="color: var(--text-muted); font-size: 0.88rem; margin-top: 0.25rem;">
+            Agent UID: <strong id="agent-uid" style="color: var(--text-main);">USR-EXT-5003</strong> &bull; Email: <span id="agent-email">agent@livingora.lk</span> &bull; Resale Secondary Desk
+          </p>
+        </div>
+      </div>
+
+      <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
+        <a href="external-apartments.html" class="btn btn-outline" target="_blank">View Resale Marketplace &nearr;</a>
+        <button id="open-register-resale-btn" class="btn btn-primary">+ Register Resale Apartment</button>
+      </div>
+    </div>
+
+    <!-- Alert Box -->
+    <div id="agent-alert" class="alert" style="display: none; margin-bottom: 1.5rem;"></div>
+
+    <!-- Performance & Sales Metrics -->
+    <div style="margin-bottom: 1.5rem;">
+      <h2 style="font-size: 1.35rem; font-weight: 700; margin-bottom: 0.25rem;">Sales & Resale Performance Analytics</h2>
+      <p style="color: var(--text-muted); font-size: 0.88rem;">Live track your secondary market resale inventory, estimated commissions, and customer booking interest.</p>
+    </div>
+
+    <div class="kpi-grid" style="margin-bottom: 2.5rem;">
+      <div class="kpi-card">
+        <div class="kpi-title">Listed Resale Apartments</div>
+        <div id="kpi-listed-count" class="kpi-value" style="color: var(--primary);">0 Properties</div>
+        <small style="color: var(--text-dim); font-size: 0.75rem;">Verified database inventory</small>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-title">Total Portfolio Volume</div>
+        <div id="kpi-portfolio-value" class="kpi-value" style="color: var(--info);">$0</div>
+        <small style="color: var(--text-dim); font-size: 0.75rem;">Combined property valuation</small>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-title">Est. Performance Commission</div>
+        <div id="kpi-commission-value" class="kpi-value" style="color: var(--success);">$0</div>
+        <small style="color: var(--text-dim); font-size: 0.75rem;">3% Standard broker commission tier</small>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-title">Customer Inquiry Ratio</div>
+        <div id="kpi-inquiries" class="kpi-value" style="color: var(--accent-gold);">100% Active</div>
+        <small style="color: var(--text-dim); font-size: 0.75rem;">Marketplace visibility</small>
+      </div>
+    </div>
+
+    <!-- My Listed Resale Apartments Section -->
+    <div class="card" style="padding: 1.75rem; margin-bottom: 2.5rem;">
+      <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; margin-bottom: 1.25rem; border-bottom: 1px solid var(--border-color); padding-bottom: 1rem;">
+        <div>
+          <span class="badge badge-gold" style="margin-bottom: 0.25rem;">My Exclusive Listings</span>
+          <h2 style="font-size: 1.45rem; font-weight: 700; margin: 0;">Apartments Registered by Me</h2>
+          <p style="color: var(--text-muted); font-size: 0.88rem; margin: 0;">Manage, update pricing or remove your registered resale properties in real time.</p>
+        </div>
+        <div>
+          <button id="refresh-resale-btn" class="btn btn-sm btn-outline">🔄 Refresh Listings</button>
+        </div>
+      </div>
+
+      <div class="table-responsive">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Property ID</th>
+              <th>Location / Address</th>
+              <th>Rooms & Climate</th>
+              <th>Total Price</th>
+              <th>Down Payment</th>
+              <th>Marketplace Status</th>
+              <th style="text-align: right;">Actions</th>
+            </tr>
+          </thead>
+          <tbody id="agent-resale-tbody">
+            <tr><td colspan="7" style="text-align: center; color: var(--text-muted); padding: 2rem;">Loading your resale apartments...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Secondary Market Best Practices / Performance Tips -->
+    <div class="grid-2" style="gap: 1.5rem;">
+      <div class="card" style="padding: 1.5rem;">
+        <h3 style="font-size: 1.15rem; font-weight: 700; margin-bottom: 0.5rem;">💡 Fast-Closing Resale Tips</h3>
+        <ul style="color: var(--text-muted); font-size: 0.88rem; line-height: 1.8; padding-left: 1.2rem;">
+          <li>Ensure the <strong>Minimum Down Payment</strong> is calibrated between 10% – 20% for rapid customer approvals.</li>
+          <li>Detailed descriptions mentioning ocean views, furnished status, and title deeds speed up inquiries by 40%.</li>
+          <li>Provide a direct verified mobile number in <em>Agent Contact Notes</em> so prospective buyers can reach out instantly.</li>
+        </ul>
+      </div>
+
+      <div class="card" style="padding: 1.5rem;">
+        <h3 style="font-size: 1.15rem; font-weight: 700; margin-bottom: 0.5rem;">🛡️ Broker Verification Standards</h3>
+        <p style="color: var(--text-muted); font-size: 0.88rem; line-height: 1.6; margin-bottom: 0.75rem;">
+          All secondary marketplace condominium properties submitted by registered sales agents undergo automatic database verification. Customers browsing the <strong>Resale Apartments</strong> portal can place deposits without dealing with agent listing forms.
+        </p>
+        <span class="badge badge-success">✓ 100% Deed & Listing Compliance</span>
+      </div>
+    </div>
+  </main>
+
+  <!-- Register / Edit Resale Apartment Modal -->
+  <div id="resale-modal" class="modal-overlay">
+    <div class="modal-box" style="max-width: 680px;">
+      <div class="modal-header">
+        <div>
+          <span class="badge badge-gold" id="resale-modal-badge">Secondary Market</span>
+          <h2 class="modal-title" id="resale-modal-title">Register Resale Apartment</h2>
+        </div>
+        <button class="modal-close" id="close-resale-modal-btn">&times;</button>
+      </div>
+
+      <div class="modal-body">
+        <form id="resale-apartment-form">
+          <input type="hidden" id="modal-apt-id" value="" />
+
+          <div class="form-row">
+            <div class="form-group" style="flex: 2;">
+              <label class="form-label" for="modal-location">Property Location / Address *</label>
+              <input type="text" id="modal-location" class="form-input" placeholder="e.g. Rajagiriya, Sri Lanka — Nawala Road" required />
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="modal-rooms">Bedrooms *</label>
+              <input type="number" id="modal-rooms" class="form-input" placeholder="2" min="1" max="10" required />
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label" for="modal-price">Total Price ($ USD) *</label>
+              <input type="number" id="modal-price" class="form-input" placeholder="185000" min="10000" required />
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="modal-downpayment">Minimum Down Payment ($ USD) *</label>
+              <input type="number" id="modal-downpayment" class="form-input" placeholder="18500" min="1000" required />
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="modal-ac">Climate Control</label>
+              <select id="modal-ac" class="form-select">
+                <option value="AC">Fully Air-Conditioned (AC)</option>
+                <option value="Non-AC">Non-AC</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="modal-about">Property Description</label>
+            <textarea id="modal-about" class="form-textarea" rows="3" placeholder="Describe the layout, floor level, sea or city views, fittings..."></textarea>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group" style="flex: 1.5;">
+              <label class="form-label" for="modal-info">Agent Direct Contact & Notes</label>
+              <input type="text" id="modal-info" class="form-input" placeholder="e.g. Direct agent contact: +94 77 123 4567, ready for occupancy" />
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="modal-image">Image Theme</label>
+              <select id="modal-image" class="form-select">
+                <option value="images/luxury-condo-exterior.jpg">Urban Luxury Condo</option>
+                <option value="images/luxury-interior-lounge.jpg">Contemporary Suite</option>
+                <option value="images/luxury-villa-hero.jpg">Waterfront Villa Suite</option>
+                <option value="images/luxury-complex-marina.jpg">Marina Panoramic Tower</option>
+              </select>
+            </div>
+          </div>
+
+          <div style="display: flex; justify-content: flex-end; gap: 0.75rem; margin-top: 1.5rem; border-top: 1px solid var(--border-color); padding-top: 1rem;">
+            <button type="button" class="btn btn-secondary" id="cancel-resale-modal-btn">Cancel</button>
+            <button type="submit" class="btn btn-primary" id="save-resale-btn">Save Resale Listing</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Delete Confirmation Modal -->
+  <div id="delete-modal" class="modal-overlay">
+    <div class="modal-box" style="max-width: 440px;">
+      <div class="modal-header">
+        <h2 class="modal-title" style="color: var(--danger);">Confirm Listing Removal</h2>
+        <button class="modal-close" id="close-delete-modal-btn">&times;</button>
+      </div>
+      <div class="modal-body">
+        <p style="color: var(--text-muted); font-size: 0.95rem; margin-bottom: 1.25rem;">
+          Are you sure you want to permanently delete resale apartment listing <strong id="delete-apt-code" style="color: var(--text-main);"></strong> from the database and public marketplace?
+        </p>
+        <div style="display: flex; justify-content: flex-end; gap: 0.75rem;">
+          <button type="button" class="btn btn-secondary" id="cancel-delete-btn">Keep Listing</button>
+          <button type="button" class="btn btn-danger" id="confirm-delete-btn">Delete Permanently</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer Placeholder -->
+  <div id="footer-placeholder"></div>
+
+  <!-- Script Module -->
+  <script type="module" src="js/pages/sales-agent-dashboard.js"></script>
+</body>
+</html>

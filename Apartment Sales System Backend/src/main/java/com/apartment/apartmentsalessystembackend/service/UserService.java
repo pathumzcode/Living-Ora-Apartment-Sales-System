@@ -137,7 +137,9 @@ public class UserService {
             throw new BadRequestException("An account already exists for this phone number");
         }
 
-        String empId = "EMP-" + UUID.randomUUID().toString().substring(0, 8).toUpperCase(Locale.ROOT);
+        String empId = (request.getEmpId() != null && !request.getEmpId().isBlank())
+                ? request.getEmpId().trim().toUpperCase(Locale.ROOT)
+                : "EMP-LO-" + UUID.randomUUID().toString().substring(0, 6).toUpperCase(Locale.ROOT);
         UserVerification verification = new UserVerification();
         verification.setUid("INT-" + UUID.randomUUID().toString().substring(0, 8).toUpperCase(Locale.ROOT));
         verification.setEmpId(empId);
@@ -155,7 +157,6 @@ public class UserService {
         internalUser.setRole(normalizeInternalRole(request.getRole()));
         internalUser.setJoinedDate(java.time.LocalDate.now());
         internalUser.setUserVerification(savedVerification);
-        promotionRepository.findAll().stream().findFirst().ifPresent(internalUser::setPromotion);
         InternalUser saved = internalUserRepository.save(internalUser);
         recordAudit(adminEmpId, "INTERNAL_USER_CREATED", saved.getEmpId(), "role=" + saved.getRole());
         return saved;

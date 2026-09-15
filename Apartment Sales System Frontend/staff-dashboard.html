@@ -60,6 +60,8 @@
     <div class="tabs-nav">
       <button id="tab-bookings-btn" class="tab-btn active">Booking Verifications</button>
       <button id="tab-inventory-btn" class="tab-btn">Unit Stock Inventory</button>
+      <button id="tab-operations-btn" class="tab-btn" style="display: none;">Operations & Staff Roster</button>
+      <button id="tab-promotions-btn" class="tab-btn" style="display: none;">Promotions & Campaigns</button>
     </div>
 
     <!-- Booking Requests Panel -->
@@ -101,6 +103,70 @@
           </thead>
           <tbody id="inventory-tbody">
             <!-- Injected by js/pages/staff-dashboard.js -->
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- Operations Director: Department Staff Roster Panel -->
+    <section id="operations-panel" hidden>
+      <div class="card" style="padding: 1.5rem; margin-bottom: 1.5rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+        <div>
+          <span class="badge badge-gold" style="margin-bottom: 0.35rem;">Directorate Operations</span>
+          <h2 style="font-size: 1.35rem; font-weight: 700;">Departmental Staff Roster & Roles</h2>
+          <p style="color: var(--text-muted); font-size: 0.88rem; margin: 0;">Cross-departmental internal officers assigned by Administration</p>
+        </div>
+        <div style="font-size: 0.88rem; color: var(--text-muted);">
+          Total Active Staff: <strong id="ops-staff-count" style="color: var(--primary);">0</strong>
+        </div>
+      </div>
+
+      <div class="table-responsive">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Emp ID</th>
+              <th>Staff Name</th>
+              <th>Department Role</th>
+              <th>Company Email</th>
+              <th>Contact Phone</th>
+              <th>Service Years</th>
+            </tr>
+          </thead>
+          <tbody id="ops-staff-tbody">
+            <!-- Injected by staff-dashboard.js -->
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- Operations & Sales Promotions Management Panel -->
+    <section id="promotions-panel" hidden>
+      <div class="card" style="padding: 1.5rem; margin-bottom: 1.5rem;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+          <div>
+            <span class="badge badge-gold" style="margin-bottom: 0.35rem;">Sales & Operations Promotions</span>
+            <h2 style="font-size: 1.35rem; font-weight: 700;">Active Campaign Promotions</h2>
+            <p style="color: var(--text-muted); font-size: 0.88rem; margin: 0;">Promotions are coordinated exclusively by Sales Managers and Operations Directors.</p>
+          </div>
+          <a href="promotions.html" class="btn btn-sm btn-outline" target="_blank">View Public Promotions &rarr;</a>
+        </div>
+      </div>
+
+      <div class="table-responsive">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Promo Code</th>
+              <th>Campaign Title</th>
+              <th>Type</th>
+              <th>Discount %</th>
+              <th>Validity</th>
+              <th>Target Scope</th>
+            </tr>
+          </thead>
+          <tbody id="ops-promotions-tbody">
+            <!-- Injected by staff-dashboard.js -->
           </tbody>
         </table>
       </div>

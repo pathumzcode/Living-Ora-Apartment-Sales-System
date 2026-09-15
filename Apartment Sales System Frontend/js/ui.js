@@ -22,7 +22,11 @@ export function renderNavbar(activePage = '') {
   let authLinksHtml = '';
   if (user) {
     const dashboardUrl = getDashboardUrlForRole(user.role);
-    const roleTitle = user.role === 'ADMIN' ? 'Admin Control' : (isInternal ? 'Staff Workspace' : 'Client Portal');
+    const roleTitle = user.role === 'ADMIN' 
+      ? 'Admin Control' 
+      : (user.role === 'SALES_AGENT' 
+          ? 'Agent Workspace' 
+          : (isInternal ? 'Staff Workspace' : 'Client Portal'));
     authLinksHtml = `
       <a href="${dashboardUrl}" class="btn btn-sm btn-outline">${roleTitle}</a>
       <button id="nav-logout-btn" class="btn btn-sm btn-primary">Logout</button>

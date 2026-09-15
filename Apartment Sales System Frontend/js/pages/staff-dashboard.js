@@ -53,30 +53,137 @@ document.addEventListener('DOMContentLoaded', () => {
     if (aptsEl) aptsEl.textContent = `${apts.length} Complexes`;
   }
 
-  // Tabs
-  let activeTab = 'bookings';
+  // Operations Director / Sales Manager specialized views
+  const isOpsDirectorOrAdmin = user.role === ROLES.OPERATIONS_DIRECTOR || user.role === ROLES.ADMIN;
+  const isSalesManagerOrOps = user.role === ROLES.SALES_MANAGER || isOpsDirectorOrAdmin;
+
   const tabBookingsBtn = document.getElementById('tab-bookings-btn');
   const tabInventoryBtn = document.getElementById('tab-inventory-btn');
+  const tabOperationsBtn = document.getElementById('tab-operations-btn');
+  const tabPromotionsBtn = document.getElementById('tab-promotions-btn');
+
   const bookingsPanel = document.getElementById('bookings-panel');
   const inventoryPanel = document.getElementById('inventory-panel');
+  const operationsPanel = document.getElementById('operations-panel');
+  const promotionsPanel = document.getElementById('promotions-panel');
+
+  if (isOpsDirectorOrAdmin && tabOperationsBtn) {
+    tabOperationsBtn.style.display = 'inline-block';
+  }
+  if (isSalesManagerOrOps && tabPromotionsBtn) {
+    tabPromotionsBtn.style.display = 'inline-block';
+  }
 
   function switchTab(tab) {
-    activeTab = tab;
+    [tabBookingsBtn, tabInventoryBtn, tabOperationsBtn, tabPromotionsBtn].forEach(b => b?.classList.remove('active'));
+    [bookingsPanel, inventoryPanel, operationsPanel, promotionsPanel].forEach(p => p?.setAttribute('hidden', 'true'));
+
     if (tab === 'inventory') {
       tabInventoryBtn?.classList.add('active');
-      tabBookingsBtn?.classList.remove('active');
       inventoryPanel?.removeAttribute('hidden');
-      bookingsPanel?.setAttribute('hidden', 'true');
+    } else if (tab === 'operations') {
+      tabOperationsBtn?.classList.add('active');
+      operationsPanel?.removeAttribute('hidden');
+      renderOperationsStaff();
+    } else if (tab === 'promotions') {
+      tabPromotionsBtn?.classList.add('active');
+      promotionsPanel?.removeAttribute('hidden');
+      renderPromotions();
     } else {
       tabBookingsBtn?.classList.add('active');
-      tabInventoryBtn?.classList.remove('active');
       bookingsPanel?.removeAttribute('hidden');
-      inventoryPanel?.setAttribute('hidden', 'true');
     }
   }
 
   tabBookingsBtn?.addEventListener('click', () => switchTab('bookings'));
   tabInventoryBtn?.addEventListener('click', () => switchTab('inventory'));
+  tabOperationsBtn?.addEventListener('click', () => switchTab('operations'));
+  tabPromotionsBtn?.addEventListener('click', () => switchTab('promotions'));
+
+  // Render Operations Staff (Accessible by Operations Director & Admin)
+  async function renderOperationsStaff() {
+    const tbody = document.getElementById('ops-staff-tbody');
+    const countEl = document.getElementById('ops-staff-count');
+    if (!tbody) return;
+
+    try {
+      const response = await fetch('http://localhost:8080/api/users/internal');
+      if (response.ok) {
+        const staffList = await response.json();
+        if (countEl) countEl.textContent = `${staffList.length} Active Staff`;
+        tbody.innerHTML = staffList.map(s => `
+          <tr>
+            <td><strong style="color: var(--primary); font-family: monospace;">${s.empId}</strong></td>
+            <td><strong>${s.firstName} ${s.lastName}</strong></td>
+            <td><span class="badge badge-gold">${ROLE_LABELS[s.role] || s.role}</span></td>
+            <td>${s.companyEmail || s.email}</td>
+            <td>${s.phoneNumber || '-'}</td>
+            <td>${s.serviceYears ?? 1} Years</td>
+          </tr>
+        `).join('');
+        return;
+      }
+    } catch (e) {
+      console.warn('Could not fetch live staff list for operations roster:', e);
+    }
+
+    // Fallback sample roster
+    const sampleStaff = [
+      { empId: 'EMP-SALES-1001', name: 'Sales Manager', role: 'SALES_MANAGER', email: 'sales.manager@livingora.lk', phone: '0711000001', years: 5 },
+      { empId: 'EMP-OPS-1001', name: 'Operations Director', role: 'OPERATIONS_DIRECTOR', email: 'operations.director@livingora.lk', phone: '0711000006', years: 8 },
+      { empId: 'EMP-FIN-1001', name: 'Finance Officer', role: 'FINANCE_PAYMENTS_OFFICER', email: 'finance.officer@livingora.lk', phone: '0711000004', years: 4 }
+    ];
+    if (countEl) countEl.textContent = `${sampleStaff.length} Staff`;
+    tbody.innerHTML = sampleStaff.map(s => `
+      <tr>
+        <td><strong style="color: var(--primary); font-family: monospace;">${s.empId}</strong></td>
+        <td><strong>${s.name}</strong></td>
+        <td><span class="badge badge-gold">${ROLE_LABELS[s.role] || s.role}</span></td>
+        <td>${s.email}</td>
+        <td>${s.phone}</td>
+        <td>${s.years} Years</td>
+      </tr>
+    `).join('');
+  }
+
+  // Render Promotions (Coordinated by Sales Managers & Operations Directors)
+  async function renderPromotions() {
+    const tbody = document.getElementById('ops-promotions-tbody');
+    if (!tbody) return;
+
+    try {
+      const res = await fetch('http://localhost:8080/api/promotions');
+      if (res.ok) {
+        const promos = await res.json();
+        if (Array.isArray(promos) && promos.length > 0) {
+          tbody.innerHTML = promos.map(p => `
+            <tr>
+              <td><strong style="color: var(--primary); font-family: monospace;">${p.promotionCode || p.promotionId}</strong></td>
+              <td>${p.promotionTitle}</td>
+              <td><span class="badge badge-gold">${p.promotionType}</span></td>
+              <td><strong style="color: var(--success);">${p.discountPrecentage || 0}%</strong></td>
+              <td>${p.startDate || ''} &rarr; ${p.endDate || ''}</td>
+              <td>Sales Agents & Marketing</td>
+            </tr>
+          `).join('');
+          return;
+        }
+      }
+    } catch (e) {
+      console.warn('Could not fetch live promotions:', e);
+    }
+
+    tbody.innerHTML = `
+      <tr>
+        <td><strong style="color: var(--primary); font-family: monospace;">PROMO-LORA2026</strong></td>
+        <td>Luxury Penthouse Seasonal Launch</td>
+        <td><span class="badge badge-gold">Seasonal Discount</span></td>
+        <td><strong style="color: var(--success);">10.00%</strong></td>
+        <td>2026-01-01 &rarr; 2026-12-31</td>
+        <td>Sales Agents & Operations Coordinated</td>
+      </tr>
+    `;
+  }
 
   // Bookings List Table
   const bookingsTbody = document.getElementById('bookings-tbody');

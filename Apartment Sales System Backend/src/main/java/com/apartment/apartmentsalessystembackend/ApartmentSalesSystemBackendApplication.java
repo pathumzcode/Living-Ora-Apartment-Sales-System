@@ -9,7 +9,7 @@ public class ApartmentSalesSystemBackendApplication {
     public static void main(String[] args) {
         SpringApplication.run(ApartmentSalesSystemBackendApplication.class, args);
 
-        System.out.print("Hello");
+        System.out.print("Hello World");
 
     }
 
