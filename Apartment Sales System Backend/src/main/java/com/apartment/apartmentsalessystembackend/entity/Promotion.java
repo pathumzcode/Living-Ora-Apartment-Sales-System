@@ -4,6 +4,8 @@ import jakarta.persistence.*;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
+//Mapping between Backend and Database
+
 @Entity
 @Table(name = "promotion")
 public class Promotion {
@@ -60,10 +62,9 @@ public class Promotion {
 
     public Promotion() {}
 
-    /**
-     * Computes display status based on status flag and date range.
-     * Returns: ACTIVE, SCHEDULED, EXPIRED, or INACTIVE.
-     */
+
+    // * Computes Actual display status based on status flag and date range. Returns: ACTIVE, SCHEDULED, EXPIRED, or INACTIVE.
+
     public String getComputedStatus() {
         if (status != null && (status.equals("INACTIVE") || status.equals("DELETED"))) {
             return status;
@@ -78,9 +79,9 @@ public class Promotion {
         return "ACTIVE";
     }
 
-    /**
-     * Returns true only when status=ACTIVE and today is within the promotion date range.
-     */
+
+    // Returns true only when status=ACTIVE and today is within the promotion date range.
+
     public boolean isCurrentlyActive() {
         if (!"ACTIVE".equals(status)) return false;
         LocalDate today = LocalDate.now();

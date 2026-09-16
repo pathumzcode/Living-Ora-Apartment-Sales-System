@@ -80,11 +80,11 @@ public class InternalUser {
      * Your current DB requires promotion_promotionId.
      * DataInitializer creates PROMO-2026 before creating staff.
      */
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @ManyToOne(fetch = FetchType.LAZY, optional = true)
     @JoinColumn(
             name = "promotion_promotionId",
             referencedColumnName = "promotionId",
-            nullable = false
+            nullable = true
     )
     @JsonIgnore
     private Promotion promotion;

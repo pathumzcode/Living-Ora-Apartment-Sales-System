@@ -26,6 +26,7 @@ import java.util.stream.Collectors;
  * - Soft-delete is used (status = 'DELETED') to preserve FK references
  *   from InternalUser.promotion_promotionId.
  */
+
 @Service
 public class PromotionService {
 
@@ -37,7 +38,8 @@ public class PromotionService {
 
     // ── Read Operations ──────────────────────────────────────────────────────────
 
-    /** Returns all promotions ordered by startDate DESC, as response DTOs. */
+    // Returns all promotions ordered by startDate DESC, as response DTOs.
+
     public List<PromotionResponse> getAllPromotions() {
         return promotionRepository.findAllByOrderByStartDateDesc()
                 .stream()
@@ -45,10 +47,9 @@ public class PromotionService {
                 .collect(Collectors.toList());
     }
 
-    /**
-     * Returns only promotions that are status=ACTIVE and whose date range
-     * contains today. Used by the public customer-facing page.
-     */
+     // Returns only promotions that are status=ACTIVE and whose date range
+     // contains today. Used by the public customer-facing page.
+
     public List<PromotionResponse> getActivePromotions() {
         return promotionRepository.findCurrentlyActive(LocalDate.now())
                 .stream()
@@ -56,24 +57,23 @@ public class PromotionService {
                 .collect(Collectors.toList());
     }
 
-    /** Returns a single promotion by ID or throws ResourceNotFoundException. */
+    // Returns a single promotion by ID or throws ResourceNotFoundException.
+
     public PromotionResponse getPromotionById(String promotionId) {
         Promotion entity = findOrThrow(promotionId);
         return promotionMapper.toResponse(entity);
     }
 
-    /** Returns a promotion by its unique promotion code. */
+    // Returns a promotion by its unique promotion code.
+
     public PromotionResponse getPromotionByCode(String code) {
         Promotion entity = promotionRepository.findByPromotionCode(code)
                 .orElseThrow(() -> new ResourceNotFoundException("Promotion not found with code: " + code));
         return promotionMapper.toResponse(entity);
     }
 
-    /**
-     * Searches promotions by title (case-insensitive) and optional status filter.
-     * @param q      Partial title to search (empty string returns all matching status)
-     * @param status Optional status filter: ACTIVE, INACTIVE, SCHEDULED, EXPIRED, or null/empty for all
-     */
+    // Searches promotions by title (case-insensitive) and optional status filter.
+
     public List<PromotionResponse> searchPromotions(String q, String status) {
         String queryStr = (q == null) ? "" : q.trim();
         String statusFilter = (status == null || status.isBlank()) ? null : status.trim();
@@ -88,7 +88,8 @@ public class PromotionService {
 
     // ── Write Operations ─────────────────────────────────────────────────────────
 
-    /** Creates a new promotion with full validation. */
+    // Creates a new promotion with full validation.
+
     public PromotionResponse createPromotion(PromotionRequest request) {
         validateRequest(request, null);
 
@@ -98,7 +99,8 @@ public class PromotionService {
         return promotionMapper.toResponse(promotionRepository.save(entity));
     }
 
-    /** Updates an existing promotion. Only changed fields need be supplied. */
+    // Updates an existing promotion. Only changed fields need be supplied.
+
     public PromotionResponse updatePromotion(String promotionId, PromotionRequest request) {
         Promotion entity = findOrThrow(promotionId);
         validateRequest(request, promotionId);
@@ -107,21 +109,18 @@ public class PromotionService {
         return promotionMapper.toResponse(promotionRepository.save(entity));
     }
 
-    /**
-     * Soft-deletes a promotion by setting its status to 'DELETED'.
-     * This preserves the FK reference from InternalUser safely.
-     * The promotion is excluded from all public and management listings.
-     */
+    // deletes a promotion by setting its status to 'DELETED'.
+
     public void deletePromotion(String promotionId) {
-        Promotion entity = findOrThrow(promotionId);
-        entity.setStatus("DELETED");
-        promotionRepository.save(entity);
+        Promotion promotion = promotionRepository.findById(promotionId)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException("Promotion not found: " + promotionId));
+
+        promotionRepository.delete(promotion);
     }
 
-    /**
-     * Toggles a promotion between ACTIVE and INACTIVE.
-     * Promotions in DELETED or EXPIRED state cannot be toggled.
-     */
+    // Toggles a promotion between ACTIVE and INACTIVE.
+
     public PromotionResponse togglePromotionStatus(String promotionId) {
         Promotion entity = findOrThrow(promotionId);
         if ("DELETED".equals(entity.getStatus())) {
@@ -132,10 +131,8 @@ public class PromotionService {
         return promotionMapper.toResponse(promotionRepository.save(entity));
     }
 
-    /**
-     * Returns currently active promotions applicable to a specific apartment.
-     * Includes global promotions (assinedApartment = null) AND apartment-specific ones.
-     */
+    // Returns currently active promotions applicable to a specific apartment.
+
     public List<PromotionResponse> getActivePromotionsForApartment(String apartmentId) {
         return promotionRepository.findActiveForApartment(apartmentId, LocalDate.now())
                 .stream()
@@ -143,15 +140,9 @@ public class PromotionService {
                 .collect(Collectors.toList());
     }
 
-    /**
-     * Validates a promo code against a specific apartment and returns the promotion details.
-     * Used by the frontend before submitting a booking to show the discount preview.
-     *
-     * @param code        The promotion code to validate (case-insensitive).
-     * @param apartmentId The apartment the booking is for (pass null/empty to skip apartment check).
-     * @return The promotion response with discount details.
-     * @throws BadRequestException if code is invalid, expired, or not applicable.
-     */
+    // Validates a promo code against a specific apartment and returns the promotion details.
+    // Used by the frontend before submitting a booking to show the discount preview.
+
     public PromotionResponse validatePromoCode(String code, String apartmentId) {
         Promotion promo = promotionRepository.findByPromotionCode(code.trim().toUpperCase())
                 .orElseThrow(() -> new BadRequestException("Promotion code '" + code + "' is not valid."));
@@ -179,11 +170,8 @@ public class PromotionService {
                 .orElseThrow(() -> new ResourceNotFoundException("Promotion not found: " + promotionId));
     }
 
-    /**
-     * Central validation for create and update operations.
-     * @param request      The incoming request.
-     * @param promotionId  The ID of the promotion being updated (null for create).
-     */
+    // Central validation for create and update operations.
+
     private void validateRequest(PromotionRequest request, String promotionId) {
         // Date validation
         if (request.getStartDate() != null && request.getEndDate() != null
@@ -214,10 +202,9 @@ public class PromotionService {
         }
     }
 
-    /**
-     * Filters a PromotionResponse by its computed status.
-     * Allows filtering by SCHEDULED or EXPIRED even though they are not persisted status values.
-     */
+     // Filters a PromotionResponse by its computed status.
+     // Allows filtering by SCHEDULED or EXPIRED even though they are not persisted status values.
+
     private boolean filterByComputedStatus(PromotionResponse r, String statusFilter) {
         return statusFilter.equalsIgnoreCase(r.getComputedStatus());
     }

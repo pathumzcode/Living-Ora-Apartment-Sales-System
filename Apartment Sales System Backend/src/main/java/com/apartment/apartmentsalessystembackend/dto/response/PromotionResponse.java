@@ -3,10 +3,9 @@ package com.apartment.apartmentsalessystembackend.dto.response;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
-/**
- * Response DTO for Promotion. Includes all entity fields plus the
- * computed status string (ACTIVE / SCHEDULED / EXPIRED / INACTIVE).
- */
+// Response DTO for Promotion. Includes all entity fields plus the
+//computed status string (ACTIVE / SCHEDULED / EXPIRED / INACTIVE).
+
 public class PromotionResponse {
 
     private String promotionId;
