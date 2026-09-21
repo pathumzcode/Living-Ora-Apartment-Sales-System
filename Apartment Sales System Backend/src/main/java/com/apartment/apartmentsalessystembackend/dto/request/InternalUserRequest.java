@@ -13,7 +13,8 @@ public class InternalUserRequest {
     @NotBlank(message = "Role is required") @Size(max = 50) private String role;
     @NotBlank(message = "Email is required") @Email(message = "Email should be valid") private String email;
     @NotBlank(message = "NIC is required") @Size(max = 20) private String nic;
-    @NotBlank(message = "Phone number is required") @Pattern(regexp = "^[0-9+()\\s-]{7,20}$", message = "Invalid phone number") private String phoneNumber;
+    @NotBlank(message = "Phone number is required") @Pattern(regexp = "^[0-9]{10}$", message = "Phone number must contain exactly 10 digits") private String phoneNumber;
+    @Email(message = "Personal email should be valid") private String personalEmail;
     @Size(max = 255) private String address;
     @Min(value = 18, message = "Internal user must be at least 18 years old") private Integer age;
     @Size(max = 500) private String profilePicture;
@@ -31,6 +32,7 @@ public class InternalUserRequest {
     public String getEmail() { return email; } public void setEmail(String value) { email = value; }
     public String getNic() { return nic; } public void setNic(String value) { nic = value; }
     public String getPhoneNumber() { return phoneNumber; } public void setPhoneNumber(String value) { phoneNumber = value; }
+    public String getPersonalEmail() { return personalEmail != null ? personalEmail : email; } public void setPersonalEmail(String value) { personalEmail = value; }
     public String getAddress() { return address; } public void setAddress(String value) { address = value; }
     public Integer getAge() { return age; } public void setAge(Integer value) { age = value; }
     public String getProfilePicture() { return profilePicture; } public void setProfilePicture(String value) { profilePicture = value; }

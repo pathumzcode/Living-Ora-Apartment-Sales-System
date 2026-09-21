@@ -43,6 +43,9 @@ public class UserService {
     @Autowired
     private PasswordHasher passwordHasher;
 
+    @Autowired
+    private com.apartment.apartmentsalessystembackend.repository.InternalUserDeletionRequestRepository internalUserDeletionRequestRepository;
+
     public List<ExternalUser> getAllExternalUsers() {
         return externalUserRepository.findAll();
     }
@@ -127,19 +130,43 @@ public class UserService {
             throw new BadRequestException("Password is required for a new internal user");
         }
         String email = request.getEmail().trim().toLowerCase(Locale.ROOT);
+        String personalEmail = (request.getPersonalEmail() != null && !request.getPersonalEmail().isBlank())
+                ? request.getPersonalEmail().trim().toLowerCase(Locale.ROOT)
+                : email;
+
         if (internalUserRepository.existsByEmail(email) || userVerificationRepository.existsByEmail(email)) {
             throw new BadRequestException("An account already exists for this email");
+        }
+        if (!email.equalsIgnoreCase(personalEmail)
+                && (internalUserRepository.existsByEmail(personalEmail)
+                || internalUserRepository.existsByPersonalEmail(personalEmail)
+                || userVerificationRepository.existsByEmail(personalEmail))) {
+            throw new BadRequestException("An account already exists for this personal email");
         }
         if (internalUserRepository.findByNic(request.getNic().trim()).isPresent()) {
             throw new BadRequestException("An account already exists for this NIC");
         }
-        if (internalUserRepository.existsByPhoneNumber(request.getPhoneNumber().trim())) {
+        String phone = request.getPhoneNumber().trim();
+        if (!phone.matches("^[0-9]{10}$")) {
+            throw new BadRequestException("Phone number must contain exactly 10 digits");
+        }
+        if (internalUserRepository.existsByPhoneNumber(phone)) {
             throw new BadRequestException("An account already exists for this phone number");
         }
 
-        String empId = (request.getEmpId() != null && !request.getEmpId().isBlank())
-                ? request.getEmpId().trim().toUpperCase(Locale.ROOT)
-                : "EMP-LO-" + UUID.randomUUID().toString().substring(0, 6).toUpperCase(Locale.ROOT);
+        // Validate age from Date of Birth
+        if (request.getDateOfBirth() != null) {
+            int calculatedAge = java.time.Period.between(request.getDateOfBirth(), java.time.LocalDate.now()).getYears();
+            if (calculatedAge < 18) {
+                throw new BadRequestException("Internal user must be at least 18 years old to register. Calculated age: " + calculatedAge);
+            }
+            request.setAge(calculatedAge);
+        } else if (request.getAge() != null && request.getAge() < 18) {
+            throw new BadRequestException("Internal user must be at least 18 years old to register");
+        }
+
+        String role = normalizeInternalRole(request.getRole());
+        String empId = generateEmployeeId(role);
         UserVerification verification = new UserVerification();
         verification.setUid("INT-" + UUID.randomUUID().toString().substring(0, 8).toUpperCase(Locale.ROOT));
         verification.setEmpId(empId);
@@ -153,8 +180,9 @@ public class UserService {
         copyFields(internalUser, request);
         internalUser.setEmpId(empId);
         internalUser.setEmail(email);
+        internalUser.setPersonalEmail(personalEmail);
         internalUser.setPassword(passwordHash);
-        internalUser.setRole(normalizeInternalRole(request.getRole()));
+        internalUser.setRole(role);
         internalUser.setJoinedDate(java.time.LocalDate.now());
         internalUser.setUserVerification(savedVerification);
         InternalUser saved = internalUserRepository.save(internalUser);
@@ -171,8 +199,28 @@ public class UserService {
         if (!internalUser.getEmail().equalsIgnoreCase(email) && (internalUserRepository.existsByEmail(email) || userVerificationRepository.existsByEmail(email))) {
             throw new BadRequestException("An account already exists for this email");
         }
+        String phone = request.getPhoneNumber().trim();
+        if (!phone.matches("^[0-9]{10}$")) {
+            throw new BadRequestException("Phone number must contain exactly 10 digits");
+        }
+        if (!phone.equals(internalUser.getPhoneNumber()) && internalUserRepository.existsByPhoneNumber(phone)) {
+            throw new BadRequestException("An account already exists for this phone number");
+        }
+
+        // Validate age from Date of Birth
+        if (request.getDateOfBirth() != null) {
+            int calculatedAge = java.time.Period.between(request.getDateOfBirth(), java.time.LocalDate.now()).getYears();
+            if (calculatedAge < 18) {
+                throw new BadRequestException("Internal user must be at least 18 years old. Calculated age: " + calculatedAge);
+            }
+            request.setAge(calculatedAge);
+        }
+
         copyFields(internalUser, request);
         internalUser.setEmail(email);
+        if (request.getPersonalEmail() != null && !request.getPersonalEmail().isBlank()) {
+            internalUser.setPersonalEmail(request.getPersonalEmail().trim().toLowerCase(Locale.ROOT));
+        }
         internalUser.setRole(normalizeInternalRole(request.getRole()));
         if (request.getPassword() != null && !request.getPassword().isBlank()) internalUser.setPassword(passwordHasher.hash(request.getPassword()));
         UserVerification verification = internalUser.getUserVerification();
@@ -184,13 +232,82 @@ public class UserService {
         return saved;
     }
 
+    @org.springframework.transaction.annotation.Transactional
+    public InternalUser updateOwnProfile(String empId, com.apartment.apartmentsalessystembackend.dto.request.InternalUserProfileUpdateRequest request) {
+        InternalUser internalUser = internalUserRepository.findById(empId)
+                .orElseThrow(() -> new ResourceNotFoundException("Internal user not found with Emp ID: " + empId));
+
+        // Phone validation: exactly 10 digits
+        String phone = request.getPhoneNumber() != null ? request.getPhoneNumber().trim() : "";
+        if (!phone.matches("^[0-9]{10}$")) {
+            throw new BadRequestException("Phone number must contain exactly 10 digits");
+        }
+
+        // Personal email validation
+        String personalEmail = request.getPersonalEmail() != null ? request.getPersonalEmail().trim().toLowerCase(Locale.ROOT) : "";
+        if (!personalEmail.matches("^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$")) {
+            throw new BadRequestException("Please provide a valid personal email address");
+        }
+
+        // Check if personal email is taken by another account
+        if (!personalEmail.equalsIgnoreCase(internalUser.getPersonalEmail()) && !personalEmail.equalsIgnoreCase(internalUser.getEmail())) {
+            if (internalUserRepository.existsByEmail(personalEmail) || userVerificationRepository.existsByEmail(personalEmail)) {
+                throw new BadRequestException("An account already exists with this personal email");
+            }
+        }
+
+        // Check if phone number is taken by another account
+        if (!phone.equals(internalUser.getPhoneNumber())) {
+            if (internalUserRepository.existsByPhoneNumber(phone)) {
+                throw new BadRequestException("An account already exists with this phone number");
+            }
+        }
+
+        // Update ONLY mutable personal fields (CANNOT change companyEmail, firstName, lastName, dateOfBirth, age, nic, role)
+        internalUser.setPersonalEmail(personalEmail);
+        internalUser.setEmail(personalEmail); // Sync so staff can also authenticate with personal email
+        internalUser.setPhoneNumber(phone);
+        if (request.getProfilePicture() != null && !request.getProfilePicture().isBlank()) {
+            internalUser.setProfilePicture(request.getProfilePicture().trim());
+        }
+        if (request.getAddress() != null) {
+            internalUser.setAddress(request.getAddress().trim());
+        }
+
+        // Sync UserVerification email
+        UserVerification verification = internalUser.getUserVerification();
+        if (verification != null) {
+            verification.setEmail(personalEmail);
+            userVerificationRepository.save(verification);
+        }
+
+        InternalUser saved = internalUserRepository.save(internalUser);
+        recordAudit(empId, "STAFF_PROFILE_UPDATED", empId, "phone=" + phone + ", personalEmail=" + personalEmail);
+        return saved;
+    }
+
     private void copyFields(InternalUser target, InternalUserRequest request) {
         target.setFirstName(request.getFirstName().trim()); target.setLastName(request.getLastName().trim());
         target.setNic(request.getNic().trim()); target.setPhoneNumber(request.getPhoneNumber().trim());
-        target.setAddress(request.getAddress() == null ? null : request.getAddress().trim()); target.setAge(request.getAge());
+        target.setAddress(request.getAddress() == null ? null : request.getAddress().trim()); 
+        
+        if (request.getDateOfBirth() != null) {
+            target.setDateOfBirth(request.getDateOfBirth());
+            int calculatedAge = java.time.Period.between(request.getDateOfBirth(), java.time.LocalDate.now()).getYears();
+            target.setAge(calculatedAge);
+        } else if (request.getAge() != null) {
+            target.setAge(request.getAge());
+        }
+
+        if (request.getPersonalEmail() != null && !request.getPersonalEmail().isBlank()) {
+            target.setPersonalEmail(request.getPersonalEmail().trim().toLowerCase(Locale.ROOT));
+        }
+
         target.setProfilePicture(request.getProfilePicture());
-        target.setDateOfBirth(request.getDateOfBirth()); target.setCompanyEmail(request.getCompanyEmail());
-        if (request.getcEmailPassword() != null && !request.getcEmailPassword().isBlank()) target.setcEmailPassword(passwordHasher.hash(request.getcEmailPassword()));
+        target.setCompanyEmail(request.getCompanyEmail() != null ? request.getCompanyEmail().trim().toLowerCase(Locale.ROOT) : null);
+        if (request.getcEmailPassword() != null && !request.getcEmailPassword().isBlank()) {
+            target.setcEmailPassword(passwordHasher.hash(request.getcEmailPassword()));
+        }
         target.setServiceYears(request.getServiceYears());
     }
 
@@ -204,10 +321,196 @@ public class UserService {
         return normalized;
     }
 
+    public String previewNextEmployeeId(String adminEmpId, String role) {
+        assertAdmin(adminEmpId);
+        return generateEmployeeId(normalizeInternalRole(role));
+    }
+
+    private synchronized String generateEmployeeId(String role) {
+        String prefix = employeeIdPrefix(role);
+        int highestIndex = 1000;
+        for (InternalUser user : internalUserRepository.findAll()) {
+            highestIndex = highestNumericSuffix(highestIndex, prefix, user.getEmpId());
+        }
+        for (UserVerification verification : userVerificationRepository.findAll()) {
+            highestIndex = highestNumericSuffix(highestIndex, prefix, verification.getEmpId());
+        }
+
+        String candidate;
+        do {
+            candidate = prefix + String.format(Locale.ROOT, "%04d", ++highestIndex);
+        } while (employeeIdInUse(candidate));
+        return candidate;
+    }
+
+    private int highestNumericSuffix(int currentHighest, String prefix, String existingId) {
+        if (existingId == null || !existingId.startsWith(prefix)) return currentHighest;
+        String suffix = existingId.substring(prefix.length());
+        try {
+            return Math.max(currentHighest, Integer.parseInt(suffix));
+        } catch (NumberFormatException ignored) {
+            return currentHighest;
+        }
+    }
+
+    private boolean employeeIdInUse(String empId) {
+        return internalUserRepository.existsById(empId) || userVerificationRepository.existsByEmpId(empId);
+    }
+
+    private String employeeIdPrefix(String role) {
+        return switch (role) {
+            case "ADMIN" -> "EMP-ADM-";
+            case "SALES_MANAGER" -> "EMP-SM-";
+            case "MARKETING_MANAGER" -> "EMP-MKT-";
+            case "CUSTOMER_RELATIONS_OFFICER" -> "EMP-CRO-";
+            case "FINANCE_PAYMENTS_OFFICER" -> "EMP-FIN-";
+            case "PROPERTY_DEVELOPMENT_MANAGER" -> "EMP-PDM-";
+            case "OPERATIONS_DIRECTOR" -> "EMP-OPS-";
+            default -> "EMP-STAFF-";
+        };
+    }
+
     private void assertAdmin(String adminEmpId) {
         InternalUser admin = internalUserRepository.findById(adminEmpId == null ? "" : adminEmpId)
                 .orElseThrow(() -> new BadRequestException("Admin access is required"));
         if (!"ADMIN".equalsIgnoreCase(admin.getRole())) throw new BadRequestException("Admin access is required");
+    }
+
+    private void assertOperationsDirectorOrAdmin(String reviewerEmpId) {
+        InternalUser reviewer = internalUserRepository.findById(reviewerEmpId == null ? "" : reviewerEmpId)
+                .orElseThrow(() -> new BadRequestException("Operations Director or Admin access is required"));
+        String role = reviewer.getRole();
+        if (!"OPERATIONS_DIRECTOR".equalsIgnoreCase(role) && !"ADMIN".equalsIgnoreCase(role)) {
+            throw new BadRequestException("Only Operations Director or Admin can review deletion requests");
+        }
+    }
+
+    @org.springframework.transaction.annotation.Transactional
+    public Map<String, Object> deleteInternalUser(String adminEmpId, String targetEmpId) {
+        assertAdmin(adminEmpId);
+        InternalUser target = internalUserRepository.findById(targetEmpId)
+                .orElseThrow(() -> new ResourceNotFoundException("Internal user not found with Emp ID: " + targetEmpId));
+
+        String targetEmail = target.getCompanyEmail() != null ? target.getCompanyEmail() : target.getEmail();
+        UserVerification verification = target.getUserVerification();
+
+        // 1. Delete InternalUser record first (holds FK to userVerification)
+        internalUserRepository.delete(target);
+        internalUserRepository.flush();
+
+        // 2. Delete associated UserVerification record
+        if (verification != null) {
+            userVerificationRepository.delete(verification);
+            userVerificationRepository.flush();
+        }
+
+        // 3. Cleanup any orphan records by empId or email
+        userVerificationRepository.findByEmpId(targetEmpId).ifPresent(v -> {
+            userVerificationRepository.delete(v);
+            userVerificationRepository.flush();
+        });
+        if (targetEmail != null && !targetEmail.isBlank()) {
+            userVerificationRepository.findByEmail(targetEmail).ifPresent(v -> {
+                userVerificationRepository.delete(v);
+                userVerificationRepository.flush();
+            });
+        }
+
+        recordAudit(adminEmpId, "INTERNAL_USER_DELETED_PERMANENTLY", targetEmpId, "deletedBy=" + adminEmpId);
+
+        Map<String, Object> response = new LinkedHashMap<>();
+        response.put("success", true);
+        response.put("message", "Internal user and associated verification record permanently deleted.");
+        response.put("targetEmpId", targetEmpId);
+        return response;
+    }
+
+    public List<com.apartment.apartmentsalessystembackend.entity.InternalUserDeletionRequest> getPendingDeletionRequests(String reviewerEmpId) {
+        assertOperationsDirectorOrAdmin(reviewerEmpId);
+        return internalUserDeletionRequestRepository.findByStatusOrderByRequestedAtDesc("PENDING");
+    }
+
+    @org.springframework.transaction.annotation.Transactional
+    public Map<String, Object> approveInternalUserDeletion(String reviewerEmpId, String requestId) {
+        assertOperationsDirectorOrAdmin(reviewerEmpId);
+        com.apartment.apartmentsalessystembackend.entity.InternalUserDeletionRequest req =
+                internalUserDeletionRequestRepository.findByRequestId(requestId)
+                        .orElseThrow(() -> new ResourceNotFoundException("Deletion request not found with ID: " + requestId));
+
+        if (!"PENDING".equalsIgnoreCase(req.getStatus())) {
+            throw new BadRequestException("Request is not in PENDING status: " + req.getStatus());
+        }
+
+        String targetEmpId = req.getTargetEmpId();
+        InternalUser target = internalUserRepository.findById(targetEmpId).orElse(null);
+        UserVerification verification = null;
+
+        if (target != null) {
+            verification = target.getUserVerification();
+            // 1. Delete InternalUser record first (since it holds FK userVerification_verificationID)
+            internalUserRepository.delete(target);
+            internalUserRepository.flush();
+        }
+
+        // 2. Permanently delete from userVerification table (by referenced object, empId, and email)
+        if (verification != null) {
+            userVerificationRepository.delete(verification);
+            userVerificationRepository.flush();
+        }
+
+        // Also clean up any matching entry in userVerification table by empId or email to ensure 100% removal
+        userVerificationRepository.findByEmpId(targetEmpId).ifPresent(v -> {
+            userVerificationRepository.delete(v);
+            userVerificationRepository.flush();
+        });
+
+        if (req.getTargetEmail() != null && !req.getTargetEmail().isBlank()) {
+            userVerificationRepository.findByEmail(req.getTargetEmail()).ifPresent(v -> {
+                userVerificationRepository.delete(v);
+                userVerificationRepository.flush();
+            });
+        }
+
+        req.setStatus("APPROVED");
+        req.setReviewedByEmpId(reviewerEmpId);
+        req.setReviewedAt(java.time.LocalDateTime.now());
+        internalUserDeletionRequestRepository.save(req);
+
+        recordAudit(reviewerEmpId, "INTERNAL_USER_DELETED_PERMANENTLY", targetEmpId, "requestId=" + requestId);
+
+        Map<String, Object> response = new LinkedHashMap<>();
+        response.put("success", true);
+        response.put("message", "Internal user and associated userVerification record deleted permanently.");
+        response.put("targetEmpId", targetEmpId);
+        response.put("requestId", requestId);
+        return response;
+    }
+
+    @org.springframework.transaction.annotation.Transactional
+    public Map<String, Object> rejectInternalUserDeletion(String reviewerEmpId, String requestId, String reason) {
+        assertOperationsDirectorOrAdmin(reviewerEmpId);
+        com.apartment.apartmentsalessystembackend.entity.InternalUserDeletionRequest req =
+                internalUserDeletionRequestRepository.findByRequestId(requestId)
+                        .orElseThrow(() -> new ResourceNotFoundException("Deletion request not found with ID: " + requestId));
+
+        if (!"PENDING".equalsIgnoreCase(req.getStatus())) {
+            throw new BadRequestException("Request is not in PENDING status: " + req.getStatus());
+        }
+
+        req.setStatus("REJECTED");
+        req.setReviewedByEmpId(reviewerEmpId);
+        req.setReviewedAt(java.time.LocalDateTime.now());
+        req.setRejectionReason(reason);
+        internalUserDeletionRequestRepository.save(req);
+
+        recordAudit(reviewerEmpId, "INTERNAL_USER_DELETION_REJECTED", req.getTargetEmpId(), "requestId=" + requestId);
+
+        Map<String, Object> response = new LinkedHashMap<>();
+        response.put("success", true);
+        response.put("message", "Deletion request rejected. Account remains active.");
+        response.put("targetEmpId", req.getTargetEmpId());
+        response.put("requestId", requestId);
+        return response;
     }
 
     private void recordAudit(String actorEmpId, String action, String target, String details) {
