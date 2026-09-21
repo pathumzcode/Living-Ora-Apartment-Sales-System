@@ -135,20 +135,20 @@ public class PromotionController {
     }
 
     // Soft-deletes a promotion (status = DELETED).
-    // Requires: ADMIN role only.
+    // Requires: MARKETING_MANAGER role only.
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Map<String, String>> deletePromotion(
             @RequestHeader(value = "X-Staff-Emp-Id", required = false) String staffEmpId,
             @PathVariable String id) {
-        requireAdminRole(staffEmpId);
+        requireMarketingManagerRole(staffEmpId);
         promotionService.deletePromotion(id);
         return ResponseEntity.ok(Map.of("message", "Promotion deleted successfully."));
     }
 
     // ── Authorization Helpers ─────────────────────────────────────────────────────
 
-    // Validates that the caller is ADMIN or MARKETING_MANAGER.
+    // Validates that the caller is MARKETING_MANAGER only (for all promotion management).
 
     private void requireManagementRole(String staffEmpId) {
         if (staffEmpId == null || staffEmpId.isBlank()) {
@@ -157,23 +157,22 @@ public class PromotionController {
         InternalUser user = internalUserRepository.findById(staffEmpId)
                 .orElseThrow(() -> new BadRequestException("Staff member not found: " + staffEmpId));
         String role = user.getRole();
-        if (!"ADMIN".equals(role) && !"MARKETING_MANAGER".equals(role) &&
-            !"SALES_MANAGER".equals(role) && !"OPERATIONS_DIRECTOR".equals(role)) {
+        if (!"MARKETING_MANAGER".equals(role)) {
             throw new BadRequestException(
-                    "Access denied. Promotion management requires ADMIN, MARKETING_MANAGER, SALES_MANAGER, or OPERATIONS_DIRECTOR role.");
+                    "Access denied. Promotion management requires MARKETING_MANAGER role.");
         }
     }
 
-    // Validates that the caller is ADMIN (for delete operations).
+    // Validates that the caller is MARKETING_MANAGER (for delete operations).
 
-    private void requireAdminRole(String staffEmpId) {
+    private void requireMarketingManagerRole(String staffEmpId) {
         if (staffEmpId == null || staffEmpId.isBlank()) {
             throw new BadRequestException("Staff Employee ID header (X-Staff-Emp-Id) is required.");
         }
         InternalUser user = internalUserRepository.findById(staffEmpId)
                 .orElseThrow(() -> new BadRequestException("Staff member not found: " + staffEmpId));
-        if (!"ADMIN".equals(user.getRole())) {
-            throw new BadRequestException("Access denied. Only ADMIN can delete promotions.");
+        if (!"MARKETING_MANAGER".equals(user.getRole())) {
+            throw new BadRequestException("Access denied. Only MARKETING_MANAGER can delete promotions.");
         }
     }
 }

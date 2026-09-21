@@ -1,6 +1,6 @@
 /**
  * Promotion Management Page — Living-Ora
- * Authorized roles: ADMIN, MARKETING_MANAGER, SALES_MANAGER, OPERATIONS_DIRECTOR
+ * Authorized roles: MARKETING_MANAGER
  *
  * Features:
  *  - Load all promotions from real API
@@ -23,10 +23,7 @@ import { store } from '../store.js';
 
 document.addEventListener('DOMContentLoaded', () => {
   const ALLOWED_ROLES = [
-    ROLES.ADMIN,
-    ROLES.MARKETING_MANAGER,
-    ROLES.SALES_MANAGER,
-    ROLES.OPERATIONS_DIRECTOR
+    ROLES.MARKETING_MANAGER
   ];
 
   if (!requireAuth(ALLOWED_ROLES)) return;
@@ -36,7 +33,7 @@ document.addEventListener('DOMContentLoaded', () => {
   setupModalListeners();
 
   const user    = getCurrentUser();
-  const isAdmin = user?.role === ROLES.ADMIN;
+  const isMarketingManager = user?.role === ROLES.MARKETING_MANAGER;
 
   // Populate the apartment dropdown once (store may already be ready)
   function populateApartmentDropdown() {
@@ -151,7 +148,7 @@ document.addEventListener('DOMContentLoaded', () => {
             <div style="display:flex;gap:0.4rem;flex-wrap:wrap;">
               <button class="btn btn-sm btn-secondary edit-btn" data-id="${escapeHtml(p.promotionId)}">Edit</button>
               <button class="btn btn-sm ${toggleClass} toggle-btn" data-id="${escapeHtml(p.promotionId)}">${toggleLabel}</button>
-              ${isAdmin ? `<button class="btn btn-sm btn-danger delete-btn" data-id="${escapeHtml(p.promotionId)}" data-title="${escapeHtml(p.promotionTitle)}">Delete</button>` : ''}
+              ${isMarketingManager ? `<button class="btn btn-sm btn-danger delete-btn" data-id="${escapeHtml(p.promotionId)}" data-title="${escapeHtml(p.promotionTitle)}">Delete</button>` : ''}
             </div>
           </td>
         </tr>`;
@@ -167,7 +164,7 @@ document.addEventListener('DOMContentLoaded', () => {
       btn.addEventListener('click', () => handleToggle(btn.getAttribute('data-id')));
     });
 
-    // Delete buttons (admin only)
+    // Delete buttons (marketing manager only)
     document.querySelectorAll('.delete-btn').forEach(btn => {
       btn.addEventListener('click', () => {
         pendingDeleteId = btn.getAttribute('data-id');

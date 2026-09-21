@@ -19,6 +19,10 @@ public interface PromotionRepository extends JpaRepository<Promotion, String> {
 
     List<Promotion> findAllByOrderByStartDateDesc();
 
+    /** Returns all promotions excluding soft-deleted ones, ordered by startDate DESC. */
+    @Query("SELECT p FROM Promotion p WHERE p.status <> 'DELETED' ORDER BY p.startDate DESC")
+    List<Promotion> findAllExcludeDeleted();
+
     /**
      * Returns promotions whose status=ACTIVE and today falls within [startDate, endDate].
      * Used by the public /active endpoint and the customer-facing promotions page.
@@ -31,9 +35,11 @@ public interface PromotionRepository extends JpaRepository<Promotion, String> {
     /**
      * Case-insensitive title search, optionally filtered by status.
      * Pass null for status to search across all statuses.
+     * Always excludes soft-deleted promotions.
      */
     @Query("SELECT p FROM Promotion p WHERE " +
            "LOWER(p.promotionTitle) LIKE LOWER(CONCAT('%', :q, '%')) " +
+           "AND p.status <> 'DELETED' " +
            "AND (:status IS NULL OR p.status = :status) " +
            "ORDER BY p.startDate DESC")
     List<Promotion> searchByTitleAndStatus(@Param("q") String q, @Param("status") String status);

@@ -2,13 +2,16 @@ package com.apartment.apartmentsalessystembackend.service;
 
 import com.apartment.apartmentsalessystembackend.dto.request.PromotionRequest;
 import com.apartment.apartmentsalessystembackend.dto.response.PromotionResponse;
+import com.apartment.apartmentsalessystembackend.entity.InternalUser;
 import com.apartment.apartmentsalessystembackend.entity.Promotion;
 import com.apartment.apartmentsalessystembackend.exception.BadRequestException;
 import com.apartment.apartmentsalessystembackend.exception.ResourceNotFoundException;
 import com.apartment.apartmentsalessystembackend.mapper.PromotionMapper;
+import com.apartment.apartmentsalessystembackend.repository.InternalUserRepository;
 import com.apartment.apartmentsalessystembackend.repository.PromotionRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -35,6 +38,9 @@ public class PromotionService {
 
     @Autowired
     private PromotionMapper promotionMapper;
+
+    @Autowired
+    private InternalUserRepository internalUserRepository;
 
     // ── Read Operations ──────────────────────────────────────────────────────────
 
@@ -109,13 +115,24 @@ public class PromotionService {
         return promotionMapper.toResponse(promotionRepository.save(entity));
     }
 
-    // deletes a promotion by setting its status to 'DELETED'.
+    // Hard-deletes a promotion from DB.
+    // First nullifies the FK reference in InternalUser to satisfy the FK constraint,
+    // then permanently removes the promotion row.
 
+    @Transactional
     public void deletePromotion(String promotionId) {
         Promotion promotion = promotionRepository.findById(promotionId)
                 .orElseThrow(() ->
                         new ResourceNotFoundException("Promotion not found: " + promotionId));
 
+        // Nullify FK on all InternalUsers that reference this promotion
+        List<InternalUser> linkedUsers = internalUserRepository.findByPromotion(promotion);
+        for (InternalUser user : linkedUsers) {
+            user.setPromotion(null);
+        }
+        internalUserRepository.saveAll(linkedUsers);
+
+        // Now safe to hard delete
         promotionRepository.delete(promotion);
     }
 
