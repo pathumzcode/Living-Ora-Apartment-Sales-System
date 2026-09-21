@@ -44,6 +44,7 @@ export function renderNavbar(activePage = '') {
         <a href="index.html" class="nav-logo">
           <span>Living</span>Ora
         </a>
+        ${!isInternal ? `
         <ul class="nav-links">
           <li><a href="index.html" class="nav-link ${activePage === 'home' ? 'active' : ''}">Home</a></li>
           <li><a href="apartments.html" class="nav-link ${activePage === 'apartments' ? 'active' : ''}">Residences</a></li>
@@ -51,6 +52,7 @@ export function renderNavbar(activePage = '') {
           <li><a href="promotions.html" class="nav-link ${activePage === 'promotions' ? 'active' : ''}">Promotions</a></li>
           <li><a href="external-apartments.html" class="nav-link ${activePage === 'external' ? 'active' : ''}">Resale Listings</a></li>
         </ul>
+        ` : ''}
         <div class="nav-actions">
           ${authLinksHtml}
         </div>
