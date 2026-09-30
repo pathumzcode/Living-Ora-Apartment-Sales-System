@@ -84,6 +84,19 @@
         <!-- Injected by js/pages/apartment-detail.js -->
       </div>
     </section>
+
+    <!-- ── Active Promotions for This Apartment ─────────────────────────── -->
+    <section id="apt-promotions-section" style="margin-top: 3rem; display:none;">
+      <div style="margin-bottom: 1.5rem;">
+        <span class="badge badge-success" style="margin-bottom: 0.5rem;">Limited Time Offers</span>
+        <h2 style="font-size: 1.75rem; font-weight: 800;">Active Promotions for This Residence</h2>
+        <p style="color: var(--text-muted); font-size: 0.92rem;">Apply a promotion code at booking to claim your discount instantly.</p>
+      </div>
+      <div id="apt-promotions-grid" class="grid-2">
+        <!-- Injected by apartment-detail.js -->
+      </div>
+    </section>
+
   </main>
 
   <!-- Booking Reservation Modal -->
@@ -157,6 +170,35 @@
           <div class="form-group">
             <label class="form-label" for="modal-payment-proof">Proof of Payment / Wire Receipt (PDF or Image)</label>
             <input type="file" id="modal-payment-proof" class="form-input" accept=".pdf,.jpg,.jpeg,.png" />
+          </div>
+
+          <!-- Promotion Code -->
+          <div class="form-group" style="border-top: 1px solid var(--border-color); padding-top: 1.25rem; margin-top: 0.5rem;">
+            <label class="form-label" for="modal-promo-code">Promotion Code (Optional)</label>
+            <div style="display: flex; gap: 0.75rem;">
+              <input type="text" id="modal-promo-code" class="form-input"
+                     placeholder="e.g. ORA2026" style="flex: 1; text-transform: uppercase;" />
+              <button type="button" id="apply-promo-btn" class="btn btn-outline btn-sm" style="white-space: nowrap;">
+                Apply Code
+              </button>
+            </div>
+            <div id="promo-feedback" style="margin-top: 0.5rem; font-size: 0.85rem; display: none;"></div>
+          </div>
+
+          <!-- Discount Preview Row (shown when valid promo applied) -->
+          <div id="discount-preview-row" style="display: none; background: rgba(25,135,84,0.08); border: 1px solid var(--success); border-radius: 8px; padding: 0.9rem 1.1rem; margin-bottom: 0.75rem;">
+            <div style="display: flex; justify-content: space-between; margin-bottom: 0.3rem;">
+              <span style="color: var(--text-muted); font-size: 0.88rem;">Original Price:</span>
+              <span id="discount-original" style="text-decoration: line-through; color: var(--text-muted);"></span>
+            </div>
+            <div style="display: flex; justify-content: space-between; margin-bottom: 0.3rem;">
+              <span style="color: var(--success); font-size: 0.88rem; font-weight: 600;">Discount Applied:</span>
+              <span id="discount-amount" style="color: var(--success); font-weight: 700;"></span>
+            </div>
+            <div style="display: flex; justify-content: space-between;">
+              <span style="color: var(--text-main); font-size: 0.95rem; font-weight: 700;">You Pay:</span>
+              <span id="discount-final" style="color: var(--primary); font-size: 1.1rem; font-weight: 800;"></span>
+            </div>
           </div>
 
           <button type="submit" id="submit-booking-btn" class="btn btn-primary btn-block" style="margin-top: 1rem;">

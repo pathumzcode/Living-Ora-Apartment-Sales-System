@@ -1,7 +1,8 @@
 package com.apartment.apartmentsalessystembackend.entity;
 
-import jakarta.persistence.*;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import jakarta.persistence.*;
+
 import java.time.LocalDate;
 
 @Entity
@@ -21,8 +22,8 @@ public class InternalUser {
     @Column(name = "personalEmail", length = 255)
     private String personalEmail;
 
-    @Column(name = "password", nullable = false, length = 255)
     @JsonIgnore
+    @Column(name = "password", nullable = false, length = 255)
     private String password;
 
     @Column(name = "firstName", nullable = false, length = 100)
@@ -37,6 +38,10 @@ public class InternalUser {
     @Column(name = "phoneNumber", nullable = false, unique = true, length = 20)
     private String phoneNumber;
 
+    /*
+     * Database currently uses the spelling "adddress".
+     * Keep this name unless you intentionally migrate the database.
+     */
     @Column(name = "adddress", length = 255)
     private String address;
 
@@ -52,8 +57,8 @@ public class InternalUser {
     @Column(name = "companyEmail", length = 255)
     private String companyEmail;
 
-    @Column(name = "cEmailPassword", length = 255)
     @JsonIgnore
+    @Column(name = "cEmailPassword", length = 255)
     private String cEmailPassword;
 
     @Column(name = "serviceYears")
@@ -62,11 +67,33 @@ public class InternalUser {
     @Column(name = "joinedDate")
     private LocalDate joinedDate;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "userVerification_verificationID", nullable = false)
+    /*
+     * Every internal staff account must have verification information.
+     */
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(
+            name = "userVerification_verificationID",
+            referencedColumnName = "verificationID",
+            nullable = false
+    )
+    @JsonIgnore
     private UserVerification userVerification;
 
-    public InternalUser() {}
+    /*
+     * Your current DB requires promotion_promotionId.
+     * DataInitializer creates PROMO-2026 before creating staff.
+     */
+    @ManyToOne(fetch = FetchType.LAZY, optional = true)
+    @JoinColumn(
+            name = "promotion_promotionId",
+            referencedColumnName = "promotionId",
+            nullable = true
+    )
+    @JsonIgnore
+    private Promotion promotion;
+
+    public InternalUser() {
+    }
 
     public String getEmpId() {
         return empId;
@@ -210,5 +237,13 @@ public class InternalUser {
 
     public void setUserVerification(UserVerification userVerification) {
         this.userVerification = userVerification;
+    }
+
+    public Promotion getPromotion() {
+        return promotion;
+    }
+
+    public void setPromotion(Promotion promotion) {
+        this.promotion = promotion;
     }
 }

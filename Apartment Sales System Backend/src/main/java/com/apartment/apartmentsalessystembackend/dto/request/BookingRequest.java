@@ -20,6 +20,8 @@ public class BookingRequest {
     private String paymentMethod;
     private String paymentProof;
     private String additions;
+    /** Optional: promo code to apply at booking. Backend will validate and calculate discount. */
+    private String promotionCode;
     @NotNull(message = "Installment months is required") @Min(value = 1, message = "Installment months must be at least 1") @Max(value = 120, message = "Installment months cannot exceed 120") private Integer months;
 
     public BookingRequest() {}
@@ -95,4 +97,7 @@ public class BookingRequest {
     public void setMonths(Integer months) {
         this.months = months;
     }
+
+    public String getPromotionCode() { return promotionCode; }
+    public void setPromotionCode(String promotionCode) { this.promotionCode = promotionCode; }
 }

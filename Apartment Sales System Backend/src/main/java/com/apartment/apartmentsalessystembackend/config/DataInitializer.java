@@ -2,6 +2,8 @@ package com.apartment.apartmentsalessystembackend.config;
 
 import com.apartment.apartmentsalessystembackend.entity.*;
 import com.apartment.apartmentsalessystembackend.repository.*;
+import com.apartment.apartmentsalessystembackend.util.PasswordHasher;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
@@ -9,7 +11,7 @@ import org.springframework.stereotype.Component;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import com.apartment.apartmentsalessystembackend.util.PasswordHasher;
+import java.util.Objects;
 
 @Component
 public class DataInitializer implements CommandLineRunner {
@@ -38,11 +40,42 @@ public class DataInitializer implements CommandLineRunner {
     @Autowired
     private InternalUserRepository internalUserRepository;
 
+
+    // =========================================================
+    // MAIN INITIALIZER
+    // =========================================================
+
     @Override
-    public void run(String... args) throws Exception {
+    public void run(String... args) {
+
+        /*
+         * MERGED INITIALIZATION ORDER
+         *
+         * 1. Base promotion
+         * 2. Base customer
+         * 3. Admin
+         * 4. Apartment + Unit catalog
+         * 5. Additional external users from main
+         * 6. External apartments
+         * 7. Additional promotions from main
+         * 8. Role migration
+         * 9. Sample internal staff
+         */
+
+        initializePromotion();
+        initializeCustomer();
+        ensureDefaultAdmin();
+
+        // Admin MUST exist before apartments are created.
         seedDemoPropertyCatalog();
 
-        ensureDefaultAdmin();
+        // Keep useful main-branch sample data without overwriting John/PROMO-2026.
+        ensureSampleExternalUsers();
+
+        initializeExternalApartment();
+        ensureSampleExternalApartments();
+        ensureSamplePromotions();
+
         migrateLegacyInternalRoles();
         ensureSampleInternalStaff();
         ensureSampleExternalUsers();
@@ -50,35 +83,782 @@ public class DataInitializer implements CommandLineRunner {
         ensureSampleExternalApartments();
     }
 
-    private void seedDemoPropertyCatalog() {
-        // Remove only the old application-owned demo IDs; unrelated/live records remain untouched.
-        unitRepository.findAll().stream()
-                .filter(unit -> unit.getUnitId().equals("UNT-101-A") || unit.getUnitId().equals("UNT-102-B"))
-                .forEach(unitRepository::delete);
-        apartmentRepository.findAll().stream()
-                .filter(apartment -> apartment.getApartmentId().equals("APT-ORA-01") || apartment.getApartmentId().equals("APT-ORA-02"))
-                .forEach(apartmentRepository::delete);
 
-        if (apartmentRepository.findById("APT-LO-001").isEmpty()) {
-            Apartment residences = new Apartment();
-            residences.setApartmentId("APT-LO-001");
-            residences.setLocation("Living Ora Residences — Colombo 03");
-            residences.setNumOfRoom(120); residences.setNumOfFloors(30); residences.setNumOfSwimmingPool(2); residences.setNumOfGYM(1);
-            residences.setPriceRange("Rs. 38,500,000 - Rs. 75,000,000"); residences.setUnitStatus("Available"); residences.setNumOfUnitsAvailable(3);
-            residences.setAbout("A coastal residential development with concierge service, pool decks and smart-home ready units.");
-            residences.setImages("https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?auto=format&fit=crop&w=1200&q=80");
-            residences.setFloorPlan("https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1200&q=80");
-            apartmentRepository.save(residences);
+    // =========================================================
+    // PROMOTION
+    // =========================================================
+
+    private void initializePromotion() {
+
+        if (promotionRepository.findById("PROMO-2026").isPresent()) {
+            return;
         }
-        if (apartmentRepository.findById("APT-LO-002").isEmpty()) {
-            Apartment marina = new Apartment();
-            marina.setApartmentId("APT-LO-002"); marina.setLocation("Living Ora Marina — Colombo 06");
-            marina.setNumOfRoom(80); marina.setNumOfFloors(22); marina.setNumOfSwimmingPool(1); marina.setNumOfGYM(1);
-            marina.setPriceRange("Rs. 29,500,000 - Rs. 58,000,000"); marina.setUnitStatus("Available"); marina.setNumOfUnitsAvailable(3);
-            marina.setAbout("A modern urban project designed around natural light, shared gardens and flexible payment options.");
-            marina.setImages("https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=1200&q=80");
-            marina.setFloorPlan("https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=1200&q=80");
-            apartmentRepository.save(marina);
+
+        Promotion promo = new Promotion();
+
+        promo.setPromotionId("PROMO-2026");
+        promo.setPromotionType("Discount Code");
+        promo.setPromotionTitle("New Year Grand Discount");
+        promo.setPromotionCode("ORA2026");
+
+        promo.setDiscountPrecentage(
+                new BigDecimal("5.00")
+        );
+
+        promo.setStartDate(LocalDate.now());
+        promo.setEndDate(LocalDate.now().plusMonths(3));
+
+        promo.setButtonText("Claim 5% Off");
+        promo.setValidityPeriod("Limited Time");
+
+        promo.setAbout(
+                "Get 5% instant discount on down payment " +
+                        "for all bookings this month."
+        );
+        promo.setStatus("ACTIVE");
+
+        promotionRepository.save(promo);
+
+        System.out.println(
+                "Default promotion created: PROMO-2026"
+        );
+    }
+
+
+    // =========================================================
+    // CUSTOMER / EXTERNAL USER
+    // =========================================================
+
+    private void initializeCustomer() {
+
+        String email = "john@livingora.lk";
+
+        if (externalUserRepository
+                .findById("USR-EXT-5001")
+                .isPresent()) {
+
+            return;
+        }
+
+        UserVerification verification =
+                userVerificationRepository
+                        .findByEmail(email)
+                        .orElseGet(() -> {
+
+                            UserVerification customer =
+                                    new UserVerification();
+
+                            customer.setUid("USR-EXT-5001");
+                            customer.setEmail(email);
+
+                            customer.setPassword(
+                                    passwordHasher.hash("123456")
+                            );
+
+                            customer.setIsActive(1);
+                            customer.setIsVerified(1);
+
+                            customer.setLastLoginAt(
+                                    LocalDateTime.now()
+                            );
+
+                            return userVerificationRepository.save(customer);
+                        });
+
+
+        ExternalUser customerProfile =
+                new ExternalUser();
+
+        customerProfile.setUid(
+                "USR-EXT-5001"
+        );
+
+        customerProfile.setRole(
+                "CUSTOMER"
+        );
+
+        customerProfile.setFirstName(
+                "John"
+        );
+
+        customerProfile.setLastName(
+                "Living-Ora"
+        );
+
+        customerProfile.setNic(
+                "DEMO-5001"
+        );
+
+        customerProfile.setPhoneNumber(
+                "0712345678"
+        );
+
+        customerProfile.setAddress(
+                "Colombo, Sri Lanka"
+        );
+
+        customerProfile.setAge(30);
+
+        customerProfile.setNumOfApartments(0);
+
+        customerProfile.setEmail(
+                email
+        );
+
+        customerProfile.setPassword(
+                verification.getPassword()
+        );
+
+        customerProfile.setRegisteredDate(
+                LocalDate.now()
+        );
+
+        customerProfile.setUserVerification(
+                verification
+        );
+
+        externalUserRepository.save(
+                customerProfile
+        );
+
+        System.out.println(
+                "Default customer created: " + email
+        );
+    }
+
+
+    // =========================================================
+    // DEFAULT ADMIN
+    // =========================================================
+
+    private void ensureDefaultAdmin() {
+
+        String adminEmail =
+                "admin@livingora.lk";
+
+        if (internalUserRepository
+                .findByEmail(adminEmail)
+                .isPresent()) {
+
+            System.out.println(
+                    "Default admin already exists: " + adminEmail
+            );
+
+            return;
+        }
+
+
+        // -----------------------------------------------------
+        // USER VERIFICATION
+        // -----------------------------------------------------
+
+        UserVerification verification =
+                userVerificationRepository
+                        .findByEmail(adminEmail)
+                        .orElseGet(() -> {
+
+                            UserVerification created =
+                                    new UserVerification();
+
+                            created.setUid(
+                                    "USR-INT-1001"
+                            );
+
+                            created.setEmpId(
+                                    "EMP-INT-1001"
+                            );
+
+                            created.setEmail(
+                                    adminEmail
+                            );
+
+                            created.setPassword(
+                                    passwordHasher.hash(
+                                            "admin123"
+                                    )
+                            );
+
+                            created.setIsActive(1);
+                            created.setIsVerified(1);
+
+                            created.setLastLoginAt(
+                                    LocalDateTime.now()
+                            );
+
+                            return userVerificationRepository
+                                    .save(created);
+                        });
+
+
+        // -----------------------------------------------------
+        // REQUIRED PROMOTION
+        // -----------------------------------------------------
+
+        Promotion promotion =
+                promotionRepository
+                        .findById("PROMO-2026")
+                        .orElseThrow(() ->
+                                new IllegalStateException(
+                                        "PROMO-2026 does not exist. " +
+                                                "Promotion must be created " +
+                                                "before the admin."
+                                )
+                        );
+
+
+        // -----------------------------------------------------
+        // CREATE ADMIN
+        // -----------------------------------------------------
+
+        InternalUser admin =
+                new InternalUser();
+
+        admin.setEmpId(
+                "EMP-INT-1001"
+        );
+
+        admin.setRole(
+                "ADMIN"
+        );
+
+        admin.setEmail(
+                adminEmail
+        );
+
+        admin.setPassword(
+                verification.getPassword()
+        );
+
+        admin.setFirstName(
+                "Living-Ora"
+        );
+
+        admin.setLastName(
+                "Administrator"
+        );
+
+        admin.setNic(
+                "ADMIN-1001"
+        );
+
+        admin.setPhoneNumber(
+                "0710000000"
+        );
+
+        admin.setAddress(
+                "Living-Ora Head Office"
+        );
+
+        admin.setAge(35);
+
+        admin.setDateOfBirth(
+                LocalDate.now()
+                        .minusYears(35)
+                        .minusMonths(3)
+        );
+
+        admin.setJoinedDate(
+                LocalDate.now()
+        );
+
+        admin.setCompanyEmail(
+                adminEmail
+        );
+
+        admin.setcEmailPassword(
+                verification.getPassword()
+        );
+
+        admin.setServiceYears(
+                10
+        );
+
+        admin.setProfilePicture(
+                "https://ui-avatars.com/api/?name=Living-Ora+Administrator"
+        );
+
+
+        // REQUIRED FOREIGN KEYS
+        admin.setUserVerification(
+                verification
+        );
+
+        admin.setPromotion(
+                promotion
+        );
+
+
+        internalUserRepository.save(
+                admin
+        );
+
+        System.out.println(
+                "Default admin created: " + adminEmail
+        );
+    }
+
+
+    // =========================================================
+    // APARTMENT + UNIT DEMO DATA
+    // =========================================================
+
+    private void seedDemoPropertyCatalog() {
+
+        /*
+         * IMPORTANT FIX
+         *
+         * apartment.internalUser_empId is NOT NULL.
+         *
+         * Therefore every Apartment MUST have an InternalUser.
+         *
+         * ensureDefaultAdmin() executes before this method,
+         * so admin@livingora.lk must exist here.
+         */
+
+        InternalUser apartmentOwner =
+                internalUserRepository
+                        .findByEmail(
+                                "admin@livingora.lk"
+                        )
+                        .orElseThrow(() ->
+                                new IllegalStateException(
+                                        "Cannot create demo apartments because " +
+                                                "admin@livingora.lk does not exist."
+                                )
+                        );
+
+
+        System.out.println(
+                "Apartment owner found: "
+                        + apartmentOwner.getEmpId()
+        );
+
+
+        // =====================================================
+        // REMOVE OLD DEMO UNITS
+        // =====================================================
+
+        unitRepository.findAll()
+                .stream()
+                .filter(unit ->
+                        "UNT-101-A".equals(
+                                unit.getUnitId()
+                        )
+                                ||
+                                "UNT-102-B".equals(
+                                        unit.getUnitId()
+                                )
+                )
+                .forEach(
+                        unitRepository::delete
+                );
+
+
+        // =====================================================
+        // REMOVE OLD DEMO APARTMENTS
+        // =====================================================
+
+        apartmentRepository.findAll()
+                .stream()
+                .filter(apartment ->
+                        "APT-ORA-01".equals(
+                                apartment.getApartmentId()
+                        )
+                                ||
+                                "APT-ORA-02".equals(
+                                        apartment.getApartmentId()
+                                )
+                )
+                .forEach(
+                        apartmentRepository::delete
+                );
+
+
+        // =====================================================
+        // APARTMENT 1
+        // =====================================================
+
+        if (apartmentRepository
+                .findById("APT-LO-001")
+                .isEmpty()) {
+
+            Apartment residences =
+                    new Apartment();
+
+            residences.setApartmentId(
+                    "APT-LO-001"
+            );
+
+            residences.setLocation(
+                    "Living Ora Residences — Colombo 03"
+            );
+
+            residences.setNumOfRoom(
+                    120
+            );
+
+            residences.setNumOfFloors(
+                    30
+            );
+
+            residences.setNumOfSwimmingPool(
+                    2
+            );
+
+            residences.setNumOfGYM(
+                    1
+            );
+
+            residences.setPriceRange(
+                    "Rs. 38,500,000 - Rs. 75,000,000"
+            );
+
+            residences.setUnitStatus(
+                    "Available"
+            );
+
+            residences.setNumOfUnitsAvailable(
+                    3
+            );
+
+            residences.setAbout(
+                    "A coastal residential development with " +
+                            "concierge service, pool decks and " +
+                            "smart-home ready units."
+            );
+
+            residences.setImages(
+                    "https://images.unsplash.com/photo-1545324418-cc1a3fa10c00" +
+                            "?auto=format&fit=crop&w=1200&q=80"
+            );
+
+            residences.setFloorPlan(
+                    "https://images.unsplash.com/photo-1600585154340-be6161a56a0c" +
+                            "?auto=format&fit=crop&w=1200&q=80"
+            );
+
+
+            /*
+             * CRITICAL FIX
+             *
+             * Without this Hibernate inserts:
+             *
+             * internalUser_empId = NULL
+             *
+             * which causes:
+             *
+             * Column 'internalUser_empId' cannot be null
+             */
+            residences.setInternalUser(
+                    apartmentOwner
+            );
+
+
+            apartmentRepository.save(
+                    residences
+            );
+
+            System.out.println(
+                    "Demo apartment created: APT-LO-001"
+            );
+        }
+
+
+        // =====================================================
+        // APARTMENT 2
+        // =====================================================
+
+        if (apartmentRepository
+                .findById("APT-LO-002")
+                .isEmpty()) {
+
+            Apartment marina =
+                    new Apartment();
+
+            marina.setApartmentId(
+                    "APT-LO-002"
+            );
+
+            marina.setLocation(
+                    "Living Ora Marina — Colombo 06"
+            );
+
+            marina.setNumOfRoom(
+                    80
+            );
+
+            marina.setNumOfFloors(
+                    22
+            );
+
+            marina.setNumOfSwimmingPool(
+                    1
+            );
+
+            marina.setNumOfGYM(
+                    1
+            );
+
+            marina.setPriceRange(
+                    "Rs. 29,500,000 - Rs. 58,000,000"
+            );
+
+            marina.setUnitStatus(
+                    "Available"
+            );
+
+            marina.setNumOfUnitsAvailable(
+                    3
+            );
+
+            marina.setAbout(
+                    "A modern urban project designed around " +
+                            "natural light, shared gardens and " +
+                            "flexible payment options."
+            );
+
+            marina.setImages(
+                    "https://images.unsplash.com/photo-1512917774080-9991f1c4c750" +
+                            "?auto=format&fit=crop&w=1200&q=80"
+            );
+
+            marina.setFloorPlan(
+                    "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9" +
+                            "?auto=format&fit=crop&w=1200&q=80"
+            );
+
+
+            // CRITICAL FIX
+            marina.setInternalUser(
+                    apartmentOwner
+            );
+
+
+            apartmentRepository.save(
+                    marina
+            );
+
+            System.out.println(
+                    "Demo apartment created: APT-LO-002"
+            );
+        }
+
+
+        // =====================================================
+        // APARTMENT 3 (MERGED FROM MAIN)
+        // =====================================================
+
+        if (apartmentRepository
+                .findById("APT-LO-003")
+                .isEmpty()) {
+
+            Apartment garden =
+                    new Apartment();
+
+            garden.setApartmentId(
+                    "APT-LO-003"
+            );
+
+            garden.setLocation(
+                    "Living Ora Garden Villas — Colombo 08"
+            );
+
+            garden.setNumOfRoom(64);
+            garden.setNumOfFloors(16);
+            garden.setNumOfSwimmingPool(1);
+            garden.setNumOfGYM(1);
+
+            garden.setPriceRange(
+                    "Rs. 24,000,000 - Rs. 49,000,000"
+            );
+
+            garden.setUnitStatus(
+                    "Available"
+            );
+
+            garden.setNumOfUnitsAvailable(3);
+
+            garden.setAbout(
+                    "A peaceful garden community with family-sized layouts, " +
+                            "landscaped walkways and secure parking."
+            );
+
+            garden.setImages(
+                    "https://images.unsplash.com/photo-1600607687920-4e2a09cf159d" +
+                            "?auto=format&fit=crop&w=1200&q=80"
+            );
+
+            garden.setFloorPlan(
+                    "https://images.unsplash.com/photo-1600566753190-17f0baa2a6c3" +
+                            "?auto=format&fit=crop&w=1200&q=80"
+            );
+
+            garden.setInternalUser(
+                    apartmentOwner
+            );
+
+            apartmentRepository.save(
+                    garden
+            );
+
+            System.out.println(
+                    "Demo apartment created: APT-LO-003"
+            );
+        }
+
+
+
+        // =====================================================
+        // APARTMENT 1 UNITS
+        // =====================================================
+
+        saveDemoUnit(
+                "LO1-0801",
+                "APT-LO-001",
+                8,
+                "East Wing",
+                "38500000.00",
+                "Available",
+                2,
+                2,
+                "Family"
+        );
+
+        saveDemoUnit(
+                "LO1-1502",
+                "APT-LO-001",
+                15,
+                "Ocean Wing",
+                "52000000.00",
+                "Available",
+                3,
+                2,
+                "Family / Investor"
+        );
+
+        saveDemoUnit(
+                "LO1-2501",
+                "APT-LO-001",
+                25,
+                "Sky Villa",
+                "75000000.00",
+                "Available",
+                4,
+                4,
+                "Premium Buyer"
+        );
+
+
+        // =====================================================
+        // APARTMENT 2 UNITS
+        // =====================================================
+
+        saveDemoUnit(
+                "LO2-0603",
+                "APT-LO-002",
+                6,
+                "Garden Wing",
+                "29500000.00",
+                "Available",
+                2,
+                2,
+                "Couple"
+        );
+
+        saveDemoUnit(
+                "LO2-1204",
+                "APT-LO-002",
+                12,
+                "Marina View",
+                "42000000.00",
+                "Available",
+                3,
+                2,
+                "Family"
+        );
+
+        saveDemoUnit(
+                "LO2-1801",
+                "APT-LO-002",
+                18,
+                "Penthouse Wing",
+                "58000000.00",
+                "Available",
+                4,
+                3,
+                "Premium Buyer"
+        );
+
+
+        // =====================================================
+        // APARTMENT 3 UNITS (MERGED FROM MAIN)
+        // =====================================================
+
+        saveDemoUnit(
+                "LO3-0402",
+                "APT-LO-003",
+                4,
+                "Garden Wing",
+                "24000000.00",
+                "Available",
+                2,
+                2,
+                "Couple"
+        );
+
+        saveDemoUnit(
+                "LO3-1001",
+                "APT-LO-003",
+                10,
+                "Park View",
+                "36000000.00",
+                "Available",
+                3,
+                2,
+                "Family"
+        );
+
+        saveDemoUnit(
+                "LO3-1501",
+                "APT-LO-003",
+                15,
+                "Garden Penthouse",
+                "49000000.00",
+                "Available",
+                4,
+                3,
+                "Premium Buyer"
+        );
+
+
+
+        System.out.println(
+                "Demo apartment and unit catalog initialized successfully."
+        );
+    }
+
+
+    // =========================================================
+    // CREATE UNIT
+    // =========================================================
+
+    private void saveDemoUnit(
+            String unitId,
+            String apartmentId,
+            int floor,
+            String wing,
+            String price,
+            String availability,
+            int rooms,
+            int bathrooms,
+            String recommendedPerson
+    ) {
+
+        if (unitRepository
+                .findById(unitId)
+                .isPresent()) {
+
+            return;
         }
         if (apartmentRepository.findById("APT-LO-003").isEmpty()) {
             Apartment garden = new Apartment();
@@ -108,34 +888,129 @@ public class DataInitializer implements CommandLineRunner {
         saveDemoUnit("LO3-1501", "APT-LO-003", 15, "Garden Penthouse", "49000000.00", "Available", 4, 3, "Premium Buyer");
     }
 
-    private void saveDemoUnit(String unitId, String apartmentId, int floor, String wing, String price, String availability,
-                              int rooms, int bathrooms, String recommendedPerson) {
-        if (unitRepository.findById(unitId).isPresent()) return;
-        Unit unit = new Unit(); unit.setUnitId(unitId); unit.setApartmentId(apartmentId); unit.setFloor(floor);
-        unit.setLocation(apartmentId + " — " + wing); unit.setUnitPrice(new BigDecimal(price)); unit.setAvailability(availability);
-        unit.setFurnitures("Fully Furnished"); unit.setNumOfRooms(rooms); unit.setNumOfBathRooms(bathrooms); unit.setNumOfBeds(rooms);
-        unit.setAcOrNonAC("Air Conditioned"); unit.setRecommendedPerson(recommendedPerson);
-        unit.setAbout("Test catalog unit for the buyer floor-plan and reservation workflow.");
-        unit.setImages("https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?auto=format&fit=crop&w=1000&q=80");
-        unitRepository.save(unit);
+
+    // =========================================================
+    // EXTERNAL APARTMENT
+    // =========================================================
+
+    private void initializeExternalApartment() {
+
+        if (externalApartmentRepository
+                .findById("EXT-APT-301")
+                .isPresent()) {
+
+            return;
+        }
+
+
+        ExternalApartment ex1 =
+                new ExternalApartment();
+
+        ex1.setExApartmentId(
+                "EXT-APT-301"
+        );
+
+        ex1.setLocation(
+                "Nawala, Rajagiriya"
+        );
+
+        ex1.setAbout(
+                "Private seller offering a premium " +
+                        "3-bedroom luxury apartment with pool access."
+        );
+
+        ex1.setNumOfRooms(
+                3
+        );
+
+        ex1.setPrice(
+                new BigDecimal(
+                        "29500000.00"
+                )
+        );
+
+        ex1.setDownPayment(
+                new BigDecimal(
+                        "5000000.00"
+                )
+        );
+
+        ex1.setAcOrNonAC(
+                "AC"
+        );
+
+        ex1.setAdditionalInfo(
+                "Clean title deed, immediate transfer available."
+        );
+
+        ex1.setImages(
+                "https://images.unsplash.com/photo-1512917774080-9991f1c4c750" +
+                        "?auto=format&fit=crop&w=1000&q=80"
+        );
+
+
+        ex1.setRegisteredByUid(
+                "USR-EXT-5003"
+        );
+
+        externalApartmentRepository.save(
+                ex1
+        );
+
+        System.out.println(
+                "Default external apartment created: EXT-APT-301"
+        );
     }
+
+
+    // =========================================================
+    // LEGACY ROLE MIGRATION
+    // =========================================================
 
     private void migrateLegacyInternalRoles() {
-        internalUserRepository.findAll().forEach(user -> {
-            String currentRole = user.getRole();
-            String updatedRole = switch (currentRole == null ? "" : currentRole) {
-                case "MANAGER" -> "OPERATIONS_DIRECTOR";
-                case "FINANCE_OFFICER" -> "FINANCE_PAYMENTS_OFFICER";
-                case "SUPPORT_STAFF" -> "CUSTOMER_RELATIONS_OFFICER";
-                default -> currentRole;
-            };
-            if (!java.util.Objects.equals(currentRole, updatedRole)) {
-                user.setRole(updatedRole);
-                internalUserRepository.save(user);
-            }
-        });
-    }
 
+        internalUserRepository
+                .findAll()
+                .forEach(user -> {
+
+                    String currentRole =
+                            user.getRole();
+
+                    String updatedRole =
+                            switch (
+                                    currentRole == null
+                                            ? ""
+                                            : currentRole
+                                    ) {
+
+                                case "MANAGER" ->
+                                        "OPERATIONS_DIRECTOR";
+
+                                case "FINANCE_OFFICER" ->
+                                        "FINANCE_PAYMENTS_OFFICER";
+
+                                case "SUPPORT_STAFF" ->
+                                        "CUSTOMER_RELATIONS_OFFICER";
+
+                                default ->
+                                        currentRole;
+                            };
+
+
+                    if (!Objects.equals(
+                            currentRole,
+                            updatedRole
+                    )) {
+
+                        user.setRole(
+                                updatedRole
+                        );
+
+                        internalUserRepository.save(
+                                user
+                        );
+                    }
+                });
     private void ensureDefaultAdmin() {
         String adminPasswordHash = passwordHasher.hash("12345678");
         InternalUser existingAdmin = internalUserRepository.findByEmail("admin@livingora.lk").orElse(null);
@@ -184,10 +1059,11 @@ public class DataInitializer implements CommandLineRunner {
         internalUserRepository.save(admin);
     }
 
-    /**
-     * Seed representative internal roles so the admin user-management screen
-     * has realistic data to work with during development/demo runs.
-     */
+
+    // =========================================================
+    // SAMPLE INTERNAL STAFF
+    // =========================================================
+
     private void ensureSampleInternalStaff() {
         ensureSampleStaff("EMP-SALES-1001", "sales.manager@livingora.lk", "Sales", "Manager",
                 "SALES_MANAGER", "12345678", "STAFF-SALES-1001", "199012345678", "0711000001", 36);
@@ -334,4 +1210,138 @@ public class DataInitializer implements CommandLineRunner {
         staff.setUserVerification(verification);
         internalUserRepository.save(staff);
     }
+
+
+    // =========================================================
+    // MERGED MAIN-BRANCH SAMPLE PROMOTIONS
+    // =========================================================
+
+    private void ensureSamplePromotions() {
+
+        // PROMO-2026 is already handled by initializePromotion().
+        saveAdditionalPromotion(
+                "PROMO-2026-FAMILY",
+                "Family Home Offer",
+                "ORAFAMILY",
+                "7.50",
+                "Save on selected family-sized units at Living Ora Garden Villas."
+        );
+
+        saveAdditionalPromotion(
+                "PROMO-2026-EARLY",
+                "Early Reservation Bonus",
+                "ORAEARLY",
+                "10.00",
+                "Reserve early and receive a limited-time launch discount."
+        );
+    }
+
+
+    private void saveAdditionalPromotion(
+            String id,
+            String title,
+            String code,
+            String discount,
+            String about
+    ) {
+
+        if (promotionRepository.findById(id).isPresent()) {
+            return;
+        }
+
+        Promotion promo =
+                new Promotion();
+
+        promo.setPromotionId(id);
+        promo.setPromotionType("Discount Code");
+        promo.setPromotionTitle(title);
+        promo.setPromotionCode(code);
+        promo.setDiscountPrecentage(new BigDecimal(discount));
+        promo.setStartDate(LocalDate.now());
+        promo.setEndDate(LocalDate.now().plusMonths(3));
+        promo.setButtonText("Claim Offer");
+        promo.setValidityPeriod("Limited Time");
+        promo.setAbout(about);
+        promo.setStatus("ACTIVE");
+
+        promotionRepository.save(promo);
+
+        System.out.println(
+                "Sample promotion created: " + id
+        );
+    }
+
+
+    // =========================================================
+    // MERGED MAIN-BRANCH SAMPLE EXTERNAL APARTMENTS
+    // =========================================================
+
+    private void ensureSampleExternalApartments() {
+
+        // EXT-APT-301 is already handled by initializeExternalApartment().
+        saveAdditionalExternalApartment(
+                "EXT-APT-302",
+                "USR-EXT-5002",
+                "Mount Lavinia, Colombo",
+                2,
+                "22000000.00",
+                "4000000.00",
+                "AC",
+                "Sea-view apartment with parking and clear ownership."
+        );
+
+        saveAdditionalExternalApartment(
+                "EXT-APT-303",
+                "USR-EXT-5001",
+                "Battaramulla, Sri Lanka",
+                4,
+                "41000000.00",
+                "7000000.00",
+                "Non-AC",
+                "Spacious resale apartment near schools and public transport."
+        );
+    }
+
+
+    private void saveAdditionalExternalApartment(
+            String id,
+            String registeredByUid,
+            String location,
+            int rooms,
+            String price,
+            String downPayment,
+            String acOrNonAC,
+            String additionalInfo
+    ) {
+
+        if (externalApartmentRepository.findById(id).isPresent()) {
+            return;
+        }
+
+        ExternalApartment apartment =
+                new ExternalApartment();
+
+        apartment.setExApartmentId(id);
+        apartment.setRegisteredByUid(registeredByUid);
+        apartment.setLocation(location);
+        apartment.setAbout(
+                "Verified resale apartment available through the Living-Ora marketplace."
+        );
+        apartment.setNumOfRooms(rooms);
+        apartment.setPrice(new BigDecimal(price));
+        apartment.setDownPayment(new BigDecimal(downPayment));
+        apartment.setAcOrNonAC(acOrNonAC);
+        apartment.setAdditionalInfo(additionalInfo);
+        apartment.setImages(
+                "https://images.unsplash.com/photo-1512917774080-9991f1c4c750" +
+                        "?auto=format&fit=crop&w=1000&q=80"
+        );
+
+        externalApartmentRepository.save(apartment);
+
+        System.out.println(
+                "Sample external apartment created: " + id
+        );
+    }
+
 }
