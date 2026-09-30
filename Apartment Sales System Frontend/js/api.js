@@ -68,6 +68,13 @@ export const adminApi = {
     });
     return handleResponse(response);
   },
+  getNextEmpId: async (role) => {
+    const user = JSON.parse(localStorage.getItem('livingora_user') || 'null');
+    const response = await fetch(`${API_BASE_URL}/admin/internal-users/next-emp-id?role=${encodeURIComponent(role || '')}`, {
+      headers: { ...getHeaders(), 'X-Admin-Emp-Id': user?.uid || user?.empId || '' }
+    });
+    return handleResponse(response);
+  },
   getExternalUsers: async () => {
     const user = JSON.parse(localStorage.getItem('livingora_user') || 'null');
     const response = await fetch(`${API_BASE_URL}/admin/external-users`, {
@@ -122,6 +129,42 @@ export const adminApi = {
       method: 'PUT',
       headers: { ...getHeaders(), 'X-Admin-Emp-Id': user?.uid || user?.empId || '' },
       body: JSON.stringify(data)
+    });
+    return handleResponse(response);
+  },
+  deleteInternalUser: async (empId) => {
+    const user = JSON.parse(localStorage.getItem('livingora_user') || 'null');
+    const response = await fetch(`${API_BASE_URL}/admin/internal-users/${encodeURIComponent(empId)}`, {
+      method: 'DELETE',
+      headers: { ...getHeaders(), 'X-Admin-Emp-Id': user?.uid || user?.empId || '' }
+    });
+    if (response.status === 204) return { success: true };
+    return handleResponse(response);
+  }
+};
+
+export const operationsDeletionApi = {
+  getPending: async () => {
+    const user = JSON.parse(localStorage.getItem('livingora_user') || 'null');
+    const response = await fetch(`${API_BASE_URL}/operations/deletion-requests/pending`, {
+      headers: { ...getHeaders(), 'X-Staff-Emp-Id': user?.uid || user?.empId || '', 'X-Admin-Emp-Id': user?.uid || user?.empId || '' }
+    });
+    return handleResponse(response);
+  },
+  approve: async (requestId) => {
+    const user = JSON.parse(localStorage.getItem('livingora_user') || 'null');
+    const response = await fetch(`${API_BASE_URL}/operations/deletion-requests/${encodeURIComponent(requestId)}/approve`, {
+      method: 'POST',
+      headers: { ...getHeaders(), 'X-Staff-Emp-Id': user?.uid || user?.empId || '', 'X-Admin-Emp-Id': user?.uid || user?.empId || '' }
+    });
+    return handleResponse(response);
+  },
+  reject: async (requestId, reason = '') => {
+    const user = JSON.parse(localStorage.getItem('livingora_user') || 'null');
+    const response = await fetch(`${API_BASE_URL}/operations/deletion-requests/${encodeURIComponent(requestId)}/reject`, {
+      method: 'POST',
+      headers: { ...getHeaders(), 'X-Staff-Emp-Id': user?.uid || user?.empId || '', 'X-Admin-Emp-Id': user?.uid || user?.empId || '' },
+      body: JSON.stringify({ reason })
     });
     return handleResponse(response);
   }
@@ -314,11 +357,48 @@ export const externalApartmentsApi = {
     const response = await fetch(`${API_BASE_URL}/external-apartments`, { headers: getHeaders() });
     return handleResponse(response);
   },
+  getByAgent: async (uid) => {
+    const response = await fetch(`${API_BASE_URL}/external-apartments/agent/${encodeURIComponent(uid)}`, { headers: getHeaders() });
+    return handleResponse(response);
+  },
   create: async (exData) => {
     const response = await fetch(`${API_BASE_URL}/external-apartments`, {
       method: 'POST',
       headers: getHeaders(),
       body: JSON.stringify(exData)
+    });
+    return handleResponse(response);
+  },
+  update: async (id, exData) => {
+    const response = await fetch(`${API_BASE_URL}/external-apartments/${encodeURIComponent(id)}`, {
+      method: 'PUT',
+      headers: getHeaders(),
+      body: JSON.stringify(exData)
+    });
+    return handleResponse(response);
+  },
+  delete: async (id) => {
+    const response = await fetch(`${API_BASE_URL}/external-apartments/${encodeURIComponent(id)}`, {
+      method: 'DELETE',
+      headers: getHeaders()
+    });
+    if (response.status === 204) return true;
+    return handleResponse(response);
+  }
+};
+
+export const userApi = {
+  getInternalUser: async (empId) => {
+    const response = await fetch(`${API_BASE_URL}/users/internal/${encodeURIComponent(empId)}`, {
+      headers: getHeaders()
+    });
+    return handleResponse(response);
+  },
+  updateInternalProfile: async (empId, data) => {
+    const response = await fetch(`${API_BASE_URL}/users/internal/${encodeURIComponent(empId)}/profile`, {
+      method: 'PUT',
+      headers: getHeaders(),
+      body: JSON.stringify(data)
     });
     return handleResponse(response);
   }
