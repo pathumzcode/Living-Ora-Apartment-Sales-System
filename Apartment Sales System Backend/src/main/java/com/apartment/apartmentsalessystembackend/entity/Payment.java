@@ -43,6 +43,21 @@ public class Payment {
     @Column(name = "status", nullable = false, length = 30)
     private String status;
 
+    @Column(name = "scheduleId")
+    private Long scheduleId;
+
+    @Column(name = "scheduleItemId")
+    private Long scheduleItemId;
+
+    @Column(name = "remarks", length = 500)
+    private String remarks;
+
+    @Column(name = "verifiedBy", length = 50)
+    private String verifiedBy;
+
+    @Column(name = "verifiedAt")
+    private LocalDateTime verifiedAt;
+
     public Payment() {}
 
     public Long getId() {
@@ -127,4 +142,19 @@ public class Payment {
 
     public String getStatus() { return status; }
     public void setStatus(String status) { this.status = status; }
+
+    public Long getScheduleId() { return scheduleId; }
+    public void setScheduleId(Long scheduleId) { this.scheduleId = scheduleId; }
+
+    public Long getScheduleItemId() { return scheduleItemId; }
+    public void setScheduleItemId(Long scheduleItemId) { this.scheduleItemId = scheduleItemId; }
+
+    public String getRemarks() { return remarks; }
+    public void setRemarks(String remarks) { this.remarks = remarks; }
+
+    public String getVerifiedBy() { return verifiedBy; }
+    public void setVerifiedBy(String verifiedBy) { this.verifiedBy = verifiedBy; }
+
+    public LocalDateTime getVerifiedAt() { return verifiedAt; }
+    public void setVerifiedAt(LocalDateTime verifiedAt) { this.verifiedAt = verifiedAt; }
 }

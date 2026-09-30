@@ -7,6 +7,9 @@ public class PaymentRequest {
     private BigDecimal paymentAmount;
     private String paymentMethod;
     private String paymentProof;
+    private Long scheduleId;
+    private Long scheduleItemId;
+    private String remarks;
 
     public PaymentRequest() {}
 
@@ -40,5 +43,29 @@ public class PaymentRequest {
 
     public void setPaymentProof(String paymentProof) {
         this.paymentProof = paymentProof;
+    }
+
+    public Long getScheduleId() {
+        return scheduleId;
+    }
+
+    public void setScheduleId(Long scheduleId) {
+        this.scheduleId = scheduleId;
+    }
+
+    public Long getScheduleItemId() {
+        return scheduleItemId;
+    }
+
+    public void setScheduleItemId(Long scheduleItemId) {
+        this.scheduleItemId = scheduleItemId;
+    }
+
+    public String getRemarks() {
+        return remarks;
+    }
+
+    public void setRemarks(String remarks) {
+        this.remarks = remarks;
     }
 }
