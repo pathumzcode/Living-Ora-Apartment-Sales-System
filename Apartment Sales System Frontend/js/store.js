@@ -240,8 +240,6 @@ class DataStore {
 
   async updatePromotion(id, data) {
     const updated = await promotionsApi.update(id, data);
-  async updateExternalApartment(id, data) {
-    const updated = await externalApartmentsApi.update(id, data);
     await this.refresh();
     return updated;
   }
@@ -256,10 +254,6 @@ class DataStore {
     const result = await promotionsApi.toggleStatus(id);
     await this.refresh();
     return result;
-  async deleteExternalApartment(id) {
-    const res = await externalApartmentsApi.delete(id);
-    await this.refresh();
-    return res;
   }
 }
 

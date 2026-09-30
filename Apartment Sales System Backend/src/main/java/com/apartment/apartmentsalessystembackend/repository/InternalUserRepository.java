@@ -11,10 +11,8 @@ import java.util.Optional;
 public interface InternalUserRepository extends JpaRepository<InternalUser, String> {
     Optional<InternalUser> findByEmail(String email);
     Optional<InternalUser> findByCompanyEmail(String companyEmail);
-    Optional<InternalUser> findByPersonalEmail(String personalEmail);
     Optional<InternalUser> findByNic(String nic);
     boolean existsByEmail(String email);
-    boolean existsByPersonalEmail(String personalEmail);
     boolean existsByPhoneNumber(String phoneNumber);
     List<InternalUser> findByPromotion(Promotion promotion);
 }

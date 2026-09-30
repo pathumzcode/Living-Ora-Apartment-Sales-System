@@ -11,5 +11,4 @@ public interface UserVerificationRepository extends JpaRepository<UserVerificati
     boolean existsByEmail(String email);
     Optional<UserVerification> findByUid(String uid);
     Optional<UserVerification> findByEmpId(String empId);
-    boolean existsByEmpId(String empId);
 }
