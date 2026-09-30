@@ -19,6 +19,9 @@ public class InternalUser {
     @Column(name = "email", nullable = false, unique = true, length = 255)
     private String email;
 
+    @Column(name = "personalEmail", length = 255)
+    private String personalEmail;
+
     @JsonIgnore
     @Column(name = "password", nullable = false, length = 255)
     private String password;
@@ -114,6 +117,14 @@ public class InternalUser {
 
     public void setEmail(String email) {
         this.email = email;
+    }
+
+    public String getPersonalEmail() {
+        return personalEmail != null ? personalEmail : email;
+    }
+
+    public void setPersonalEmail(String personalEmail) {
+        this.personalEmail = personalEmail;
     }
 
     public String getPassword() {

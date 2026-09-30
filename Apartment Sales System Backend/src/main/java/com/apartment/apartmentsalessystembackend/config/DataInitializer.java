@@ -49,15 +49,17 @@ public class DataInitializer implements CommandLineRunner {
     public void run(String... args) {
 
         /*
-         * ORDER IS IMPORTANT
+         * MERGED INITIALIZATION ORDER
          *
-         * 1. Promotion
-         * 2. Customer
+         * 1. Base promotion
+         * 2. Base customer
          * 3. Admin
          * 4. Apartment + Unit catalog
-         * 5. External apartment
-         * 6. Role migration
-         * 7. Sample staff
+         * 5. Additional external users from main
+         * 6. External apartments
+         * 7. Additional promotions from main
+         * 8. Role migration
+         * 9. Sample internal staff
          */
 
         initializePromotion();
@@ -67,7 +69,13 @@ public class DataInitializer implements CommandLineRunner {
         // Admin MUST exist before apartments are created.
         seedDemoPropertyCatalog();
 
+        // Keep useful main-branch sample data without overwriting John/PROMO-2026.
+        ensureSampleExternalUsers();
+
         initializeExternalApartment();
+        ensureSampleExternalApartments();
+        ensureSamplePromotions();
+
         migrateLegacyInternalRoles();
         ensureSampleInternalStaff();
     }
@@ -634,6 +642,70 @@ public class DataInitializer implements CommandLineRunner {
 
 
         // =====================================================
+        // APARTMENT 3 (MERGED FROM MAIN)
+        // =====================================================
+
+        if (apartmentRepository
+                .findById("APT-LO-003")
+                .isEmpty()) {
+
+            Apartment garden =
+                    new Apartment();
+
+            garden.setApartmentId(
+                    "APT-LO-003"
+            );
+
+            garden.setLocation(
+                    "Living Ora Garden Villas — Colombo 08"
+            );
+
+            garden.setNumOfRoom(64);
+            garden.setNumOfFloors(16);
+            garden.setNumOfSwimmingPool(1);
+            garden.setNumOfGYM(1);
+
+            garden.setPriceRange(
+                    "Rs. 24,000,000 - Rs. 49,000,000"
+            );
+
+            garden.setUnitStatus(
+                    "Available"
+            );
+
+            garden.setNumOfUnitsAvailable(3);
+
+            garden.setAbout(
+                    "A peaceful garden community with family-sized layouts, " +
+                            "landscaped walkways and secure parking."
+            );
+
+            garden.setImages(
+                    "https://images.unsplash.com/photo-1600607687920-4e2a09cf159d" +
+                            "?auto=format&fit=crop&w=1200&q=80"
+            );
+
+            garden.setFloorPlan(
+                    "https://images.unsplash.com/photo-1600566753190-17f0baa2a6c3" +
+                            "?auto=format&fit=crop&w=1200&q=80"
+            );
+
+            garden.setInternalUser(
+                    apartmentOwner
+            );
+
+            apartmentRepository.save(
+                    garden
+            );
+
+            System.out.println(
+                    "Demo apartment created: APT-LO-003"
+            );
+        }
+
+
+
+        // =====================================================
         // APARTMENT 1 UNITS
         // =====================================================
 
@@ -713,6 +785,48 @@ public class DataInitializer implements CommandLineRunner {
                 3,
                 "Premium Buyer"
         );
+
+
+        // =====================================================
+        // APARTMENT 3 UNITS (MERGED FROM MAIN)
+        // =====================================================
+
+        saveDemoUnit(
+                "LO3-0402",
+                "APT-LO-003",
+                4,
+                "Garden Wing",
+                "24000000.00",
+                "Available",
+                2,
+                2,
+                "Couple"
+        );
+
+        saveDemoUnit(
+                "LO3-1001",
+                "APT-LO-003",
+                10,
+                "Park View",
+                "36000000.00",
+                "Available",
+                3,
+                2,
+                "Family"
+        );
+
+        saveDemoUnit(
+                "LO3-1501",
+                "APT-LO-003",
+                15,
+                "Garden Penthouse",
+                "49000000.00",
+                "Available",
+                4,
+                3,
+                "Premium Buyer"
+        );
+
 
 
         System.out.println(
@@ -876,6 +990,10 @@ public class DataInitializer implements CommandLineRunner {
                         "?auto=format&fit=crop&w=1000&q=80"
         );
 
+
+        ex1.setRegisteredByUid(
+                "USR-EXT-5003"
+        );
 
         externalApartmentRepository.save(
                 ex1
@@ -1331,4 +1449,232 @@ public class DataInitializer implements CommandLineRunner {
                 "Sample staff created: " + email
         );
     }
+
+    // =========================================================
+    // MERGED MAIN-BRANCH SAMPLE EXTERNAL USERS
+    // =========================================================
+
+    private void ensureSampleExternalUsers() {
+
+        // John is already handled by initializeCustomer().
+        ensureExternalUserIfMissing(
+                "USR-EXT-5002",
+                "sarah@livingora.lk",
+                "CUSTOMER",
+                "Sarah",
+                "Perera",
+                "DEMO-5002",
+                "0712345679",
+                28,
+                "Dehiwala, Sri Lanka"
+        );
+
+        ensureExternalUserIfMissing(
+                "USR-EXT-5003",
+                "agent@livingora.lk",
+                "SALES_AGENT",
+                "Nimal",
+                "Fernando",
+                "DEMO-5003",
+                "0712345680",
+                33,
+                "Rajagiriya, Sri Lanka"
+        );
+    }
+
+
+    private void ensureExternalUserIfMissing(
+            String uid,
+            String email,
+            String role,
+            String firstName,
+            String lastName,
+            String nic,
+            String phoneNumber,
+            int age,
+            String address
+    ) {
+
+        if (externalUserRepository.findByEmail(email).isPresent()) {
+            return;
+        }
+
+        String passwordHash =
+                passwordHasher.hash("12345678");
+
+        UserVerification verification =
+                userVerificationRepository
+                        .findByEmail(email)
+                        .orElseGet(() -> {
+
+                            UserVerification created =
+                                    new UserVerification();
+
+                            created.setUid(uid);
+                            created.setEmail(email);
+                            created.setPassword(passwordHash);
+                            created.setIsActive(1);
+                            created.setIsVerified(1);
+                            created.setLastLoginAt(LocalDateTime.now());
+
+                            return userVerificationRepository.save(created);
+                        });
+
+        ExternalUser user =
+                new ExternalUser();
+
+        user.setUid(uid);
+        user.setRole(role);
+        user.setFirstName(firstName);
+        user.setLastName(lastName);
+        user.setNic(nic);
+        user.setPhoneNumber(phoneNumber);
+        user.setAddress(address);
+        user.setAge(age);
+        user.setNumOfApartments(0);
+        user.setEmail(email);
+        user.setPassword(verification.getPassword());
+        user.setRegisteredDate(LocalDate.now());
+        user.setUserVerification(verification);
+
+        externalUserRepository.save(user);
+
+        System.out.println(
+                "Sample external user created: " + email
+        );
+    }
+
+
+    // =========================================================
+    // MERGED MAIN-BRANCH SAMPLE PROMOTIONS
+    // =========================================================
+
+    private void ensureSamplePromotions() {
+
+        // PROMO-2026 is already handled by initializePromotion().
+        saveAdditionalPromotion(
+                "PROMO-2026-FAMILY",
+                "Family Home Offer",
+                "ORAFAMILY",
+                "7.50",
+                "Save on selected family-sized units at Living Ora Garden Villas."
+        );
+
+        saveAdditionalPromotion(
+                "PROMO-2026-EARLY",
+                "Early Reservation Bonus",
+                "ORAEARLY",
+                "10.00",
+                "Reserve early and receive a limited-time launch discount."
+        );
+    }
+
+
+    private void saveAdditionalPromotion(
+            String id,
+            String title,
+            String code,
+            String discount,
+            String about
+    ) {
+
+        if (promotionRepository.findById(id).isPresent()) {
+            return;
+        }
+
+        Promotion promo =
+                new Promotion();
+
+        promo.setPromotionId(id);
+        promo.setPromotionType("Discount Code");
+        promo.setPromotionTitle(title);
+        promo.setPromotionCode(code);
+        promo.setDiscountPrecentage(new BigDecimal(discount));
+        promo.setStartDate(LocalDate.now());
+        promo.setEndDate(LocalDate.now().plusMonths(3));
+        promo.setButtonText("Claim Offer");
+        promo.setValidityPeriod("Limited Time");
+        promo.setAbout(about);
+        promo.setStatus("ACTIVE");
+
+        promotionRepository.save(promo);
+
+        System.out.println(
+                "Sample promotion created: " + id
+        );
+    }
+
+
+    // =========================================================
+    // MERGED MAIN-BRANCH SAMPLE EXTERNAL APARTMENTS
+    // =========================================================
+
+    private void ensureSampleExternalApartments() {
+
+        // EXT-APT-301 is already handled by initializeExternalApartment().
+        saveAdditionalExternalApartment(
+                "EXT-APT-302",
+                "USR-EXT-5002",
+                "Mount Lavinia, Colombo",
+                2,
+                "22000000.00",
+                "4000000.00",
+                "AC",
+                "Sea-view apartment with parking and clear ownership."
+        );
+
+        saveAdditionalExternalApartment(
+                "EXT-APT-303",
+                "USR-EXT-5001",
+                "Battaramulla, Sri Lanka",
+                4,
+                "41000000.00",
+                "7000000.00",
+                "Non-AC",
+                "Spacious resale apartment near schools and public transport."
+        );
+    }
+
+
+    private void saveAdditionalExternalApartment(
+            String id,
+            String registeredByUid,
+            String location,
+            int rooms,
+            String price,
+            String downPayment,
+            String acOrNonAC,
+            String additionalInfo
+    ) {
+
+        if (externalApartmentRepository.findById(id).isPresent()) {
+            return;
+        }
+
+        ExternalApartment apartment =
+                new ExternalApartment();
+
+        apartment.setExApartmentId(id);
+        apartment.setRegisteredByUid(registeredByUid);
+        apartment.setLocation(location);
+        apartment.setAbout(
+                "Verified resale apartment available through the Living-Ora marketplace."
+        );
+        apartment.setNumOfRooms(rooms);
+        apartment.setPrice(new BigDecimal(price));
+        apartment.setDownPayment(new BigDecimal(downPayment));
+        apartment.setAcOrNonAC(acOrNonAC);
+        apartment.setAdditionalInfo(additionalInfo);
+        apartment.setImages(
+                "https://images.unsplash.com/photo-1512917774080-9991f1c4c750" +
+                        "?auto=format&fit=crop&w=1000&q=80"
+        );
+
+        externalApartmentRepository.save(apartment);
+
+        System.out.println(
+                "Sample external apartment created: " + id
+        );
+    }
+
 }
