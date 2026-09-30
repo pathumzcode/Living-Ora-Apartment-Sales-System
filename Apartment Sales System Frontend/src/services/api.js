@@ -59,11 +59,6 @@ export const adminApi = {
     const response = await fetch(`${API_BASE_URL}/admin/internal-users`, { headers: { ...getHeaders(), 'X-Admin-Emp-Id': user?.uid || '' } });
     return handleResponse(response);
   },
-  getNextEmpId: async (role) => {
-    const user = JSON.parse(localStorage.getItem('livingora_user') || 'null');
-    const response = await fetch(`${API_BASE_URL}/admin/internal-users/next-emp-id?role=${encodeURIComponent(role || '')}`, { headers: { ...getHeaders(), 'X-Admin-Emp-Id': user?.uid || user?.empId || '' } });
-    return handleResponse(response);
-  },
   getExternalUsers: async () => {
     const user = JSON.parse(localStorage.getItem('livingora_user') || 'null');
     const response = await fetch(`${API_BASE_URL}/admin/external-users`, { headers: { ...getHeaders(), 'X-Admin-Emp-Id': user?.uid || '' } });
