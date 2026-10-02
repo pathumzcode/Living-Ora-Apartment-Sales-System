@@ -21,11 +21,6 @@ public class PaymentMapper {
         dto.setDownPayment(entity.getDownPayment());
         dto.setNumOfMonthsForPay(entity.getNumOfMonthsForPay());
         dto.setStatus(entity.getStatus());
-        dto.setScheduleId(entity.getScheduleId());
-        dto.setScheduleItemId(entity.getScheduleItemId());
-        dto.setRemarks(entity.getRemarks());
-        dto.setVerifiedBy(entity.getVerifiedBy());
-        dto.setVerifiedAt(entity.getVerifiedAt());
         return dto;
     }
 }

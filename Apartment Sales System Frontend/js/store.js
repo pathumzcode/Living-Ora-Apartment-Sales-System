@@ -232,28 +232,16 @@ class DataStore {
     return created;
   }
 
-  async createPromotion(data) {
-    const created = await promotionsApi.create(data);
-    await this.refresh();
-    return created;
-  }
-
-  async updatePromotion(id, data) {
-    const updated = await promotionsApi.update(id, data);
+  async updateExternalApartment(id, data) {
+    const updated = await externalApartmentsApi.update(id, data);
     await this.refresh();
     return updated;
   }
 
-  async deletePromotion(id) {
-    const result = await promotionsApi.remove(id);
+  async deleteExternalApartment(id) {
+    const res = await externalApartmentsApi.delete(id);
     await this.refresh();
-    return result;
-  }
-
-  async togglePromotionStatus(id) {
-    const result = await promotionsApi.toggleStatus(id);
-    await this.refresh();
-    return result;
+    return res;
   }
 }
 

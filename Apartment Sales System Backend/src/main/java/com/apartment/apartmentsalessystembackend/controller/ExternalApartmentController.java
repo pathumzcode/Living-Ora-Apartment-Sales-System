@@ -49,4 +49,36 @@ public class ExternalApartmentController {
         apartment.setAdditionalInfo(request.getAdditionalInfo());
         return ResponseEntity.status(201).body(externalApartmentRepository.save(apartment));
     }
+
+    @GetMapping("/agent/{uid}")
+    public ResponseEntity<List<ExternalApartment>> getExternalApartmentsByAgent(@PathVariable String uid) {
+        return ResponseEntity.ok(externalApartmentRepository.findByRegisteredByUid(uid.trim()));
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<ExternalApartment> updateExternalApartment(@PathVariable String id, @Valid @RequestBody ExternalApartmentRequest request) {
+        ExternalApartment apartment = externalApartmentRepository.findById(id)
+                .orElseThrow(() -> new BadRequestException("Resale apartment listing not found: " + id));
+
+        apartment.setLocation(request.getLocation().trim());
+        apartment.setAbout(request.getAbout());
+        apartment.setNumOfRooms(request.getNumOfRooms());
+        apartment.setPrice(request.getPrice());
+        apartment.setDownPayment(request.getDownPayment());
+        if (request.getImages() != null && !request.getImages().isBlank()) {
+            apartment.setImages(request.getImages());
+        }
+        apartment.setAcOrNonAC(request.getAcOrNonAC());
+        apartment.setAdditionalInfo(request.getAdditionalInfo());
+        return ResponseEntity.ok(externalApartmentRepository.save(apartment));
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteExternalApartment(@PathVariable String id) {
+        if (!externalApartmentRepository.existsById(id)) {
+            throw new BadRequestException("Resale apartment listing not found: " + id);
+        }
+        externalApartmentRepository.deleteById(id);
+        return ResponseEntity.noContent().build();
+    }
 }
