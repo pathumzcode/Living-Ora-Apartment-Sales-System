@@ -35,4 +35,11 @@ public class UserController {
     public ResponseEntity<InternalUser> getInternalUserByEmpId(@PathVariable String empId) {
         return ResponseEntity.ok(userService.getInternalUserByEmpId(empId));
     }
+
+    @PutMapping("/internal/{empId}/profile")
+    public ResponseEntity<InternalUser> updateInternalProfile(
+            @PathVariable String empId,
+            @jakarta.validation.Valid @RequestBody com.apartment.apartmentsalessystembackend.dto.request.InternalUserProfileUpdateRequest request) {
+        return ResponseEntity.ok(userService.updateOwnProfile(empId, request));
+    }
 }
