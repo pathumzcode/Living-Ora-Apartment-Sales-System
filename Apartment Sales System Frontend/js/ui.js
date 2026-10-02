@@ -22,7 +22,11 @@ export function renderNavbar(activePage = '') {
   let authLinksHtml = '';
   if (user) {
     const dashboardUrl = getDashboardUrlForRole(user.role);
-    const roleTitle = user.role === 'ADMIN' ? 'Admin Control' : (isInternal ? 'Staff Workspace' : 'Client Portal');
+    const roleTitle = user.role === 'ADMIN' 
+      ? 'Admin Control' 
+      : (user.role === 'SALES_AGENT' 
+          ? 'Agent Workspace' 
+          : (isInternal ? 'Staff Workspace' : 'Client Portal'));
     authLinksHtml = `
       <a href="${dashboardUrl}" class="btn btn-sm btn-outline">${roleTitle}</a>
       <button id="nav-logout-btn" class="btn btn-sm btn-primary">Logout</button>
@@ -40,16 +44,15 @@ export function renderNavbar(activePage = '') {
         <a href="index.html" class="nav-logo">
           <span>Living</span>Ora
         </a>
+        ${!isInternal ? `
         <ul class="nav-links">
           <li><a href="index.html" class="nav-link ${activePage === 'home' ? 'active' : ''}">Home</a></li>
           <li><a href="apartments.html" class="nav-link ${activePage === 'apartments' ? 'active' : ''}">Residences</a></li>
           <li><a href="apartments.html?tab=units" class="nav-link ${activePage === 'units' ? 'active' : ''}">Available Units</a></li>
           <li><a href="promotions.html" class="nav-link ${activePage === 'promotions' ? 'active' : ''}">Promotions</a></li>
           <li><a href="external-apartments.html" class="nav-link ${activePage === 'external' ? 'active' : ''}">Resale Listings</a></li>
-          ${(user && user.role === 'MARKETING_MANAGER') ? `
-          <li><a href="promotion-management.html" class="nav-link ${activePage === 'promotion-management' ? 'active' : ''}"
-                 style="color:var(--primary);font-weight:600;">🎯 Manage Promotions</a></li>` : ''}
         </ul>
+        ` : ''}
         <div class="nav-actions">
           ${authLinksHtml}
         </div>
