@@ -15,13 +15,6 @@ public class PaymentResponse {
     private BigDecimal downPayment;
     private Integer numOfMonthsForPay;
     private String status;
-    private Long scheduleId;
-    private Long scheduleItemId;
-    private String scheduleCode;
-    private String milestoneTitle;
-    private String remarks;
-    private String verifiedBy;
-    private LocalDateTime verifiedAt;
 
     public PaymentResponse() {}
 
@@ -104,28 +97,6 @@ public class PaymentResponse {
     public void setNumOfMonthsForPay(Integer numOfMonthsForPay) {
         this.numOfMonthsForPay = numOfMonthsForPay;
     }
-
     public String getStatus() { return status; }
     public void setStatus(String status) { this.status = status; }
-
-    public Long getScheduleId() { return scheduleId; }
-    public void setScheduleId(Long scheduleId) { this.scheduleId = scheduleId; }
-
-    public Long getScheduleItemId() { return scheduleItemId; }
-    public void setScheduleItemId(Long scheduleItemId) { this.scheduleItemId = scheduleItemId; }
-
-    public String getScheduleCode() { return scheduleCode; }
-    public void setScheduleCode(String scheduleCode) { this.scheduleCode = scheduleCode; }
-
-    public String getMilestoneTitle() { return milestoneTitle; }
-    public void setMilestoneTitle(String milestoneTitle) { this.milestoneTitle = milestoneTitle; }
-
-    public String getRemarks() { return remarks; }
-    public void setRemarks(String remarks) { this.remarks = remarks; }
-
-    public String getVerifiedBy() { return verifiedBy; }
-    public void setVerifiedBy(String verifiedBy) { this.verifiedBy = verifiedBy; }
-
-    public LocalDateTime getVerifiedAt() { return verifiedAt; }
-    public void setVerifiedAt(LocalDateTime verifiedAt) { this.verifiedAt = verifiedAt; }
 }

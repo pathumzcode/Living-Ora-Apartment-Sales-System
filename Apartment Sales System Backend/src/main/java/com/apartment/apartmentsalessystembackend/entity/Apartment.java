@@ -26,11 +26,11 @@ public class Apartment {
     private String location;
 
     @Lob
-    @Column(name = "images", columnDefinition = "LONGTEXT")
+    @Column(name = "images")
     private String images;
 
     @Lob
-    @Column(name = "about", columnDefinition = "LONGTEXT")
+    @Column(name = "about")
     private String about;
 
     @Column(name = "floorPlan", length = 500)
@@ -45,39 +45,15 @@ public class Apartment {
     @Column(name = "unitStatus", nullable = false, length = 30)
     private String unitStatus;
 
-
-    // =========================================================
-    // INTERNAL USER
-    // =========================================================
-
-    /*
-     * Every apartment is managed/registered by an
-     * internal Living-Ora user.
-     *
-     * Database:
-     * apartment.internalUser_empId
-     *        ->
-     * internalUser.empId
-     */
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(
-            name = "internalUser_empId",
-            nullable = false
-    )
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "internalUser_empId")
     private InternalUser internalUser;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "units_unitId")
+    private Unit unit;
 
-    // =========================================================
-    // CONSTRUCTOR
-    // =========================================================
-
-    public Apartment() {
-    }
-
-
-    // =========================================================
-    // GETTERS AND SETTERS
-    // =========================================================
+    public Apartment() {}
 
     public String getApartmentId() {
         return apartmentId;
@@ -87,7 +63,6 @@ public class Apartment {
         this.apartmentId = apartmentId;
     }
 
-
     public Integer getNumOfRoom() {
         return numOfRoom;
     }
@@ -95,7 +70,6 @@ public class Apartment {
     public void setNumOfRoom(Integer numOfRoom) {
         this.numOfRoom = numOfRoom;
     }
-
 
     public Integer getNumOfFloors() {
         return numOfFloors;
@@ -105,17 +79,13 @@ public class Apartment {
         this.numOfFloors = numOfFloors;
     }
 
-
     public Integer getNumOfSwimmingPool() {
         return numOfSwimmingPool;
     }
 
-    public void setNumOfSwimmingPool(
-            Integer numOfSwimmingPool
-    ) {
+    public void setNumOfSwimmingPool(Integer numOfSwimmingPool) {
         this.numOfSwimmingPool = numOfSwimmingPool;
     }
-
 
     public Integer getNumOfGYM() {
         return numOfGYM;
@@ -125,7 +95,6 @@ public class Apartment {
         this.numOfGYM = numOfGYM;
     }
 
-
     public String getLocation() {
         return location;
     }
@@ -133,7 +102,6 @@ public class Apartment {
     public void setLocation(String location) {
         this.location = location;
     }
-
 
     public String getImages() {
         return images;
@@ -143,7 +111,6 @@ public class Apartment {
         this.images = images;
     }
 
-
     public String getAbout() {
         return about;
     }
@@ -151,7 +118,6 @@ public class Apartment {
     public void setAbout(String about) {
         this.about = about;
     }
-
 
     public String getFloorPlan() {
         return floorPlan;
@@ -161,18 +127,13 @@ public class Apartment {
         this.floorPlan = floorPlan;
     }
 
-
     public Integer getNumOfUnitsAvailable() {
         return numOfUnitsAvailable;
     }
 
-    public void setNumOfUnitsAvailable(
-            Integer numOfUnitsAvailable
-    ) {
-        this.numOfUnitsAvailable =
-                numOfUnitsAvailable;
+    public void setNumOfUnitsAvailable(Integer numOfUnitsAvailable) {
+        this.numOfUnitsAvailable = numOfUnitsAvailable;
     }
-
 
     public String getPriceRange() {
         return priceRange;
@@ -182,7 +143,6 @@ public class Apartment {
         this.priceRange = priceRange;
     }
 
-
     public String getUnitStatus() {
         return unitStatus;
     }
@@ -191,14 +151,19 @@ public class Apartment {
         this.unitStatus = unitStatus;
     }
 
-
     public InternalUser getInternalUser() {
         return internalUser;
     }
 
-    public void setInternalUser(
-            InternalUser internalUser
-    ) {
+    public void setInternalUser(InternalUser internalUser) {
         this.internalUser = internalUser;
+    }
+
+    public Unit getUnit() {
+        return unit;
+    }
+
+    public void setUnit(Unit unit) {
+        this.unit = unit;
     }
 }

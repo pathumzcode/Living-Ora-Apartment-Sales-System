@@ -1,4 +1,4 @@
-import { store } from '../store.js';
+﻿import { store } from '../store.js';
 import { requireAuth, getCurrentUser, ROLES } from '../auth.js';
 import { renderNavbar, renderFooter, formatPrice, openModal, closeModal, setupModalListeners } from '../ui.js';
 import { externalApartmentsApi } from '../api.js';
@@ -8,7 +8,6 @@ document.addEventListener('DOMContentLoaded', async () => {
   if (!requireAuth([ROLES.SALES_AGENT, ROLES.ADMIN])) return;
 
   renderNavbar();
-  renderFooter();
   setupModalListeners();
 
   const user = getCurrentUser();
