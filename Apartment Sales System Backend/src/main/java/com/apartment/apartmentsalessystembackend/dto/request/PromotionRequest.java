@@ -19,6 +19,9 @@ public class PromotionRequest {
     private String bannerImage;
     private String validityPeriod;
     @NotNull(message = "Discount percentage is required") @DecimalMin(value = "0.00") @DecimalMax(value = "100.00") private BigDecimal discountPrecentage;
+    private String assinedApartment;
+    private String campaignPerformance;
+    private String status;
     @NotBlank(message = "Promotion code is required") @Size(max = 50) private String promotionCode;
 
     public PromotionRequest() {}
@@ -101,6 +104,30 @@ public class PromotionRequest {
 
     public void setDiscountPrecentage(BigDecimal discountPrecentage) {
         this.discountPrecentage = discountPrecentage;
+    }
+
+    public String getAssinedApartment() {
+        return assinedApartment;
+    }
+
+    public void setAssinedApartment(String assinedApartment) {
+        this.assinedApartment = assinedApartment;
+    }
+
+    public String getCampaignPerformance() {
+        return campaignPerformance;
+    }
+
+    public void setCampaignPerformance(String campaignPerformance) {
+        this.campaignPerformance = campaignPerformance;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
     }
 
     public String getPromotionCode() {
