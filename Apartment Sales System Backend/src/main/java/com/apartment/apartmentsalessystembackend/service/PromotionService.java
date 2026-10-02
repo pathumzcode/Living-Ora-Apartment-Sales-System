@@ -41,7 +41,12 @@ public class PromotionService {
         entity.setBannerImage(request.getBannerImage());
         entity.setValidityPeriod(request.getValidityPeriod());
         entity.setDiscountPrecentage(request.getDiscountPrecentage());
+        entity.setAssinedApartment(request.getAssinedApartment());
+        entity.setCampaignPerformance(request.getCampaignPerformance());
         entity.setPromotionCode(request.getPromotionCode());
+        if (request.getStatus() != null) {
+            entity.setStatus(request.getStatus());
+        }
         return promotionRepository.save(entity);
     }
 }
