@@ -1,7 +1,7 @@
 import { store } from '../store.js';
 import { renderNavbar, renderFooter } from '../ui.js';
 
-document.addEventListener('DOMContentLoaded', async () => {
+document.addEventListener('DOMContentLoaded', () => {
   renderNavbar('promotions');
   renderFooter();
 
