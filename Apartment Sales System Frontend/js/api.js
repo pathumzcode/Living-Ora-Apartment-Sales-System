@@ -22,7 +22,6 @@ const getHeaders = () => {
 const handleResponse = async (response) => {
   if (!response.ok) {
     const errorText = await response.text();
-
     let errorMessage =
       `HTTP Error ${response.status}: ${response.statusText}`;
 
@@ -300,10 +299,6 @@ export const adminApi = {
 };
 
 
-/* =========================
-   OPERATIONS DELETION API
-========================= */
-
 export const operationsDeletionApi = {
   getPending: async () => {
     const user = JSON.parse(
@@ -364,7 +359,6 @@ export const operationsDeletionApi = {
 
     return handleResponse(response);
   },
-<<<<<<< HEAD
   deleteInternalUser: async (empId) => {
     const user = JSON.parse(localStorage.getItem('livingora_user') || 'null');
     const response = await fetch(`${API_BASE_URL}/admin/internal-users/${encodeURIComponent(empId)}`, {
@@ -399,29 +393,6 @@ export const operationsDeletionApi = {
       headers: { ...getHeaders(), 'X-Staff-Emp-Id': user?.uid || user?.empId || '', 'X-Admin-Emp-Id': user?.uid || user?.empId || '' },
       body: JSON.stringify({ reason })
     });
-=======
-
-  deleteInternalUser: async (empId) => {
-    const user = JSON.parse(
-      localStorage.getItem('livingora_user') || 'null'
-    );
-
-    const response = await fetch(
-      `${API_BASE_URL}/admin/internal-users/${encodeURIComponent(empId)}`,
-      {
-        method: 'DELETE',
-        headers: {
-          ...getHeaders(),
-          'X-Admin-Emp-Id': user?.uid || user?.empId || ''
-        }
-      }
-    );
-
-    if (response.status === 204) {
-      return { success: true };
-    }
-
->>>>>>> 16a4c18 (Update promotion management module)
     return handleResponse(response);
   }
 };
@@ -777,7 +748,7 @@ export const externalApartmentsApi = {
     return handleResponse(response);
   },
 
-  getByAgent: async (uid) => {
+    getByAgent: async (uid) => {
     const response = await fetch(
       `${API_BASE_URL}/external-apartments/agent/${encodeURIComponent(uid)}`,
       {
@@ -789,13 +760,6 @@ export const externalApartmentsApi = {
   },
 
   create: async (exData) => {
-<<<<<<< HEAD
-  const response = await fetch(`${API_BASE_URL}/external-apartments`, {
-    method: 'POST',
-    headers: getHeaders(),
-    body: JSON.stringify(exData)
-  });
-=======
     const response = await fetch(
       `${API_BASE_URL}/external-apartments`,
       {
@@ -804,10 +768,9 @@ export const externalApartmentsApi = {
         body: JSON.stringify(exData)
       }
     );
->>>>>>> 16a4c18 (Update promotion management module)
 
-  return handleResponse(response);
-},
+    return handleResponse(response);
+  },
   },
 
   update: async (id, exData) => {
