@@ -26,6 +26,9 @@ public class PromotionService {
     }
 
     public Promotion createPromotion(PromotionRequest request) {
+        if (promotionRepository.findByPromotionCode(request.getPromotionCode()).isPresent()) {
+            throw new BadRequestException("Promotion code already exists: " + request.getPromotionCode());
+        }
         if (request.getEndDate().isBefore(request.getStartDate())) {
             throw new BadRequestException("Promotion end date cannot be before start date");
         }
@@ -49,4 +52,44 @@ public class PromotionService {
         }
         return promotionRepository.save(entity);
     }
+
+    public Promotion updatePromotion(String promotionId, PromotionRequest request) {
+        if (request.getEndDate().isBefore(request.getStartDate())) {
+            throw new BadRequestException("Promotion end date cannot be before start date");
+        }
+        Promotion entity = promotionRepository.findById(promotionId)
+                .orElseThrow(() -> new ResourceNotFoundException("Promotion not found: " + promotionId));
+        
+        entity.setPromotionType(request.getPromotionType());
+        entity.setPromotionTitle(request.getPromotionTitle());
+        entity.setAbout(request.getAbout());
+        entity.setEligibilityCriteria(request.getEligibilityCriteria());
+        entity.setStartDate(request.getStartDate());
+        entity.setEndDate(request.getEndDate());
+        entity.setButtonText(request.getButtonText());
+        entity.setBannerImage(request.getBannerImage());
+        entity.setValidityPeriod(request.getValidityPeriod());
+        entity.setDiscountPrecentage(request.getDiscountPrecentage());
+        entity.setAssinedApartment(request.getAssinedApartment());
+        entity.setCampaignPerformance(request.getCampaignPerformance());
+        return promotionRepository.save(entity);
+    }
+
+    public void deletePromotion(String promotionId) {
+        Promotion entity = promotionRepository.findById(promotionId)
+                .orElseThrow(() -> new ResourceNotFoundException("Promotion not found: " + promotionId));
+        promotionRepository.delete(entity);
+    }
+
+    public Promotion toggleStatus(String promotionId) {
+        Promotion entity = promotionRepository.findById(promotionId)
+                .orElseThrow(() -> new ResourceNotFoundException("Promotion not found: " + promotionId));
+        if ("INACTIVE".equalsIgnoreCase(entity.getStatus())) {
+            entity.setStatus("ACTIVE");
+        } else {
+            entity.setStatus("INACTIVE");
+        }
+        return promotionRepository.save(entity);
+    }
 }
+

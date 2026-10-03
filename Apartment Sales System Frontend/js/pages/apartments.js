@@ -179,96 +179,164 @@ document.addEventListener('DOMContentLoaded', () => {
   renderUnits(units);
 
   // Booking Modal Logic
-  let selectedUnit = null;
-  const bookingModal = document.getElementById('booking-modal');
-  const modalUnitTitle = document.getElementById('modal-unit-title');
-  const modalUnitPrice = document.getElementById('modal-unit-price');
+  let selectedUnit     = null;
+  let appliedDiscount  = 0;   // percentage (e.g. 10 means 10%)
+
+  const bookingModal          = document.getElementById('booking-modal');
+  const modalUnitTitle        = document.getElementById('modal-unit-title');
+  const modalUnitPrice        = document.getElementById('modal-unit-price');
   const modalDownPaymentRatio = document.getElementById('modal-downpayment-ratio');
-  const modalMonths = document.getElementById('modal-months');
-  const modalDownPaymentAmount = document.getElementById('modal-downpayment-amount');
-  const modalMonthlyAmount = document.getElementById('modal-monthly-amount');
-  const bookingForm = document.getElementById('booking-reservation-form');
-  const bookingSuccessBox = document.getElementById('booking-success-box');
+  const modalMonths           = document.getElementById('modal-months');
+  const modalDownPaymentAmount= document.getElementById('modal-downpayment-amount');
+  const modalMonthlyAmount    = document.getElementById('modal-monthly-amount');
+  const bookingForm           = document.getElementById('booking-reservation-form');
+  const bookingSuccessBox     = document.getElementById('booking-success-box');
+
+  // Promo elements
+  const promoCodeInput   = document.getElementById('modal-promo-code');
+  const applyPromoBtn    = document.getElementById('modal-apply-promo-btn');
+  const promoStatusEl    = document.getElementById('modal-promo-status');
+  const discountRow      = document.getElementById('modal-discount-row');
+  const discountAmountEl = document.getElementById('modal-discount-amount');
+  const discountedPriceRow = document.getElementById('modal-discounted-price-row');
+  const discountedPriceEl  = document.getElementById('modal-discounted-price');
 
   function openBookingModalForUnit(unitId) {
-    selectedUnit = units.find(u => u.unitId === unitId);
+    selectedUnit    = units.find(u => u.unitId === unitId);
     if (!selectedUnit) return;
+
+    appliedDiscount = 0;
+    if (promoCodeInput)  promoCodeInput.value = '';
+    if (promoStatusEl)   promoStatusEl.textContent = '';
+    if (discountRow)     discountRow.style.display = 'none';
+    if (discountedPriceRow) discountedPriceRow.style.display = 'none';
 
     if (modalUnitTitle) modalUnitTitle.textContent = `${selectedUnit.location} (Unit ${selectedUnit.unitId})`;
     if (modalUnitPrice) modalUnitPrice.textContent = formatPrice(selectedUnit.unitPrice);
 
     calculateBookingSchedule();
     if (bookingSuccessBox) bookingSuccessBox.style.display = 'none';
-    if (bookingForm) bookingForm.style.display = 'block';
-
+    if (bookingForm)       bookingForm.style.display       = 'block';
     openModal('booking-modal');
   }
 
   function calculateBookingSchedule() {
     if (!selectedUnit) return;
-    const ratio = parseInt(modalDownPaymentRatio?.value || '20', 10);
-    const months = parseInt(modalMonths?.value || '36', 10);
-    const unitPrice = selectedUnit.unitPrice;
+    const ratio     = parseInt(modalDownPaymentRatio?.value || '20', 10);
+    const months    = parseInt(modalMonths?.value || '36', 10);
+    const basePrice = selectedUnit.unitPrice;
 
-    const downPayment = (unitPrice * ratio) / 100;
-    const remaining = unitPrice - downPayment;
-    const monthly = remaining / months;
+    const discountAmt    = (basePrice * appliedDiscount) / 100;
+    const effectivePrice = basePrice - discountAmt;
+    const downPayment    = (effectivePrice * ratio) / 100;
+    const remaining      = effectivePrice - downPayment;
+    const monthly        = remaining / months;
 
-    if (modalDownPaymentAmount) modalDownPaymentAmount.textContent = formatPrice(downPayment);
-    if (modalMonthlyAmount) modalMonthlyAmount.textContent = formatPrice(Math.round(monthly));
+    if (discountRow && appliedDiscount > 0) {
+      discountRow.style.display      = 'flex';
+      discountAmountEl.textContent   = `-${formatPrice(Math.round(discountAmt))}`;
+      discountedPriceRow.style.display = 'flex';
+      discountedPriceEl.textContent  = formatPrice(Math.round(effectivePrice));
+    } else {
+      if (discountRow) discountRow.style.display = 'none';
+      if (discountedPriceRow) discountedPriceRow.style.display = 'none';
+    }
+
+    if (modalDownPaymentAmount) modalDownPaymentAmount.textContent = formatPrice(Math.round(downPayment));
+    if (modalMonthlyAmount)     modalMonthlyAmount.textContent     = `${formatPrice(Math.round(monthly))} / mo`;
   }
 
   modalDownPaymentRatio?.addEventListener('change', calculateBookingSchedule);
   modalMonths?.addEventListener('change', calculateBookingSchedule);
 
+  // Apply promo code
+  applyPromoBtn?.addEventListener('click', async () => {
+    const code = promoCodeInput?.value.trim().toUpperCase();
+    if (!code) return;
+
+    promoStatusEl.textContent = 'Checking...';
+    promoStatusEl.style.color = 'var(--text-muted)';
+
+    try {
+      const res = await fetch(`http://localhost:8080/api/promotions/code/${encodeURIComponent(code)}`);
+      if (!res.ok) throw new Error('Not found');
+      const promo = await res.json();
+
+      // Compute promo status
+      const today = new Date(); today.setHours(0,0,0,0);
+      const start = new Date(promo.startDate);
+      const end   = new Date(promo.endDate);
+      const isActive = promo.status !== 'INACTIVE' && today >= start && today <= end;
+
+      if (isActive && promo.discountPrecentage > 0) {
+        appliedDiscount = Number(promo.discountPrecentage);
+        promoStatusEl.textContent = `✓ ${appliedDiscount}% off applied!`;
+        promoStatusEl.style.color = 'var(--success, #22c55e)';
+        calculateBookingSchedule();
+      } else {
+        appliedDiscount = 0;
+        promoStatusEl.textContent = promo.status === 'INACTIVE' ? 'Code is inactive' : today > end ? 'Code expired' : 'Code not yet valid';
+        promoStatusEl.style.color = 'var(--danger, #ef4444)';
+        calculateBookingSchedule();
+      }
+    } catch (err) {
+      appliedDiscount = 0;
+      promoStatusEl.textContent = 'Invalid promo code';
+      promoStatusEl.style.color = 'var(--danger, #ef4444)';
+      calculateBookingSchedule();
+    }
+  });
+
+  // Allow pressing Enter on promo field
+  promoCodeInput?.addEventListener('keypress', (e) => {
+    if (e.key === 'Enter') { e.preventDefault(); applyPromoBtn?.click(); }
+  });
+
   bookingForm?.addEventListener('submit', async (e) => {
     e.preventDefault();
     if (!selectedUnit) return;
 
-    const user = getCurrentUser();
-    const ratio = parseInt(modalDownPaymentRatio?.value || '20', 10);
-    const months = parseInt(modalMonths?.value || '36', 10);
-    const downPaymentAmount = (selectedUnit.unitPrice * ratio) / 100;
-    const paymentMethod = document.getElementById('modal-payment-method')?.value || 'Bank Transfer';
-    const additions = document.getElementById('modal-additions')?.value || 'Standard Executive Finish';
-    const proofFile = document.getElementById('modal-payment-proof')?.files[0]?.name || `proof_${selectedUnit.unitId}.pdf`;
+    const user            = getCurrentUser();
+    const ratio           = parseInt(modalDownPaymentRatio?.value || '20', 10);
+    const months          = parseInt(modalMonths?.value || '36', 10);
+    const basePrice       = selectedUnit.unitPrice;
+    const discountAmt     = (basePrice * appliedDiscount) / 100;
+    const effectivePrice  = basePrice - discountAmt;
+    const downPaymentAmount = (effectivePrice * ratio) / 100;
+    const paymentMethod   = document.getElementById('modal-payment-method')?.value || 'Bank Transfer';
+    const additions       = document.getElementById('modal-additions')?.value || 'Standard Executive Finish';
+    const proofFile       = document.getElementById('modal-payment-proof')?.files[0]?.name || `proof_${selectedUnit.unitId}.pdf`;
+    const promoCode       = promoCodeInput?.value.trim().toUpperCase() || '';
 
     const submitBtn = document.getElementById('submit-booking-btn');
-    if (submitBtn) {
-      submitBtn.disabled = true;
-      submitBtn.textContent = 'Processing reservation...';
-    }
+    if (submitBtn) { submitBtn.disabled = true; submitBtn.textContent = 'Processing reservation...'; }
 
     try {
       await store.createBooking({
-        uid: user?.uid || 'USR-EXT-5001',
-        userName: user ? `${user.firstName} ${user.lastName}` : 'Guest Buyer',
-        userEmail: user?.email || 'buyer@livingora.lk',
-        unitId: selectedUnit.unitId,
-        unitLocation: selectedUnit.location,
-        paymentAmount: selectedUnit.unitPrice,
-        downPayment: downPaymentAmount,
+        uid:           user?.uid || 'USR-EXT-5001',
+        userName:      user ? `${user.firstName || ''} ${user.lastName || ''}`.trim() : 'Guest Buyer',
+        userEmail:     user?.email || 'buyer@livingora.lk',
+        unitId:        selectedUnit.unitId,
+        unitLocation:  selectedUnit.location,
+        paymentAmount: effectivePrice,
+        downPayment:   downPaymentAmount,
         paymentMethod,
-        paymentProof: proofFile,
+        paymentProof:  proofFile,
         additions,
         months,
-        unitPrice: selectedUnit.unitPrice
+        unitPrice:     effectivePrice,
+        promotionCode: promoCode,
+        discountApplied: appliedDiscount
       });
 
-      if (bookingForm) bookingForm.style.display = 'none';
+      if (bookingForm)       bookingForm.style.display       = 'none';
       if (bookingSuccessBox) bookingSuccessBox.style.display = 'block';
 
-      setTimeout(() => {
-        closeModal('booking-modal');
-        applyFilters();
-      }, 2000);
+      setTimeout(() => { closeModal('booking-modal'); applyFilters(); }, 2000);
     } catch (err) {
       alert(err.message || 'Unable to submit reservation.');
     } finally {
-      if (submitBtn) {
-        submitBtn.disabled = false;
-        submitBtn.textContent = 'Submit Unit Reservation';
-      }
+      if (submitBtn) { submitBtn.disabled = false; submitBtn.textContent = 'Submit Unit Reservation'; }
     }
   });
 

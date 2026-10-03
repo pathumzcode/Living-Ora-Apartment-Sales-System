@@ -76,15 +76,21 @@ document.addEventListener('DOMContentLoaded', () => {
 
   if (isOpsDirectorOrAdmin && tabOperationsBtn) {
     tabOperationsBtn.style.display = 'inline-block';
+    const opLi = document.getElementById('tab-operations-li');
+    if (opLi) opLi.style.display = 'block';
   }
   if (isSalesManagerOrOps && tabPromotionsBtn) {
     tabPromotionsBtn.style.display = 'inline-block';
+    const promoLi = document.getElementById('tab-promotions-li');
+    if (promoLi) promoLi.style.display = 'block';
   }
 
   // Show Deletion Approvals tab only for Operations Director
   const isOpsDirectorOnly = user.role === ROLES.OPERATIONS_DIRECTOR;
   if (isOpsDirectorOnly && tabPendingDeletionsBtn) {
     tabPendingDeletionsBtn.style.display = 'inline-block';
+    const delLi = document.getElementById('tab-pending-deletions-li');
+    if (delLi) delLi.style.display = 'block';
   }
 
   function renderStaffLeads() {
@@ -617,7 +623,126 @@ document.addEventListener('DOMContentLoaded', () => {
     `).join('');
   }
 
+  // Promotion Modal & Action Listeners Setup
+  const promoModal = document.getElementById('add-promo-modal');
+  const btnOpenPromoModal = document.getElementById('btn-open-create-promo-modal');
+  const btnClosePromoModal = document.getElementById('btn-close-promo-modal');
+  const btnCancelPromoModal = document.getElementById('btn-cancel-promo-modal');
+  const promoForm = document.getElementById('promo-manage-form');
+
+  if (btnOpenPromoModal) {
+    btnOpenPromoModal.addEventListener('click', () => {
+      if (promoForm) promoForm.reset();
+      const idEl = document.getElementById('promo-form-id');
+      const titleEl = document.getElementById('promo-modal-title');
+      if (idEl) idEl.value = '';
+      if (titleEl) titleEl.textContent = 'Create Promotional Campaign';
+      openModal('add-promo-modal');
+    });
+  }
+
+  if (btnClosePromoModal) {
+    btnClosePromoModal.addEventListener('click', () => {
+      closeModal('add-promo-modal');
+    });
+  }
+
+  if (btnCancelPromoModal) {
+    btnCancelPromoModal.addEventListener('click', () => {
+      closeModal('add-promo-modal');
+    });
+  }
+
+  if (promoForm) {
+    promoForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+            const id = document.getElementById('promo-form-id').value;
+      const title = document.getElementById('promo-form-title').value;
+      const code = document.getElementById('promo-form-code').value.toUpperCase();
+      const discount = Number(document.getElementById('promo-form-discount').value);
+      const type = document.getElementById('promo-form-type').value;
+      const start = document.getElementById('promo-form-start').value;
+      const end = document.getElementById('promo-form-end').value;
+      const criteria = document.getElementById('promo-form-criteria').value;
+      const about = document.getElementById('promo-form-about').value;
+      const btnText = document.getElementById('promo-form-button-text').value;
+      const validPeriod = document.getElementById('promo-form-validity').value;
+      const banner = document.getElementById('promo-form-banner').value;
+      const assignedApt = document.getElementById('promo-form-assigned-apt').value;
+      const statusVal = document.getElementById('promo-form-status').value;
+
+      if (!id) {
+          const existing = cachedPromos.find(p => p.promotionCode === code);
+          if (existing) {
+              alert('Promotion code already exists.');
+              return;
+          }
+      }
+
+      const payload = {
+        promotionTitle: title,
+        promotionCode: code,
+        discountPrecentage: discount,
+        promotionType: type,
+        startDate: start,
+        endDate: end,
+        eligibilityCriteria: criteria,
+        about: about,
+        buttonText: btnText,
+        bannerImage: banner,
+        validityPeriod: validPeriod,
+        assinedApartment: assignedApt || 'All',
+        status: statusVal,
+        campaignPerformance: 'N/A'
+      };
+
+      const user = JSON.parse(localStorage.getItem('livingora_user') || '{}');
+      const staffRole = user.role || 'SALES_MANAGER';
+
+      try {
+        let url = 'http://localhost:8080/api/promotions';
+        let method = 'POST';
+        if (id) {
+          url = `http://localhost:8080/api/promotions/${id}`;
+          method = 'PUT';
+        }
+
+        const res = await fetch(url, {
+          method,
+          headers: {
+            'Content-Type': 'application/json',
+            'X-Staff-Role': staffRole
+          },
+          body: JSON.stringify(payload)
+        });
+
+        if (res.ok) {
+          alert(id ? 'Promotion updated successfully!' : 'Promotion created successfully!');
+          closeModal('add-promo-modal');
+          await renderPromotions();
+          return;
+        } else {
+          const err = await res.text();
+          alert('Error saving promotion: ' + err);
+        }
+      } catch (err) {
+        // Fallback for local demo mode
+        if (id) {
+          cachedPromos = cachedPromos.map(p => p.promotionId === id ? { ...p, ...payload } : p);
+        } else {
+          const newId = 'PROMO-' + (Date.now() % 10000);
+          cachedPromos.unshift({ ...payload, promotionId: newId, status: 'ACTIVE' });
+        }
+        alert(id ? 'Promotion updated successfully!' : 'Promotion created successfully!');
+        closeModal('add-promo-modal');
+        renderPromotions();
+      }
+    });
+  }
+
   // Render Promotions (Coordinated by Sales Managers & Operations Directors)
+  let cachedPromos = [];
+
   async function renderPromotions() {
     const tbody = document.getElementById('ops-promotions-tbody');
     if (!tbody) return;
@@ -626,34 +751,128 @@ document.addEventListener('DOMContentLoaded', () => {
       const res = await fetch('http://localhost:8080/api/promotions');
       if (res.ok) {
         const promos = await res.json();
-        if (Array.isArray(promos) && promos.length > 0) {
-          tbody.innerHTML = promos.map(p => `
-            <tr>
-              <td><strong style="color: var(--primary); font-family: monospace;">${p.promotionCode || p.promotionId}</strong></td>
-              <td>${p.promotionTitle}</td>
-              <td><span class="badge badge-gold">${p.promotionType}</span></td>
-              <td><strong style="color: var(--success);">${p.discountPrecentage || 0}%</strong></td>
-              <td>${p.startDate || ''} &rarr; ${p.endDate || ''}</td>
-              <td>Sales Agents & Marketing</td>
-            </tr>
-          `).join('');
-          return;
+        if (Array.isArray(promos)) {
+          cachedPromos = promos;
         }
       }
     } catch (e) {
       console.warn('Could not fetch live promotions:', e);
     }
 
-    tbody.innerHTML = `
-      <tr>
-        <td><strong style="color: var(--primary); font-family: monospace;">PROMO-LORA2026</strong></td>
-        <td>Luxury Penthouse Seasonal Launch</td>
-        <td><span class="badge badge-gold">Seasonal Discount</span></td>
-        <td><strong style="color: var(--success);">10.00%</strong></td>
-        <td>2026-01-01 &rarr; 2026-12-31</td>
-        <td>Sales Agents & Operations Coordinated</td>
-      </tr>
-    `;
+    if (cachedPromos.length === 0) {
+      cachedPromos = [
+        { promotionId: 'PROMO-001', promotionCode: 'ORA2026', promotionTitle: 'New Year Grand Discount', promotionType: 'Discount Code', discountPrecentage: 5.0, startDate: '2026-09-30', endDate: '2026-12-30', eligibilityCriteria: 'All buyers', about: 'New year discount', status: 'ACTIVE' },
+        { promotionId: 'PROMO-002', promotionCode: 'ORARLY', promotionTitle: 'Early Reservation Bonus', promotionType: 'Discount Code', discountPrecentage: 10.0, startDate: '2026-09-30', endDate: '2026-12-30', eligibilityCriteria: 'Min 20% down payment', about: 'Early bird bonus', status: 'ACTIVE' },
+        { promotionId: 'PROMO-003', promotionCode: 'ORAFAMILY', promotionTitle: 'Family Home Offer', promotionType: 'Discount Code', discountPrecentage: 7.5, startDate: '2026-09-30', endDate: '2026-12-30', eligibilityCriteria: '3+ bedroom units', about: 'Family offer', status: 'ACTIVE' }
+      ];
+    }
+
+    const computeStatus = (p) => {
+      if (p.status === 'INACTIVE') return { label: 'INACTIVE', color: '#ef4444' };
+      const today = new Date();
+      today.setHours(0,0,0,0);
+      const start = new Date(p.startDate);
+      const end = new Date(p.endDate);
+      if (today < start) return { label: 'SCHEDULED', color: '#f59e0b' };
+      if (today > end) return { label: 'EXPIRED', color: '#6b7280' };
+      return { label: 'ACTIVE', color: '#10b981' };
+    };
+
+    tbody.innerHTML = cachedPromos.map(p => {
+      const st = computeStatus(p);
+      return `
+        <tr>
+          <td><strong style="color: var(--primary); font-family: monospace;">${p.promotionCode || p.promotionId}</strong></td>
+          <td>${p.promotionTitle}</td>
+          <td><span class="badge badge-gold">${p.promotionType}</span></td>
+          <td><strong style="color: var(--success);">${p.discountPrecentage || 0}%</strong></td>
+          <td>${p.startDate || ''} &rarr; ${p.endDate || ''}</td>
+          <td>
+            <span style="font-size: 0.75rem; font-weight: bold; color: ${st.color}; border: 1px solid ${st.color}; padding: 2px 8px; border-radius: 12px;">
+              ${st.label}
+            </span>
+          </td>
+          <td>
+            <div style="display: flex; gap: 0.35rem;">
+              <button class="btn btn-sm btn-outline btn-toggle-promo" data-id="${p.promotionId}" style="padding: 0.25rem 0.5rem; font-size: 0.75rem;">
+                ${p.status === 'INACTIVE' ? 'Activate' : 'Deactivate'}
+              </button>
+              <button class="btn btn-sm btn-outline btn-edit-promo" data-id="${p.promotionId}" style="padding: 0.25rem 0.5rem; font-size: 0.75rem;">
+                Edit
+              </button>
+              <button class="btn btn-sm btn-outline btn-delete-promo" data-id="${p.promotionId}" style="padding: 0.25rem 0.5rem; font-size: 0.75rem; border-color: #ef4444; color: #ef4444;">
+                Delete
+              </button>
+            </div>
+          </td>
+        </tr>
+      `;
+    }).join('');
+
+    // Attach listeners for action buttons
+    tbody.querySelectorAll('.btn-toggle-promo').forEach(btn => {
+      btn.addEventListener('click', async () => {
+        const id = btn.getAttribute('data-id');
+        const user = JSON.parse(localStorage.getItem('livingora_user') || '{}');
+        try {
+          await fetch(`http://localhost:8080/api/promotions/${id}/toggle`, {
+            method: 'PATCH',
+            headers: { 'X-Staff-Role': user.role || 'SALES_MANAGER' }
+          });
+        } catch (e) {}
+        cachedPromos = cachedPromos.map(p => {
+          if (p.promotionId === id) {
+            return { ...p, status: p.status === 'INACTIVE' ? 'ACTIVE' : 'INACTIVE' };
+          }
+          return p;
+        });
+        renderPromotions();
+      });
+    });
+
+    tbody.querySelectorAll('.btn-edit-promo').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const id = btn.getAttribute('data-id');
+        const promo = cachedPromos.find(p => p.promotionId === id);
+        if (promo) {
+                    document.getElementById('promo-form-id').value = promo.promotionId;
+          document.getElementById('promo-form-title').value = promo.promotionTitle || '';
+          document.getElementById('promo-form-code').value = promo.promotionCode || '';
+          document.getElementById('promo-form-code').disabled = true;
+          document.getElementById('promo-form-discount').value = promo.discountPrecentage || '';
+          document.getElementById('promo-form-type').value = promo.promotionType || 'Discount Code';
+          document.getElementById('promo-form-start').value = promo.startDate || '';
+          document.getElementById('promo-form-end').value = promo.endDate || '';
+          document.getElementById('promo-form-criteria').value = promo.eligibilityCriteria || '';
+          document.getElementById('promo-form-about').value = promo.about || '';
+          
+          document.getElementById('promo-form-button-text').value = promo.buttonText || '';
+          document.getElementById('promo-form-validity').value = promo.validityPeriod || '';
+          document.getElementById('promo-form-banner').value = promo.bannerImage || '';
+          document.getElementById('promo-form-assigned-apt').value = promo.assinedApartment === 'All' ? '' : (promo.assinedApartment || '');
+          document.getElementById('promo-form-status').value = promo.status || 'ACTIVE';
+
+          document.getElementById('promo-modal-title').textContent = 'Edit Promotional Campaign';
+          openModal('add-promo-modal');
+        }
+      });
+    });
+
+    tbody.querySelectorAll('.btn-delete-promo').forEach(btn => {
+      btn.addEventListener('click', async () => {
+        const id = btn.getAttribute('data-id');
+        if (!confirm('Are you sure you want to delete this promotion?')) return;
+        const user = JSON.parse(localStorage.getItem('livingora_user') || '{}');
+        try {
+          await fetch(`http://localhost:8080/api/promotions/${id}`, {
+            method: 'DELETE',
+            headers: { 'X-Staff-Role': user.role || 'SALES_MANAGER' }
+          });
+        } catch (e) {}
+        cachedPromos = cachedPromos.filter(p => p.promotionId !== id);
+        renderPromotions();
+      });
+    });
   }
 
   // Bookings List Table
@@ -847,3 +1066,4 @@ document.addEventListener('DOMContentLoaded', () => {
     alert('New suite unit added to inventory!');
   });
 });
+
