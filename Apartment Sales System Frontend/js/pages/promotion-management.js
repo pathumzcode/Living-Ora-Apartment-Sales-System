@@ -189,9 +189,18 @@ document.addEventListener('DOMContentLoaded', () => {
     editingId = null;
     document.getElementById('modal-title').textContent = 'Create Promotion';
     document.getElementById('form-submit-btn').textContent = 'Save Promotion';
-    promotionForm.reset();
-    fId().value = '';
+
+    // Enable code field BEFORE reset so form.reset() can clear it
     if (fCode()) fCode().disabled = false;
+    promotionForm.reset();
+
+    // Explicitly clear and reset fields that may retain state from edit mode
+    fId().value = '';
+    if (fCode()) { fCode().value = ''; fCode().disabled = false; }
+    if (fType()) fType().value = 'Discount Code';
+    if (fStatus()) fStatus().value = 'ACTIVE';
+    if (fAssignedApt()) fAssignedApt().value = '';
+
     clearFieldErrors();
     hideFormError();
     openModal('promotion-modal');
