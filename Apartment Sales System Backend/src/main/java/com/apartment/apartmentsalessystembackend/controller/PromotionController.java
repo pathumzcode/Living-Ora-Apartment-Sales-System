@@ -70,6 +70,10 @@ public class PromotionController {
     }
 
     private boolean isAuthorizedManager(String role) {
+        // role header இல்லாதவர்களுக்கு (main branch போல்) access கொடுக்கிறோம்
+        if (role == null || role.isEmpty()) {
+            return true;
+        }
         return "SALES_MANAGER".equals(role) || "OPERATIONAL_MANAGER".equals(role) || "OPERATIONS_DIRECTOR".equals(role);
     }
 }
