@@ -370,6 +370,7 @@ export const operationsDeletionApi = {
   }
 };
 
+<<<<<<< HEAD
 export const operationsDeletionApi = {
   getPending: async () => {
     const user = JSON.parse(localStorage.getItem('livingora_user') || 'null');
@@ -396,6 +397,9 @@ export const operationsDeletionApi = {
     return handleResponse(response);
   }
 };
+=======
+
+>>>>>>> 9e2d90f (Update promotion management module)
 
 
 /* =========================
@@ -770,7 +774,10 @@ export const externalApartmentsApi = {
     );
 
     return handleResponse(response);
+<<<<<<< HEAD
   },
+=======
+>>>>>>> 9e2d90f (Update promotion management module)
   },
 
   update: async (id, exData) => {
