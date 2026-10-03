@@ -59,6 +59,11 @@ export const adminApi = {
     const response = await fetch(`${API_BASE_URL}/admin/internal-users`, { headers: { ...getHeaders(), 'X-Admin-Emp-Id': user?.uid || '' } });
     return handleResponse(response);
   },
+  getNextEmpId: async (role) => {
+    const user = JSON.parse(localStorage.getItem('livingora_user') || 'null');
+    const response = await fetch(`${API_BASE_URL}/admin/internal-users/next-emp-id?role=${encodeURIComponent(role || '')}`, { headers: { ...getHeaders(), 'X-Admin-Emp-Id': user?.uid || user?.empId || '' } });
+    return handleResponse(response);
+  },
   getExternalUsers: async () => {
     const user = JSON.parse(localStorage.getItem('livingora_user') || 'null');
     const response = await fetch(`${API_BASE_URL}/admin/external-users`, { headers: { ...getHeaders(), 'X-Admin-Emp-Id': user?.uid || '' } });
@@ -188,16 +193,50 @@ export const paymentsApi = {
 };
 
 export const promotionsApi = {
-  getAll: async () => {
+    getByCode: async (code) => {
+      const response = await fetch(${API_BASE_URL}/promotions/code/, { headers: getHeaders() });
+      return handleResponse(response);
+    },
+    getAll: async () => {
     const response = await fetch(`${API_BASE_URL}/promotions`, { headers: getHeaders() });
     return handleResponse(response);
   },
   create: async (promoData) => {
+    const user = JSON.parse(localStorage.getItem('livingora_user') || 'null');
     const response = await fetch(`${API_BASE_URL}/promotions`, {
       method: 'POST',
-      headers: getHeaders(),
+      headers: { ...getHeaders(), 'X-Staff-Role': user?.role || '' },
       body: JSON.stringify(promoData)
     });
+    return handleResponse(response);
+  },
+  update: async (id, promoData) => {
+    const user = JSON.parse(localStorage.getItem('livingora_user') || 'null');
+    const response = await fetch(`${API_BASE_URL}/promotions/${id}`, {
+      method: 'PUT',
+      headers: { ...getHeaders(), 'X-Staff-Role': user?.role || '' },
+      body: JSON.stringify(promoData)
+    });
+    return handleResponse(response);
+  },
+  delete: async (id) => {
+    const user = JSON.parse(localStorage.getItem('livingora_user') || 'null');
+    const response = await fetch(`${API_BASE_URL}/promotions/${id}`, {
+      method: 'DELETE',
+      headers: { ...getHeaders(), 'X-Staff-Role': user?.role || '' }
+    });
+    return handleResponse(response);
+  },
+  toggleStatus: async (id) => {
+    const user = JSON.parse(localStorage.getItem('livingora_user') || 'null');
+    const response = await fetch(`${API_BASE_URL}/promotions/${id}/toggle`, {
+      method: 'PATCH',
+      headers: { ...getHeaders(), 'X-Staff-Role': user?.role || '' }
+    });
+    return handleResponse(response);
+  },
+  getByCode: async (code) => {
+    const response = await fetch(`${API_BASE_URL}/promotions/code/${code}`, { headers: getHeaders() });
     return handleResponse(response);
   }
 };
@@ -216,3 +255,36 @@ export const externalApartmentsApi = {
     return handleResponse(response);
   }
 };
+
+export const schedulesApi = {
+  getAll: async () => {
+    const response = await fetch(`${API_BASE_URL}/schedules`, { headers: getHeaders() });
+    return handleResponse(response);
+  },
+  generate: async (bookingId, data) => {
+    const user = JSON.parse(localStorage.getItem('livingora_user') || 'null');
+    const response = await fetch(`${API_BASE_URL}/schedules/generate/${bookingId}`, {
+      method: 'POST',
+      headers: { ...getHeaders(), 'X-Staff-Role': user?.role || '' },
+      body: JSON.stringify(data || {})
+    });
+    return handleResponse(response);
+  },
+  confirm: async (id) => {
+    const user = JSON.parse(localStorage.getItem('livingora_user') || 'null');
+    const response = await fetch(`${API_BASE_URL}/schedules/${id}/confirm`, {
+      method: 'PATCH',
+      headers: { ...getHeaders(), 'X-Staff-Role': user?.role || '' }
+    });
+    return handleResponse(response);
+  },
+  delete: async (id) => {
+    const user = JSON.parse(localStorage.getItem('livingora_user') || 'null');
+    const response = await fetch(`${API_BASE_URL}/schedules/${id}`, {
+      method: 'DELETE',
+      headers: { ...getHeaders(), 'X-Staff-Role': user?.role || '' }
+    });
+    return handleResponse(response);
+  }
+};
+

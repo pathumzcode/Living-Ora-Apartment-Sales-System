@@ -24,6 +24,12 @@ public class AdminController {
         return ResponseEntity.ok(userService.getInternalUsersForAdmin(adminEmpId));
     }
 
+    @GetMapping("/internal-users/next-emp-id")
+    public ResponseEntity<Map<String, String>> nextEmpId(@RequestHeader("X-Admin-Emp-Id") String adminEmpId,
+                                                         @RequestParam String role) {
+        return ResponseEntity.ok(Map.of("empId", userService.previewNextEmployeeId(adminEmpId, role)));
+    }
+
     @GetMapping("/overview")
     public ResponseEntity<Map<String, Object>> overview(@RequestHeader("X-Admin-Emp-Id") String adminEmpId) {
         return ResponseEntity.ok(userService.getAdminOverview(adminEmpId));
@@ -66,5 +72,12 @@ public class AdminController {
                                                                   @PathVariable String uid,
                                                                   @Valid @RequestBody AccountAccessRequest request) {
         return ResponseEntity.ok(userService.updateExternalAccess(adminEmpId, uid, request.getActive(), request.getVerified()));
+    }
+
+    @DeleteMapping("/internal-users/{empId}")
+    public ResponseEntity<java.util.Map<String, Object>> deleteInternalUser(
+            @RequestHeader("X-Admin-Emp-Id") String adminEmpId,
+            @PathVariable String empId) {
+        return ResponseEntity.ok(userService.deleteInternalUser(adminEmpId, empId));
     }
 }

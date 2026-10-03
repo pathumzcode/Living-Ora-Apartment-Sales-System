@@ -191,6 +191,7 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('form-submit-btn').textContent = 'Save Promotion';
     promotionForm.reset();
     fId().value = '';
+    if (fCode()) fCode().disabled = false;
     clearFieldErrors();
     hideFormError();
     openModal('promotion-modal');
@@ -212,6 +213,7 @@ document.addEventListener('DOMContentLoaded', () => {
     fTitle().value       = promo.promotionTitle || '';
     fType().value        = promo.promotionType || 'Discount Code';
     fCode().value        = promo.promotionCode || '';
+    if (fCode()) fCode().disabled = true;
     fDiscount().value    = promo.discountPrecentage != null ? promo.discountPrecentage : '';
     fStart().value       = promo.startDate ? promo.startDate.toString().slice(0, 10) : '';
     fEnd().value         = promo.endDate ? promo.endDate.toString().slice(0, 10) : '';
@@ -263,6 +265,14 @@ document.addEventListener('DOMContentLoaded', () => {
       valid = false;
     }
     if (!valid) return;
+
+    if (!editingId) {
+      const existing = allPromotions.find(p => p.promotionCode === fCode().value.trim().toUpperCase());
+      if (existing) {
+        showFieldError('err-code', 'Promotion code already exists.');
+        return;
+      }
+    }
 
     const payload = {
       promotionTitle:      fTitle().value.trim(),
@@ -426,3 +436,5 @@ document.addEventListener('DOMContentLoaded', () => {
   // ── Initial Load ──────────────────────────────────────────────────────────────
   loadPromotions();
 });
+
+

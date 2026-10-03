@@ -4,8 +4,6 @@ import jakarta.persistence.*;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
-//Mapping between Backend and Database
-
 @Entity
 @Table(name = "promotion")
 public class Promotion {
@@ -21,11 +19,11 @@ public class Promotion {
     private String promotionTitle;
 
     @Lob
-    @Column(name = "about", columnDefinition = "LONGTEXT")
+    @Column(name = "about")
     private String about;
 
     @Lob
-    @Column(name = "eligibilityCriteria", columnDefinition = "LONGTEXT")
+    @Column(name = "eligibilityCriteria")
     private String eligibilityCriteria;
 
     @Column(name = "startDate", nullable = false)
@@ -46,50 +44,20 @@ public class Promotion {
     @Column(name = "discountPrecentage", precision = 5, scale = 2)
     private BigDecimal discountPrecentage;
 
-    /** Stores the apartmentId (e.g. "APT-LO-001") this promotion applies to, or null for all apartments. */
     @Column(name = "assinedApartment", length = 50)
     private String assinedApartment;
 
     @Lob
-    @Column(name = "campaignPerformance", columnDefinition = "LONGTEXT")
+    @Column(name = "campaignPerformance")
     private String campaignPerformance;
 
     @Column(name = "promotionCode", unique = true, length = 50)
     private String promotionCode;
 
-    @Column(name = "status", nullable = false, length = 20)
+    @Column(name = "status", length = 30)
     private String status = "ACTIVE";
 
     public Promotion() {}
-
-
-    // * Computes Actual display status based on status flag and date range. Returns: ACTIVE, SCHEDULED, EXPIRED, or INACTIVE.
-
-    public String getComputedStatus() {
-        if (status != null && (status.equals("INACTIVE") || status.equals("DELETED"))) {
-            return status;
-        }
-        LocalDate today = LocalDate.now();
-        if (startDate != null && today.isBefore(startDate)) {
-            return "SCHEDULED";
-        }
-        if (endDate != null && today.isAfter(endDate)) {
-            return "EXPIRED";
-        }
-        return "ACTIVE";
-    }
-
-
-    // Returns true only when status=ACTIVE and today is within the promotion date range.
-
-    public boolean isCurrentlyActive() {
-        if (!"ACTIVE".equals(status)) return false;
-        LocalDate today = LocalDate.now();
-        return startDate != null && endDate != null
-                && !today.isBefore(startDate)
-                && !today.isAfter(endDate);
-    }
-
 
     public String getPromotionId() {
         return promotionId;
@@ -209,5 +177,23 @@ public class Promotion {
 
     public void setStatus(String status) {
         this.status = status;
+    }
+
+    public String getComputedStatus() {
+        if ("INACTIVE".equalsIgnoreCase(status)) {
+            return "INACTIVE";
+        }
+        LocalDate today = LocalDate.now();
+        if (today.isBefore(startDate)) {
+            return "SCHEDULED";
+        }
+        if (today.isAfter(endDate)) {
+            return "EXPIRED";
+        }
+        return "ACTIVE";
+    }
+
+    public boolean isCurrentlyActive() {
+        return "ACTIVE".equals(getComputedStatus());
     }
 }

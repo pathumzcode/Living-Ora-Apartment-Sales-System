@@ -68,6 +68,13 @@ export const adminApi = {
     });
     return handleResponse(response);
   },
+  getNextEmpId: async (role) => {
+    const user = JSON.parse(localStorage.getItem('livingora_user') || 'null');
+    const response = await fetch(`${API_BASE_URL}/admin/internal-users/next-emp-id?role=${encodeURIComponent(role || '')}`, {
+      headers: { ...getHeaders(), 'X-Admin-Emp-Id': user?.uid || user?.empId || '' }
+    });
+    return handleResponse(response);
+  },
   getExternalUsers: async () => {
     const user = JSON.parse(localStorage.getItem('livingora_user') || 'null');
     const response = await fetch(`${API_BASE_URL}/admin/external-users`, {
@@ -122,6 +129,42 @@ export const adminApi = {
       method: 'PUT',
       headers: { ...getHeaders(), 'X-Admin-Emp-Id': user?.uid || user?.empId || '' },
       body: JSON.stringify(data)
+    });
+    return handleResponse(response);
+  },
+  deleteInternalUser: async (empId) => {
+    const user = JSON.parse(localStorage.getItem('livingora_user') || 'null');
+    const response = await fetch(`${API_BASE_URL}/admin/internal-users/${encodeURIComponent(empId)}`, {
+      method: 'DELETE',
+      headers: { ...getHeaders(), 'X-Admin-Emp-Id': user?.uid || user?.empId || '' }
+    });
+    if (response.status === 204) return { success: true };
+    return handleResponse(response);
+  }
+};
+
+export const operationsDeletionApi = {
+  getPending: async () => {
+    const user = JSON.parse(localStorage.getItem('livingora_user') || 'null');
+    const response = await fetch(`${API_BASE_URL}/operations/deletion-requests/pending`, {
+      headers: { ...getHeaders(), 'X-Staff-Emp-Id': user?.uid || user?.empId || '', 'X-Admin-Emp-Id': user?.uid || user?.empId || '' }
+    });
+    return handleResponse(response);
+  },
+  approve: async (requestId) => {
+    const user = JSON.parse(localStorage.getItem('livingora_user') || 'null');
+    const response = await fetch(`${API_BASE_URL}/operations/deletion-requests/${encodeURIComponent(requestId)}/approve`, {
+      method: 'POST',
+      headers: { ...getHeaders(), 'X-Staff-Emp-Id': user?.uid || user?.empId || '', 'X-Admin-Emp-Id': user?.uid || user?.empId || '' }
+    });
+    return handleResponse(response);
+  },
+  reject: async (requestId, reason = '') => {
+    const user = JSON.parse(localStorage.getItem('livingora_user') || 'null');
+    const response = await fetch(`${API_BASE_URL}/operations/deletion-requests/${encodeURIComponent(requestId)}/reject`, {
+      method: 'POST',
+      headers: { ...getHeaders(), 'X-Staff-Emp-Id': user?.uid || user?.empId || '', 'X-Admin-Emp-Id': user?.uid || user?.empId || '' },
+      body: JSON.stringify({ reason })
     });
     return handleResponse(response);
   }
@@ -223,95 +266,70 @@ export const paymentsApi = {
 };
 
 export const promotionsApi = {
-  /** Returns all promotions (excluding DELETED), ordered by startDate DESC. */
   getAll: async () => {
     const response = await fetch(`${API_BASE_URL}/promotions`, { headers: getHeaders() });
     return handleResponse(response);
   },
-  /** Returns only currently active promotions (public-facing page). */
-  getActive: async () => {
-    const response = await fetch(`${API_BASE_URL}/promotions/active`, { headers: getHeaders() });
-    return handleResponse(response);
-  },
-  /** Returns a single promotion by ID. */
-  getById: async (id) => {
-    const response = await fetch(`${API_BASE_URL}/promotions/${encodeURIComponent(id)}`, { headers: getHeaders() });
-    return handleResponse(response);
-  },
-  /** Returns a promotion by its promo code. */
-  getByCode: async (code) => {
-    const response = await fetch(`${API_BASE_URL}/promotions/code/${encodeURIComponent(code)}`, { headers: getHeaders() });
-    return handleResponse(response);
-  },
-  /** Search/filter promotions by title and optional status. */
-  search: async (q = '', status = '') => {
-    const params = new URLSearchParams();
-    if (q) params.set('q', q);
-    if (status) params.set('status', status);
-    const response = await fetch(`${API_BASE_URL}/promotions/search?${params.toString()}`, { headers: getHeaders() });
-    return handleResponse(response);
-  },
-  /** Create a new promotion. Requires management role. */
   create: async (promoData) => {
     const user = JSON.parse(localStorage.getItem('livingora_user') || 'null');
     const response = await fetch(`${API_BASE_URL}/promotions`, {
       method: 'POST',
-      headers: { ...getHeaders(), 'X-Staff-Emp-Id': user?.uid || user?.empId || '' },
+      headers: { ...getHeaders(), 'X-Staff-Role': user?.role || '' },
       body: JSON.stringify(promoData)
     });
     return handleResponse(response);
   },
-  /** Update an existing promotion. Requires management role. */
   update: async (id, promoData) => {
     const user = JSON.parse(localStorage.getItem('livingora_user') || 'null');
     const response = await fetch(`${API_BASE_URL}/promotions/${encodeURIComponent(id)}`, {
       method: 'PUT',
-      headers: { ...getHeaders(), 'X-Staff-Emp-Id': user?.uid || user?.empId || '' },
+      headers: { ...getHeaders(), 'X-Staff-Role': user?.role || '' },
       body: JSON.stringify(promoData)
     });
     return handleResponse(response);
   },
-  /** Toggle promotion status between ACTIVE and INACTIVE. */
-  toggleStatus: async (id) => {
-    const user = JSON.parse(localStorage.getItem('livingora_user') || 'null');
-    const response = await fetch(`${API_BASE_URL}/promotions/${encodeURIComponent(id)}/status`, {
-      method: 'PATCH',
-      headers: { ...getHeaders(), 'X-Staff-Emp-Id': user?.uid || user?.empId || '' }
-    });
-    return handleResponse(response);
-  },
-  /** Soft-delete a promotion (sets status=DELETED). Admin only. */
   remove: async (id) => {
     const user = JSON.parse(localStorage.getItem('livingora_user') || 'null');
     const response = await fetch(`${API_BASE_URL}/promotions/${encodeURIComponent(id)}`, {
       method: 'DELETE',
-      headers: { ...getHeaders(), 'X-Staff-Emp-Id': user?.uid || user?.empId || '' }
+      headers: { ...getHeaders(), 'X-Staff-Role': user?.role || '' }
+    });
+    if (response.status === 204) return true;
+    return handleResponse(response);
+  },
+  toggleStatus: async (id) => {
+    const user = JSON.parse(localStorage.getItem('livingora_user') || 'null');
+    const response = await fetch(`${API_BASE_URL}/promotions/${encodeURIComponent(id)}/toggle`, {
+      method: 'PATCH',
+      headers: { ...getHeaders(), 'X-Staff-Role': user?.role || '' }
     });
     return handleResponse(response);
   },
-  /** Returns active promotions applicable to a specific apartment (includes global promos). */
-  getForApartment: async (apartmentId) => {
-    const response = await fetch(
-      `${API_BASE_URL}/promotions/apartment/${encodeURIComponent(apartmentId)}`,
-      { headers: getHeaders() }
-    );
-    return handleResponse(response);
-  },
-  /** Validates a promo code for a given apartment and returns discount preview. */
-  validateCode: async (code, apartmentId) => {
-    const response = await fetch(`${API_BASE_URL}/promotions/validate-code`, {
-      method: 'POST',
-      headers: getHeaders(),
-      body: JSON.stringify({ code: code.trim().toUpperCase(), apartmentId: apartmentId || '' })
+  search: async (q, statusVal) => {
+    const response = await fetch(`${API_BASE_URL}/promotions`, { headers: getHeaders() });
+    const data = await handleResponse(response);
+    return data.filter(p => {
+      let match = true;
+      if (q) {
+        const query = q.toLowerCase();
+        match = (p.promotionTitle && p.promotionTitle.toLowerCase().includes(query)) ||
+                (p.promotionCode && p.promotionCode.toLowerCase().includes(query));
+      }
+      if (match && statusVal) {
+        match = (p.status === statusVal || p.computedStatus === statusVal);
+      }
+      return match;
     });
-    return handleResponse(response);
   }
 };
-
 
 export const externalApartmentsApi = {
   getAll: async () => {
     const response = await fetch(`${API_BASE_URL}/external-apartments`, { headers: getHeaders() });
+    return handleResponse(response);
+  },
+  getByAgent: async (uid) => {
+    const response = await fetch(`${API_BASE_URL}/external-apartments/agent/${encodeURIComponent(uid)}`, { headers: getHeaders() });
     return handleResponse(response);
   },
   create: async (exData) => {
@@ -319,6 +337,39 @@ export const externalApartmentsApi = {
       method: 'POST',
       headers: getHeaders(),
       body: JSON.stringify(exData)
+    });
+    return handleResponse(response);
+  },
+  update: async (id, exData) => {
+    const response = await fetch(`${API_BASE_URL}/external-apartments/${encodeURIComponent(id)}`, {
+      method: 'PUT',
+      headers: getHeaders(),
+      body: JSON.stringify(exData)
+    });
+    return handleResponse(response);
+  },
+  delete: async (id) => {
+    const response = await fetch(`${API_BASE_URL}/external-apartments/${encodeURIComponent(id)}`, {
+      method: 'DELETE',
+      headers: getHeaders()
+    });
+    if (response.status === 204) return true;
+    return handleResponse(response);
+  }
+};
+
+export const userApi = {
+  getInternalUser: async (empId) => {
+    const response = await fetch(`${API_BASE_URL}/users/internal/${encodeURIComponent(empId)}`, {
+      headers: getHeaders()
+    });
+    return handleResponse(response);
+  },
+  updateInternalProfile: async (empId, data) => {
+    const response = await fetch(`${API_BASE_URL}/users/internal/${encodeURIComponent(empId)}/profile`, {
+      method: 'PUT',
+      headers: getHeaders(),
+      body: JSON.stringify(data)
     });
     return handleResponse(response);
   }

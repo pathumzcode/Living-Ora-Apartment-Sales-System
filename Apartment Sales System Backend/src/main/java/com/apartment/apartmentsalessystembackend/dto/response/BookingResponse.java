@@ -13,48 +13,78 @@ public class BookingResponse {
     private String additions;
     private BigDecimal paymentAmount;
     private String paymentProof;
-    /** Promo code that was applied, if any. */
-    private String promotionCode;
-    /** Discount amount in dollars applied from the promotion. */
-    private BigDecimal discountAmount;
-    /** Final discounted price the customer actually pays. */
-    private BigDecimal discountedPrice;
 
     public BookingResponse() {}
 
-    public Long getId() { return id; }
-    public void setId(Long id) { this.id = id; }
+    public Long getId() {
+        return id;
+    }
 
-    public String getBookingId() { return bookingId; }
-    public void setBookingId(String bookingId) { this.bookingId = bookingId; }
+    public void setId(Long id) {
+        this.id = id;
+    }
 
-    public String getUnitId() { return unitId; }
-    public void setUnitId(String unitId) { this.unitId = unitId; }
+    public String getBookingId() {
+        return bookingId;
+    }
 
-    public LocalDate getBookingDate() { return bookingDate; }
-    public void setBookingDate(LocalDate bookingDate) { this.bookingDate = bookingDate; }
+    public void setBookingId(String bookingId) {
+        this.bookingId = bookingId;
+    }
 
-    public LocalDate getExpireDate() { return expireDate; }
-    public void setExpireDate(LocalDate expireDate) { this.expireDate = expireDate; }
+    public String getUnitId() {
+        return unitId;
+    }
 
-    public String getStatus() { return status; }
-    public void setStatus(String status) { this.status = status; }
+    public void setUnitId(String unitId) {
+        this.unitId = unitId;
+    }
 
-    public String getAdditions() { return additions; }
-    public void setAdditions(String additions) { this.additions = additions; }
+    public LocalDate getBookingDate() {
+        return bookingDate;
+    }
 
-    public BigDecimal getPaymentAmount() { return paymentAmount; }
-    public void setPaymentAmount(BigDecimal paymentAmount) { this.paymentAmount = paymentAmount; }
+    public void setBookingDate(LocalDate bookingDate) {
+        this.bookingDate = bookingDate;
+    }
 
-    public String getPaymentProof() { return paymentProof; }
-    public void setPaymentProof(String paymentProof) { this.paymentProof = paymentProof; }
+    public LocalDate getExpireDate() {
+        return expireDate;
+    }
 
-    public String getPromotionCode() { return promotionCode; }
-    public void setPromotionCode(String promotionCode) { this.promotionCode = promotionCode; }
+    public void setExpireDate(LocalDate expireDate) {
+        this.expireDate = expireDate;
+    }
 
-    public BigDecimal getDiscountAmount() { return discountAmount; }
-    public void setDiscountAmount(BigDecimal discountAmount) { this.discountAmount = discountAmount; }
+    public String getStatus() {
+        return status;
+    }
 
-    public BigDecimal getDiscountedPrice() { return discountedPrice; }
-    public void setDiscountedPrice(BigDecimal discountedPrice) { this.discountedPrice = discountedPrice; }
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
+    public String getAdditions() {
+        return additions;
+    }
+
+    public void setAdditions(String additions) {
+        this.additions = additions;
+    }
+
+    public BigDecimal getPaymentAmount() {
+        return paymentAmount;
+    }
+
+    public void setPaymentAmount(BigDecimal paymentAmount) {
+        this.paymentAmount = paymentAmount;
+    }
+
+    public String getPaymentProof() {
+        return paymentProof;
+    }
+
+    public void setPaymentProof(String paymentProof) {
+        this.paymentProof = paymentProof;
+    }
 }
