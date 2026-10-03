@@ -29,7 +29,9 @@ const handleResponse = async (response) => {
       const errorJson = JSON.parse(errorText);
       errorMessage = errorJson.message || errorMessage;
     } catch (e) {
-      if (errorText) errorMessage = errorText;
+      if (errorText) {
+        errorMessage = errorText;
+      }
     }
 
     throw new Error(errorMessage);
@@ -38,30 +40,50 @@ const handleResponse = async (response) => {
   return response.json();
 };
 
+
+/* =========================
+   AUTH API
+========================= */
+
 export const authApi = {
   login: async (credentials) => {
-    const response = await fetch(`${API_BASE_URL}/auth/login`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        email: credentials.email,
-        password: credentials.password
-      })
-    });
+    const response = await fetch(
+      `${API_BASE_URL}/auth/login`,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          email: credentials.email,
+          password: credentials.password
+        })
+      }
+    );
 
     return handleResponse(response);
   },
 
   signup: async (details) => {
-    const response = await fetch(`${API_BASE_URL}/auth/external/signup`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(details)
-    });
+    const response = await fetch(
+      `${API_BASE_URL}/auth/external/signup`,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(details)
+      }
+    );
 
     return handleResponse(response);
   }
 };
+
+
+/* =========================
+   ADMIN API
+========================= */
 
 export const adminApi = {
   getOverview: async () => {
@@ -69,12 +91,15 @@ export const adminApi = {
       localStorage.getItem('livingora_user') || 'null'
     );
 
-    const response = await fetch(`${API_BASE_URL}/admin/overview`, {
-      headers: {
-        ...getHeaders(),
-        'X-Admin-Emp-Id': user?.uid || user?.empId || ''
+    const response = await fetch(
+      `${API_BASE_URL}/admin/overview`,
+      {
+        headers: {
+          ...getHeaders(),
+          'X-Admin-Emp-Id': user?.uid || user?.empId || ''
+        }
       }
-    });
+    );
 
     return handleResponse(response);
   },
@@ -84,12 +109,15 @@ export const adminApi = {
       localStorage.getItem('livingora_user') || 'null'
     );
 
-    const response = await fetch(`${API_BASE_URL}/admin/internal-users`, {
-      headers: {
-        ...getHeaders(),
-        'X-Admin-Emp-Id': user?.uid || user?.empId || ''
+    const response = await fetch(
+      `${API_BASE_URL}/admin/internal-users`,
+      {
+        headers: {
+          ...getHeaders(),
+          'X-Admin-Emp-Id': user?.uid || user?.empId || ''
+        }
       }
-    });
+    );
 
     return handleResponse(response);
   },
@@ -117,12 +145,15 @@ export const adminApi = {
       localStorage.getItem('livingora_user') || 'null'
     );
 
-    const response = await fetch(`${API_BASE_URL}/admin/external-users`, {
-      headers: {
-        ...getHeaders(),
-        'X-Admin-Emp-Id': user?.uid || user?.empId || ''
+    const response = await fetch(
+      `${API_BASE_URL}/admin/external-users`,
+      {
+        headers: {
+          ...getHeaders(),
+          'X-Admin-Emp-Id': user?.uid || user?.empId || ''
+        }
       }
-    });
+    );
 
     return handleResponse(response);
   },
@@ -132,12 +163,15 @@ export const adminApi = {
       localStorage.getItem('livingora_user') || 'null'
     );
 
-    const response = await fetch(`${API_BASE_URL}/admin/verifications`, {
-      headers: {
-        ...getHeaders(),
-        'X-Admin-Emp-Id': user?.uid || user?.empId || ''
+    const response = await fetch(
+      `${API_BASE_URL}/admin/verifications`,
+      {
+        headers: {
+          ...getHeaders(),
+          'X-Admin-Emp-Id': user?.uid || user?.empId || ''
+        }
       }
-    });
+    );
 
     return handleResponse(response);
   },
@@ -147,12 +181,15 @@ export const adminApi = {
       localStorage.getItem('livingora_user') || 'null'
     );
 
-    const response = await fetch(`${API_BASE_URL}/admin/audit-logs`, {
-      headers: {
-        ...getHeaders(),
-        'X-Admin-Emp-Id': user?.uid || user?.empId || ''
+    const response = await fetch(
+      `${API_BASE_URL}/admin/audit-logs`,
+      {
+        headers: {
+          ...getHeaders(),
+          'X-Admin-Emp-Id': user?.uid || user?.empId || ''
+        }
       }
-    });
+    );
 
     return handleResponse(response);
   },
@@ -202,14 +239,17 @@ export const adminApi = {
       localStorage.getItem('livingora_user') || 'null'
     );
 
-    const response = await fetch(`${API_BASE_URL}/admin/internal-users`, {
-      method: 'POST',
-      headers: {
-        ...getHeaders(),
-        'X-Admin-Emp-Id': user?.uid || user?.empId || ''
-      },
-      body: JSON.stringify(data)
-    });
+    const response = await fetch(
+      `${API_BASE_URL}/admin/internal-users`,
+      {
+        method: 'POST',
+        headers: {
+          ...getHeaders(),
+          'X-Admin-Emp-Id': user?.uid || user?.empId || ''
+        },
+        body: JSON.stringify(data)
+      }
+    );
 
     return handleResponse(response);
   },
@@ -250,11 +290,14 @@ export const adminApi = {
       }
     );
 
-    if (response.status === 204) return { success: true };
+    if (response.status === 204) {
+      return { success: true };
+    }
 
     return handleResponse(response);
   }
 };
+
 
 export const operationsDeletionApi = {
   getPending: async () => {
@@ -354,39 +397,61 @@ export const operationsDeletionApi = {
   }
 };
 
+
+/* =========================
+   APARTMENTS API
+========================= */
+
 export const apartmentsApi = {
   getAll: async () => {
-    const response = await fetch(`${API_BASE_URL}/apartments`, {
-      headers: getHeaders()
-    });
+    const response = await fetch(
+      `${API_BASE_URL}/apartments`,
+      {
+        headers: getHeaders()
+      }
+    );
 
     return handleResponse(response);
   },
 
   getById: async (id) => {
-    const response = await fetch(`${API_BASE_URL}/apartments/${id}`, {
-      headers: getHeaders()
-    });
+    const response = await fetch(
+      `${API_BASE_URL}/apartments/${id}`,
+      {
+        headers: getHeaders()
+      }
+    );
 
     return handleResponse(response);
   },
 
   create: async (data) => {
-    const response = await fetch(`${API_BASE_URL}/apartments`, {
-      method: 'POST',
-      headers: getHeaders(),
-      body: JSON.stringify(data)
-    });
+    const response = await fetch(
+      `${API_BASE_URL}/apartments`,
+      {
+        method: 'POST',
+        headers: getHeaders(),
+        body: JSON.stringify(data)
+      }
+    );
 
     return handleResponse(response);
   }
 };
 
+
+/* =========================
+   UNITS API
+========================= */
+
 export const unitsApi = {
   getAll: async () => {
-    const response = await fetch(`${API_BASE_URL}/units`, {
-      headers: getHeaders()
-    });
+    const response = await fetch(
+      `${API_BASE_URL}/units`,
+      {
+        headers: getHeaders()
+      }
+    );
 
     return handleResponse(response);
   },
@@ -403,19 +468,25 @@ export const unitsApi = {
   },
 
   getById: async (id) => {
-    const response = await fetch(`${API_BASE_URL}/units/${id}`, {
-      headers: getHeaders()
-    });
+    const response = await fetch(
+      `${API_BASE_URL}/units/${id}`,
+      {
+        headers: getHeaders()
+      }
+    );
 
     return handleResponse(response);
   },
 
   create: async (data) => {
-    const response = await fetch(`${API_BASE_URL}/units`, {
-      method: 'POST',
-      headers: getHeaders(),
-      body: JSON.stringify(data)
-    });
+    const response = await fetch(
+      `${API_BASE_URL}/units`,
+      {
+        method: 'POST',
+        headers: getHeaders(),
+        body: JSON.stringify(data)
+      }
+    );
 
     return handleResponse(response);
   },
@@ -433,21 +504,32 @@ export const unitsApi = {
   }
 };
 
+
+/* =========================
+   BOOKINGS API
+========================= */
+
 export const bookingsApi = {
   getAll: async () => {
-    const response = await fetch(`${API_BASE_URL}/bookings`, {
-      headers: getHeaders()
-    });
+    const response = await fetch(
+      `${API_BASE_URL}/bookings`,
+      {
+        headers: getHeaders()
+      }
+    );
 
     return handleResponse(response);
   },
 
   create: async (bookingPayload) => {
-    const response = await fetch(`${API_BASE_URL}/bookings`, {
-      method: 'POST',
-      headers: getHeaders(),
-      body: JSON.stringify(bookingPayload)
-    });
+    const response = await fetch(
+      `${API_BASE_URL}/bookings`,
+      {
+        method: 'POST',
+        headers: getHeaders(),
+        body: JSON.stringify(bookingPayload)
+      }
+    );
 
     return handleResponse(response);
   },
@@ -465,21 +547,32 @@ export const bookingsApi = {
   }
 };
 
+
+/* =========================
+   PAYMENTS API
+========================= */
+
 export const paymentsApi = {
   getAll: async () => {
-    const response = await fetch(`${API_BASE_URL}/payments`, {
-      headers: getHeaders()
-    });
+    const response = await fetch(
+      `${API_BASE_URL}/payments`,
+      {
+        headers: getHeaders()
+      }
+    );
 
     return handleResponse(response);
   },
 
   create: async (paymentData) => {
-    const response = await fetch(`${API_BASE_URL}/payments`, {
-      method: 'POST',
-      headers: getHeaders(),
-      body: JSON.stringify(paymentData)
-    });
+    const response = await fetch(
+      `${API_BASE_URL}/payments`,
+      {
+        method: 'POST',
+        headers: getHeaders(),
+        body: JSON.stringify(paymentData)
+      }
+    );
 
     return handleResponse(response);
   },
@@ -489,24 +582,35 @@ export const paymentsApi = {
       localStorage.getItem('livingora_user') || 'null'
     );
 
-    const response = await fetch(`${API_BASE_URL}/payments/${id}/status`, {
-      method: 'PATCH',
-      headers: {
-        ...getHeaders(),
-        'X-Staff-Emp-Id': user?.uid || user?.empId || ''
-      },
-      body: JSON.stringify({ status })
-    });
+    const response = await fetch(
+      `${API_BASE_URL}/payments/${id}/status`,
+      {
+        method: 'PATCH',
+        headers: {
+          ...getHeaders(),
+          'X-Staff-Emp-Id': user?.uid || user?.empId || ''
+        },
+        body: JSON.stringify({ status })
+      }
+    );
 
     return handleResponse(response);
   }
 };
 
+
+/* =========================
+   PROMOTIONS API
+========================= */
+
 export const promotionsApi = {
   getAll: async () => {
-    const response = await fetch(`${API_BASE_URL}/promotions`, {
-      headers: getHeaders()
-    });
+    const response = await fetch(
+      `${API_BASE_URL}/promotions`,
+      {
+        headers: getHeaders()
+      }
+    );
 
     return handleResponse(response);
   },
@@ -516,14 +620,17 @@ export const promotionsApi = {
       localStorage.getItem('livingora_user') || 'null'
     );
 
-    const response = await fetch(`${API_BASE_URL}/promotions`, {
-      method: 'POST',
-      headers: {
-        ...getHeaders(),
-        'X-Staff-Role': user?.role || ''
-      },
-      body: JSON.stringify(promoData)
-    });
+    const response = await fetch(
+      `${API_BASE_URL}/promotions`,
+      {
+        method: 'POST',
+        headers: {
+          ...getHeaders(),
+          'X-Staff-Role': user?.role || ''
+        },
+        body: JSON.stringify(promoData)
+      }
+    );
 
     return handleResponse(response);
   },
@@ -564,7 +671,9 @@ export const promotionsApi = {
       }
     );
 
-    if (response.status === 204) return true;
+    if (response.status === 204) {
+      return true;
+    }
 
     return handleResponse(response);
   },
@@ -589,13 +698,16 @@ export const promotionsApi = {
   },
 
   search: async (q, statusVal) => {
-    const response = await fetch(`${API_BASE_URL}/promotions`, {
-      headers: getHeaders()
-    });
+    const response = await fetch(
+      `${API_BASE_URL}/promotions`,
+      {
+        headers: getHeaders()
+      }
+    );
 
     const data = await handleResponse(response);
 
-    return data.filter(p => {
+    return data.filter((p) => {
       let match = true;
 
       if (q) {
@@ -619,16 +731,24 @@ export const promotionsApi = {
   }
 };
 
+
+/* =========================
+   EXTERNAL APARTMENTS API
+========================= */
+
 export const externalApartmentsApi = {
   getAll: async () => {
-    const response = await fetch(`${API_BASE_URL}/external-apartments`, {
-      headers: getHeaders()
-    });
+    const response = await fetch(
+      `${API_BASE_URL}/external-apartments`,
+      {
+        headers: getHeaders()
+      }
+    );
 
     return handleResponse(response);
   },
 
-  getByAgent: async (uid) => {
+    getByAgent: async (uid) => {
     const response = await fetch(
       `${API_BASE_URL}/external-apartments/agent/${encodeURIComponent(uid)}`,
       {
@@ -640,14 +760,17 @@ export const externalApartmentsApi = {
   },
 
   create: async (exData) => {
-  const response = await fetch(`${API_BASE_URL}/external-apartments`, {
-    method: 'POST',
-    headers: getHeaders(),
-    body: JSON.stringify(exData)
-  });
+    const response = await fetch(
+      `${API_BASE_URL}/external-apartments`,
+      {
+        method: 'POST',
+        headers: getHeaders(),
+        body: JSON.stringify(exData)
+      }
+    );
 
-  return handleResponse(response);
-},
+    return handleResponse(response);
+  },
   },
 
   update: async (id, exData) => {
@@ -672,11 +795,18 @@ export const externalApartmentsApi = {
       }
     );
 
-    if (response.status === 204) return true;
+    if (response.status === 204) {
+      return true;
+    }
 
     return handleResponse(response);
   }
 };
+
+
+/* =========================
+   USER API
+========================= */
 
 export const userApi = {
   getInternalUser: async (empId) => {
