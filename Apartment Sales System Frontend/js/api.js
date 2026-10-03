@@ -370,32 +370,12 @@ export const operationsDeletionApi = {
   }
 };
 
-export const operationsDeletionApi = {
-  getPending: async () => {
-    const user = JSON.parse(localStorage.getItem('livingora_user') || 'null');
-    const response = await fetch(`${API_BASE_URL}/operations/deletion-requests/pending`, {
-      headers: { ...getHeaders(), 'X-Staff-Emp-Id': user?.uid || user?.empId || '', 'X-Admin-Emp-Id': user?.uid || user?.empId || '' }
-    });
-    return handleResponse(response);
-  },
-  approve: async (requestId) => {
-    const user = JSON.parse(localStorage.getItem('livingora_user') || 'null');
-    const response = await fetch(`${API_BASE_URL}/operations/deletion-requests/${encodeURIComponent(requestId)}/approve`, {
-      method: 'POST',
-      headers: { ...getHeaders(), 'X-Staff-Emp-Id': user?.uid || user?.empId || '', 'X-Admin-Emp-Id': user?.uid || user?.empId || '' }
-    });
-    return handleResponse(response);
-  },
-  reject: async (requestId, reason = '') => {
-    const user = JSON.parse(localStorage.getItem('livingora_user') || 'null');
-    const response = await fetch(`${API_BASE_URL}/operations/deletion-requests/${encodeURIComponent(requestId)}/reject`, {
-      method: 'POST',
-      headers: { ...getHeaders(), 'X-Staff-Emp-Id': user?.uid || user?.empId || '', 'X-Admin-Emp-Id': user?.uid || user?.empId || '' },
-      body: JSON.stringify({ reason })
-    });
-    return handleResponse(response);
-  }
-};
+
+
+
+/* =========================
+   APARTMENTS API
+========================= */
 
 
 /* =========================
@@ -759,7 +739,7 @@ export const externalApartmentsApi = {
     return handleResponse(response);
   },
 
-  create: async (exData) => {
+   create: async (exData) => {
     const response = await fetch(
       `${API_BASE_URL}/external-apartments`,
       {
@@ -770,7 +750,6 @@ export const externalApartmentsApi = {
     );
 
     return handleResponse(response);
-  },
   },
 
   update: async (id, exData) => {
