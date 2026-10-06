@@ -39,10 +39,16 @@
       <p style="color: var(--text-muted); font-size: 0.92rem;">Review verification progress, down payment status, and installment schedules for your booked properties.</p>
     </div>
 
+    <p id="booking-feedback" role="status" aria-live="polite" style="margin-bottom: 1rem;"></p>
     <div id="reservations-list">
       <!-- Injected by js/pages/customer-dashboard.js -->
     </div>
   </main>
+
+  <dialog id="booking-dialog" class="booking-dialog" aria-labelledby="booking-dialog-title">
+    <div class="modal-header"><h2 id="booking-dialog-title">Booking Details</h2><button id="booking-dialog-close" class="modal-close" aria-label="Close booking details">&times;</button></div>
+    <div id="booking-dialog-body" class="modal-body"></div>
+  </dialog>
 
   <!-- Footer Placeholder -->
   <div id="footer-placeholder"></div>

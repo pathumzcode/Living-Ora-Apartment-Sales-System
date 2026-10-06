@@ -220,6 +220,17 @@ export const unitsApi = {
 };
 
 export const bookingsApi = {
+  getById: async (id) => handleResponse(await fetch(
+    `${API_BASE_URL}/bookings/${encodeURIComponent(id)}`, { headers: getHeaders() })),
+  update: async (id, data) => handleResponse(await fetch(
+    `${API_BASE_URL}/bookings/${encodeURIComponent(id)}`,
+    { method: 'PUT', headers: getHeaders(), body: JSON.stringify(data) })),
+  delete: async (id) => {
+    const response = await fetch(`${API_BASE_URL}/bookings/${encodeURIComponent(id)}`,
+      { method: 'DELETE', headers: getHeaders() });
+    if (response.status === 204) return;
+    return handleResponse(response);
+  },
   getAll: async () => {
     const response = await fetch(`${API_BASE_URL}/bookings`, { headers: getHeaders() });
     return handleResponse(response);

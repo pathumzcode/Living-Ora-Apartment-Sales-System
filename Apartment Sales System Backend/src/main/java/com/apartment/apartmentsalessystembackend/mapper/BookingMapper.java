@@ -21,6 +21,9 @@ public class BookingMapper {
         dto.setStatus(entity.getStatus());
         dto.setAdditions(entity.getAdditions());
         if (entity.getPayment() != null) {
+            dto.setDownPayment(entity.getPayment().getDownPayment());
+            dto.setPaymentMethod(entity.getPayment().getPaymentMethod());
+            dto.setPaymentStatus(entity.getPayment().getStatus());
             dto.setPaymentAmount(entity.getPayment().getPaymentAmount());
             dto.setPaymentProof(entity.getPayment().getPaymentProof());
         }

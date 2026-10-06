@@ -1,6 +1,7 @@
 package com.apartment.apartmentsalessystembackend.service;
 
 import com.apartment.apartmentsalessystembackend.dto.request.BookingRequest;
+import com.apartment.apartmentsalessystembackend.dto.request.BookingUpdateRequest;
 import com.apartment.apartmentsalessystembackend.dto.response.BookingResponse;
 import com.apartment.apartmentsalessystembackend.entity.Booking;
 import com.apartment.apartmentsalessystembackend.entity.Payment;
@@ -16,7 +17,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.math.BigDecimal;
+import org.springframework.transaction.annotation.Transactional;
 import java.util.Arrays;
 import java.util.List;
 
@@ -38,10 +39,78 @@ public class BookingService {
     @Autowired
     private BookingMapper bookingMapper;
 
+    @Autowired
+    private com.apartment.apartmentsalessystembackend.repository.UserVerificationRepository userVerificationRepository;
+
+    private BookingResponse toResponse(Booking booking) {
+        BookingResponse response = bookingMapper.toResponse(booking);
+        if (booking.getUid() != null) {
+            userVerificationRepository.findById(booking.getUid()).ifPresent(customer -> {
+                response.setUid(customer.getUid());
+                response.setUserEmail(customer.getEmail());
+            });
+        }
+        return response;
+    }
+
+    @Transactional(readOnly = true)
     public List<BookingResponse> getAllBookings() {
         return bookingRepository.findAll().stream()
-                .map(bookingMapper::toResponse)
+                .map(this::toResponse)
                 .toList();
+    }
+
+    @Transactional(readOnly = true)
+    public BookingResponse getBookingById(Long id) {
+        return toResponse(findBooking(id));
+    }
+
+    @Transactional
+    public BookingResponse updateBooking(Long id, BookingUpdateRequest request) {
+        Booking booking = findBooking(id);
+        requireEditable(booking);
+        if (request.getBookingDate() == null || request.getExpireDate() == null
+                || request.getExpireDate().isBefore(request.getBookingDate())) {
+            throw new BadRequestException("Expiry date must be on or after the booking date");
+        }
+        booking.setBookingDate(request.getBookingDate());
+        booking.setExpireDate(request.getExpireDate());
+        booking.setAdditions(request.getAdditions());
+        return toResponse(bookingRepository.save(booking));
+    }
+
+    @Transactional
+    public void deleteBooking(Long id) {
+        Booking booking = findBooking(id);
+        requireEditable(booking);
+        List<Payment> payments = paymentRepository.findByBookingId(id);
+        if (payments.stream().anyMatch(payment -> "VERIFIED".equalsIgnoreCase(payment.getStatus()))
+                || (booking.getPayment() != null
+                && "VERIFIED".equalsIgnoreCase(booking.getPayment().getStatus()))) {
+            throw new BadRequestException("A booking with verified payments cannot be deleted");
+        }
+        Unit unit = unitRepository.findById(booking.getUnitId()).orElse(null);
+        if (unit != null && "Reserved".equalsIgnoreCase(unit.getAvailability())
+                && !bookingRepository.existsByUnitIdAndStatusInAndIdNot(booking.getUnitId(),
+                Arrays.asList("Pending Approval", "Approved", "Reserved"), id)) {
+            unit.setAvailability("Available");
+            unitRepository.save(unit);
+        }
+        // Remove the booking's payment foreign key before deleting its payment records.
+        bookingRepository.delete(booking);
+        bookingRepository.flush();
+        paymentRepository.deleteAll(payments);
+    }
+
+    private Booking findBooking(Long id) {
+        return bookingRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Booking not found: " + id));
+    }
+
+    private void requireEditable(Booking booking) {
+        if ("Approved".equalsIgnoreCase(booking.getStatus())) {
+            throw new BadRequestException("An approved booking cannot be changed from this workflow");
+        }
     }
 
     @org.springframework.transaction.annotation.Transactional
@@ -92,7 +161,7 @@ public class BookingService {
         unit.setAvailability("Reserved");
         unitRepository.save(unit);
 
-        return bookingMapper.toResponse(savedBooking);
+        return toResponse(savedBooking);
     }
 
     @org.springframework.transaction.annotation.Transactional
@@ -122,6 +191,6 @@ public class BookingService {
         }
 
         Booking updated = bookingRepository.save(booking);
-        return bookingMapper.toResponse(updated);
+        return toResponse(updated);
     }
 }
