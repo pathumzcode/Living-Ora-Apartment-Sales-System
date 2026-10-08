@@ -8,6 +8,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   if (!requireAuth([ROLES.SALES_AGENT, ROLES.ADMIN])) return;
 
   renderNavbar();
+  renderFooter();
   setupModalListeners();
 
   const user = getCurrentUser();
@@ -16,44 +17,8 @@ document.addEventListener('DOMContentLoaded', async () => {
   const agentEmailEl = document.getElementById('agent-email');
 
   if (agentNameEl) agentNameEl.textContent = user.name || `${user.firstName || ''} ${user.lastName || ''}`.trim() || 'Sales Agent';
-  if (agentUidEl) agentUidEl.textContent = user.uid || user.empId || '';
-  if (agentEmailEl) agentEmailEl.textContent = user.email || '';
-
-  // ─── Sidebar Tab Navigation ─────────────────────────────────────────────────
-  const agentTabs = [
-    { tabId: 'listings', panelId: 'listings-panel', btnId: 'tab-listings-btn' },
-    { tabId: 'profile',  panelId: 'profile-panel',  btnId: 'tab-agent-profile-btn' },
-  ];
-
-  function switchAgentTab(activeTabId) {
-    agentTabs.forEach(({ tabId, panelId, btnId }) => {
-      const panel = document.getElementById(panelId);
-      const btn   = document.getElementById(btnId);
-      const isActive = tabId === activeTabId;
-      if (panel) panel.hidden = !isActive;
-      if (btn) btn.classList.toggle('active', isActive);
-    });
-    if (activeTabId === 'profile') populateProfilePanel();
-  }
-
-  agentTabs.forEach(({ tabId, btnId }) => {
-    document.getElementById(btnId)?.addEventListener('click', () => switchAgentTab(tabId));
-  });
-
-  // "Edit Profile" header button -> navigate to profile tab
-  document.getElementById('open-profile-btn')?.addEventListener('click', () => switchAgentTab('profile'));
-
-  function populateProfilePanel() {
-    document.getElementById('profile-uid')  && (document.getElementById('profile-uid').textContent  = user.uid || user.empId || '—');
-    document.getElementById('profile-name') && (document.getElementById('profile-name').textContent = `${user.firstName || ''} ${user.lastName || ''}`.trim() || '—');
-    document.getElementById('profile-email')&& (document.getElementById('profile-email').textContent = user.email || '—');
-    document.getElementById('profile-phone')&& (document.getElementById('profile-phone').textContent = user.phoneNumber || user.phone || '—');
-    document.getElementById('profile-nic')  && (document.getElementById('profile-nic').textContent  = user.nic || '—');
-    document.getElementById('profile-city') && (document.getElementById('profile-city').textContent = user.city || (user.address ? user.address.split(',').pop()?.trim() : '') || '—');
-  }
-
-  // Initialize: show listings tab first
-  switchAgentTab('listings');
+  if (agentUidEl) agentUidEl.textContent = user.uid || user.empId || 'USR-EXT-5003';
+  if (agentEmailEl) agentEmailEl.textContent = user.email || 'agent@livingora.lk';
 
   const alertBox = document.getElementById('agent-alert');
   const tbody = document.getElementById('agent-resale-tbody');
@@ -102,18 +67,14 @@ document.addEventListener('DOMContentLoaded', async () => {
   async function loadMyApartments() {
     tbody.innerHTML = `<tr><td colspan="7" style="text-align: center; color: var(--text-muted); padding: 2rem;">Loading your listed resale apartments from database...</td></tr>`;
     try {
-      const agentUid = user.uid || user.empId;
-      if (!agentUid) {
-        myApartments = [];
-        renderTable();
-        updateKPIs();
-        return;
-      }
+      const agentUid = user.uid || 'USR-EXT-5003';
       const res = await externalApartmentsApi.getByAgent(agentUid);
       myApartments = Array.isArray(res) ? res : [];
     } catch (err) {
-      console.warn('Could not load resale apartments from backend:', err);
-      myApartments = [];
+      console.warn('Fallback to local store filter:', err);
+      const all = store.getExternalApartments();
+      const agentUid = user.uid || 'USR-EXT-5003';
+      myApartments = all.filter(a => a.registeredByUid === agentUid);
     }
     renderTable();
     updateKPIs();
@@ -261,7 +222,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       about: modalAbout.value.trim(),
       additionalInfo: modalInfo.value.trim(),
       images: modalImage.value || 'images/luxury-condo-exterior.jpg',
-      registeredByUid: user.uid || user.empId || ''
+      registeredByUid: user.uid || 'USR-EXT-5003'
     };
 
     try {

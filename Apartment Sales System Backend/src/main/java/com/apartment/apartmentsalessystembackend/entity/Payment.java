@@ -19,12 +19,6 @@ public class Payment {
     @Column(name = "bookingId", nullable = false)
     private Long bookingId;
 
-    @Column(name = "scheduleId")
-    private Long scheduleId;
-
-    @Column(name = "scheduleItemId")
-    private Long scheduleItemId;
-
     @Column(name = "paymentAmount", nullable = false, precision = 12, scale = 2)
     private BigDecimal paymentAmount;
 
@@ -73,22 +67,6 @@ public class Payment {
 
     public void setBookingId(Long bookingId) {
         this.bookingId = bookingId;
-    }
-
-    public Long getScheduleId() {
-        return scheduleId;
-    }
-
-    public void setScheduleId(Long scheduleId) {
-        this.scheduleId = scheduleId;
-    }
-
-    public Long getScheduleItemId() {
-        return scheduleItemId;
-    }
-
-    public void setScheduleItemId(Long scheduleItemId) {
-        this.scheduleItemId = scheduleItemId;
     }
 
     public BigDecimal getPaymentAmount() {

@@ -15,13 +15,11 @@ public class ExternalSignupRequest {
     private String lastName;
 
     @NotBlank(message = "NIC is required")
-    @Size(min = 12, max = 12, message = "NIC must be exactly 12 characters")
-    @Pattern(regexp = "\\d+", message = "NIC must contain only numbers")
+    @Size(max = 20, message = "NIC cannot exceed 20 characters")
     private String nic;
 
     @NotBlank(message = "Phone number is required")
-    @Size(min = 10, max = 10, message = "Phone number must be exactly 10 digits")
-    @Pattern(regexp = "^[0-9]{10}$", message = "Phone number must contain exactly 10 digits")
+    @Pattern(regexp = "^[0-9+()\\s-]{7,20}$", message = "Invalid phone number")
     private String phoneNumber;
 
     @NotBlank(message = "Address is required")

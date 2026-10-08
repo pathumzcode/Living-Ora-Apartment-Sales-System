@@ -1,7 +1,6 @@
 package com.apartment.apartmentsalessystembackend.controller;
 
 import com.apartment.apartmentsalessystembackend.dto.request.BookingRequest;
-import com.apartment.apartmentsalessystembackend.dto.request.BookingUpdateRequest;
 import com.apartment.apartmentsalessystembackend.dto.response.BookingResponse;
 import com.apartment.apartmentsalessystembackend.service.BookingService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,23 +20,6 @@ public class BookingController {
     @GetMapping
     public ResponseEntity<List<BookingResponse>> getAllBookings() {
         return ResponseEntity.ok(bookingService.getAllBookings());
-    }
-
-    @GetMapping("/{id}")
-    public ResponseEntity<BookingResponse> getBookingById(@PathVariable Long id) {
-        return ResponseEntity.ok(bookingService.getBookingById(id));
-    }
-
-    @PutMapping("/{id}")
-    public ResponseEntity<BookingResponse> updateBooking(@PathVariable Long id,
-            @Valid @RequestBody BookingUpdateRequest request) {
-        return ResponseEntity.ok(bookingService.updateBooking(id, request));
-    }
-
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteBooking(@PathVariable Long id) {
-        bookingService.deleteBooking(id);
-        return ResponseEntity.noContent().build();
     }
 
     @PostMapping

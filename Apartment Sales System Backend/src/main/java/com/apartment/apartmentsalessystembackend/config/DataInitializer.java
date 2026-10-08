@@ -144,9 +144,6 @@ public class DataInitializer implements CommandLineRunner {
             // on a detached entity (causes LazyInitializationException outside a session).
             existingAdmin.setRole("ADMIN");
             existingAdmin.setPassword(adminPasswordHash);
-            if (existingAdmin.getProfilePicture() == null || existingAdmin.getProfilePicture().isBlank()) {
-                existingAdmin.setProfilePicture("https://ui-avatars.com/api/?name=Admin+LivingOra");
-            }
             internalUserRepository.save(existingAdmin);
 
             // Fetch and update the UserVerification record independently via the repository.
@@ -179,10 +176,6 @@ public class DataInitializer implements CommandLineRunner {
         admin.setPhoneNumber("0710000000");
         admin.setAddress("Living-Ora Head Office");
         admin.setAge(35);
-        admin.setDateOfBirth(LocalDate.now().minusYears(35));
-        admin.setProfilePicture("https://ui-avatars.com/api/?name=Admin+LivingOra");
-        admin.setPersonalEmail("admin@livingora.lk");
-        admin.setCompanyEmail("admin@livingora.lk");
         admin.setJoinedDate(LocalDate.now());
         admin.setUserVerification(verification);
         internalUserRepository.save(admin);
@@ -302,22 +295,47 @@ public class DataInitializer implements CommandLineRunner {
     private void ensureSampleStaff(String empId, String email, String firstName, String lastName,
                                    String role, String password, String uid, String nic,
                                    String phoneNumber, int age) {
+        InternalUser staff = internalUserRepository.findByEmail(email).orElse(null);
+        if (staff != null) {
+            // Keep the sample role aligned with the role options shown in the admin UI.
+            staff.setRole(role);
+            staff.setFirstName(firstName);
+            staff.setLastName(lastName);
+            String passwordHash = passwordHasher.hash(password);
+            staff.setPassword(passwordHash);
+            staff.setNic(nic);
+            staff.setPhoneNumber(phoneNumber);
+            staff.setAddress("Living-Ora Head Office");
+            staff.setAge(age);
+            staff.setDateOfBirth(LocalDate.now().minusYears(age).minusMonths(3));
+            staff.setProfilePicture("https://ui-avatars.com/api/?name=" + firstName.replace(" ", "+") + "+" + lastName.replace(" ", "+"));
+            staff.setCompanyEmail(email);
+            staff.setcEmailPassword(passwordHasher.hash(password));
+            staff.setServiceYears(Math.max(1, age - 25));
+            staff.setJoinedDate(LocalDate.now());
+            internalUserRepository.save(staff);
+            userVerificationRepository.findByEmail(email).ifPresent(verification -> {
+                verification.setPassword(passwordHash);
+                verification.setIsActive(1);
+                verification.setIsVerified(1);
+                userVerificationRepository.save(verification);
+            });
+            return;
+        }
+
         String passwordHash = passwordHasher.hash(password);
-        InternalUser staff = internalUserRepository.findByEmail(email)
-                .or(() -> internalUserRepository.findById(empId))
-                .orElseGet(InternalUser::new);
+        UserVerification verification = userVerificationRepository.findByEmail(email).orElseGet(() -> {
+            UserVerification created = new UserVerification();
+            created.setUid(uid);
+            created.setEmpId(empId);
+            created.setEmail(email);
+            created.setPassword(passwordHash);
+            created.setIsActive(1);
+            created.setIsVerified(1);
+            return userVerificationRepository.save(created);
+        });
 
-        UserVerification verification = userVerificationRepository.findByEmail(email)
-                .or(() -> userVerificationRepository.findByEmpId(empId))
-                .orElseGet(UserVerification::new);
-        verification.setUid(uid);
-        verification.setEmpId(empId);
-        verification.setEmail(email);
-        verification.setPassword(passwordHash);
-        verification.setIsActive(1);
-        verification.setIsVerified(1);
-        verification = userVerificationRepository.save(verification);
-
+        staff = new InternalUser();
         staff.setEmpId(empId);
         staff.setRole(role);
         staff.setEmail(email);
@@ -330,7 +348,6 @@ public class DataInitializer implements CommandLineRunner {
         staff.setAge(age);
         staff.setDateOfBirth(LocalDate.now().minusYears(age).minusMonths(3));
         staff.setProfilePicture("https://ui-avatars.com/api/?name=" + firstName.replace(" ", "+") + "+" + lastName.replace(" ", "+"));
-        staff.setPersonalEmail(email);
         staff.setCompanyEmail(email);
         staff.setcEmailPassword(passwordHasher.hash(password));
         staff.setServiceYears(Math.max(1, age - 25));

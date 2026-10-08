@@ -43,6 +43,9 @@ public class AuthService {
     public LoginResponse login(LoginRequest request) {
         String email = request.getEmail().trim().toLowerCase(Locale.ROOT);
 
+        // ── Try internal user first (ADMIN / staff roles) ──────────
+        // Internal staff may use either the account email or their company
+        // business email on the public login page.
         java.util.Optional<InternalUser> internalOpt = internalUserRepository.findByEmail(email);
         if (internalOpt.isEmpty()) {
             internalOpt = internalUserRepository.findByCompanyEmail(email);
@@ -53,12 +56,10 @@ public class AuthService {
                 throw new BadRequestException("Invalid email or password");
             }
             if (internalUser.getUserVerification().getIsActive() == null
-                    || internalUser.getUserVerification().getIsActive() != 1) {
-                throw new BadRequestException("Your account has been locked by an administrator. Please contact support.");
-            }
-            if (internalUser.getUserVerification().getIsVerified() == null
+                    || internalUser.getUserVerification().getIsActive() != 1
+                    || internalUser.getUserVerification().getIsVerified() == null
                     || internalUser.getUserVerification().getIsVerified() != 1) {
-                throw new BadRequestException("This account has not been verified yet. Please check your email.");
+                throw new BadRequestException("This account is inactive or not yet verified");
             }
             // Upgrade plain-text password if needed
             if (!passwordHasher.isHashed(internalUser.getPassword())) {
@@ -78,8 +79,7 @@ public class AuthService {
                     internalUser.getFirstName(),
                     internalUser.getLastName(),
                     actualRole,
-                    false,
-                    internalUser.getProfilePicture());
+                    false);
         }
 
         // ── Fall back to external user (CUSTOMER / SALES_AGENT) ────
@@ -89,7 +89,7 @@ public class AuthService {
             throw new BadRequestException("Invalid email or password");
         }
         if (verification.getIsActive() == null || verification.getIsActive() != 1) {
-            throw new BadRequestException("Your account has been locked by an administrator. Please contact support.");
+            throw new BadRequestException("This account is inactive");
         }
         if (verification.getIsVerified() == null || verification.getIsVerified() != 1) {
             throw new BadRequestException("This account has not been verified yet");
@@ -115,9 +115,7 @@ public class AuthService {
                 externalUser.getEmail(),
                 externalUser.getFirstName(),
                 externalUser.getLastName(),
-                actualRole,
-                true,
-                externalUser.getProfilePicture()
+                actualRole
         );
     }
 

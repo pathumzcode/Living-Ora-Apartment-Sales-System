@@ -1,13 +1,11 @@
 import React from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useStore } from '../context/StoreContext';
-import { User, Calendar, CreditCard, Clock, FileText, CheckCircle2, AlertCircle, ArrowUpRight, Copy, Tag } from 'lucide-react';
+import { User, Calendar, CreditCard, Clock, FileText, CheckCircle2, AlertCircle, ArrowUpRight } from 'lucide-react';
 
 export const CustomerDashboard = ({ setActivePage }) => {
   const { user } = useAuth();
-  const { bookings, payments, promotions } = useStore();
-
-  const activePromotions = (promotions || []).filter(p => p.status === 'ACTIVE' || p.computedStatus === 'ACTIVE');
+  const { bookings, payments } = useStore();
 
   const userBookings = bookings.filter((b) => b.userEmail === user?.email || b.uid === user?.uid);
 
@@ -46,52 +44,8 @@ export const CustomerDashboard = ({ setActivePage }) => {
         </button>
       </div>
 
-            {/* Active Promotions Section */}
+      {/* Bookings Section */}
       <div style={{ marginBottom: '2rem' }}>
-        <h2 style={{ fontSize: '1.8rem', marginBottom: '0.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}><Tag color="var(--primary-gold)" /> Exclusive Promotions for You</h2>
-        <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem' }}>
-          Copy the promo code and apply it during your apartment reservation to claim your discount.
-        </p>
-      </div>
-
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '1.5rem', marginBottom: '3rem' }}>
-        {activePromotions.map((promo) => (
-          <div key={promo.promotionId} className="glass-panel animate-fade-in" style={{ padding: '1.5rem', border: '1px solid var(--border-glass-gold)', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-            <div>
-              <span className="badge badge-gold" style={{ marginBottom: '0.5rem' }}>{promo.promotionType}</span>
-              <h3 style={{ fontSize: '1.4rem' }}>{promo.promotionTitle}</h3>
-            </div>
-            <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', flexGrow: 1 }}>{promo.about}</p>
-            <div style={{ background: 'rgba(255,255,255,0.05)', padding: '1rem', borderRadius: '8px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <div>
-                <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>PROMO CODE</span>
-                <strong style={{ display: 'block', fontSize: '1.25rem', color: 'var(--primary-gold)' }}>{promo.promotionCode}</strong>
-              </div>
-              <button 
-                onClick={() => {
-                  navigator.clipboard.writeText(promo.promotionCode);
-                  alert('Promo code copied to clipboard!');
-                }}
-                className="btn btn-sm btn-outline-gold"
-                style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}
-              >
-                <Copy size={14} /> Copy
-              </button>
-            </div>
-            <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>
-              <strong>Discount:</strong> {promo.discountPrecentage}% <br/>
-              <strong>Valid till:</strong> {new Date(promo.endDate).toLocaleDateString()}
-            </div>
-          </div>
-        ))}
-        {activePromotions.length === 0 && (
-          <div style={{ padding: '2rem', textAlign: 'center', color: 'var(--text-muted)', border: '1px dashed var(--border-glass)', borderRadius: '12px' }}>
-            No active promotions available at the moment.
-          </div>
-        )}
-      </div>
-
-      {/* Bookings Section */}<div style={{ marginBottom: '2rem' }}>
         <h2 style={{ fontSize: '1.8rem', marginBottom: '0.5rem' }}>My Suite Reservations ({userBookings.length})</h2>
         <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem' }}>
           Track reservation verification, down payment receipts, and installment schedules.
@@ -156,4 +110,3 @@ export const CustomerDashboard = ({ setActivePage }) => {
     </div>
   );
 };
-
