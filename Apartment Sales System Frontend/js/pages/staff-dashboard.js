@@ -512,12 +512,33 @@ document.addEventListener('DOMContentLoaded', () => {
       return;
     }
 
+    // Optional password change validation
+    const newPassword = document.getElementById('staff-profile-new-password')?.value.trim();
+    const confirmPassword = document.getElementById('staff-profile-confirm-password')?.value.trim();
+
+    if (newPassword || confirmPassword) {
+      if (!newPassword || newPassword.length < 8) {
+        alert('New password must contain at least 8 characters.');
+        document.getElementById('staff-profile-new-password')?.focus();
+        return;
+      }
+      if (newPassword !== confirmPassword) {
+        alert('Passwords do not match. Please re-enter identical passwords to confirm.');
+        document.getElementById('staff-profile-confirm-password')?.focus();
+        return;
+      }
+    }
+
     const payload = {
       personalEmail,
       phoneNumber,
       profilePicture,
       address
     };
+
+    if (newPassword) {
+      payload.password = newPassword;
+    }
 
     try {
       const updated = await userApi.updateInternalProfile(empId, payload);
@@ -538,6 +559,11 @@ document.addEventListener('DOMContentLoaded', () => {
       } catch (err) {}
 
       updateHeaderAvatar(profilePicture);
+      const newPassEl = document.getElementById('staff-profile-new-password');
+      const confPassEl = document.getElementById('staff-profile-confirm-password');
+      if (newPassEl) newPassEl.value = '';
+      if (confPassEl) confPassEl.value = '';
+
       if (saveMsg) {
         saveMsg.textContent = '✓ Profile details saved successfully in database!';
         saveMsg.style.color = 'var(--success, #22c55e)';
