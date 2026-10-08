@@ -26,6 +26,9 @@ public class PromotionService {
     }
 
     public Promotion createPromotion(PromotionRequest request) {
+        if (promotionRepository.findByPromotionCode(request.getPromotionCode()).isPresent()) {
+            throw new BadRequestException("Promotion code already exists: " + request.getPromotionCode());
+        }
         if (request.getEndDate().isBefore(request.getStartDate())) {
             throw new BadRequestException("Promotion end date cannot be before start date");
         }
@@ -41,7 +44,13 @@ public class PromotionService {
         entity.setBannerImage(request.getBannerImage());
         entity.setValidityPeriod(request.getValidityPeriod());
         entity.setDiscountPrecentage(request.getDiscountPrecentage());
+        entity.setAssinedApartment(request.getAssinedApartment());
+        entity.setCampaignPerformance(request.getCampaignPerformance());
         entity.setPromotionCode(request.getPromotionCode());
+        if (request.getStatus() != null) {
+            entity.setStatus(request.getStatus());
+        }
         return promotionRepository.save(entity);
     }
 }
+

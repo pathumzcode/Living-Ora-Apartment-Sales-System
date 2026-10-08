@@ -44,8 +44,8 @@ public class Promotion {
     @Column(name = "discountPrecentage", precision = 5, scale = 2)
     private BigDecimal discountPrecentage;
 
-    @Column(name = "assinedApartment")
-    private Integer assinedApartment;
+    @Column(name = "assinedApartment", length = 50)
+    private String assinedApartment;
 
     @Lob
     @Column(name = "campaignPerformance")
@@ -53,6 +53,9 @@ public class Promotion {
 
     @Column(name = "promotionCode", unique = true, length = 50)
     private String promotionCode;
+
+    @Column(name = "status", length = 30)
+    private String status = "ACTIVE";
 
     public Promotion() {}
 
@@ -144,11 +147,11 @@ public class Promotion {
         this.discountPrecentage = discountPrecentage;
     }
 
-    public Integer getAssinedApartment() {
+    public String getAssinedApartment() {
         return assinedApartment;
     }
 
-    public void setAssinedApartment(Integer assinedApartment) {
+    public void setAssinedApartment(String assinedApartment) {
         this.assinedApartment = assinedApartment;
     }
 
@@ -166,5 +169,31 @@ public class Promotion {
 
     public void setPromotionCode(String promotionCode) {
         this.promotionCode = promotionCode;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
+    public String getComputedStatus() {
+        if ("INACTIVE".equalsIgnoreCase(status)) {
+            return "INACTIVE";
+        }
+        LocalDate today = LocalDate.now();
+        if (today.isBefore(startDate)) {
+            return "SCHEDULED";
+        }
+        if (today.isAfter(endDate)) {
+            return "EXPIRED";
+        }
+        return "ACTIVE";
+    }
+
+    public boolean isCurrentlyActive() {
+        return "ACTIVE".equals(getComputedStatus());
     }
 }

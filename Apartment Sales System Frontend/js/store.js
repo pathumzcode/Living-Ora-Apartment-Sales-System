@@ -79,6 +79,7 @@ class DataStore {
     this.promotions = [];
     this.externalApartments = [];
     this.bookings = [];
+    this.bookingsError = null;
     this.payments = [];
 
     this.isBackendConnected = false;
@@ -150,6 +151,9 @@ class DataStore {
 
       if (bRes.status === 'fulfilled' && Array.isArray(bRes.value)) {
         this.bookings = bRes.value;
+        this.bookingsError = null;
+      } else {
+        this.bookingsError = bRes.reason?.message || 'Unable to load bookings';
       }
 
       if (pRes.status === 'fulfilled' && Array.isArray(pRes.value)) {
@@ -202,6 +206,21 @@ class DataStore {
     return result;
   }
 
+  async updateBooking(id, data) {
+    const updated = await bookingsApi.update(id, data);
+    this.bookings = this.bookings.map(b => b.id === id ? updated : b);
+    this._notify();
+    return updated;
+  }
+
+  async deleteBooking(id) {
+    await bookingsApi.delete(id);
+    this.bookings = this.bookings.filter(b => b.id !== id);
+    this.payments = this.payments.filter(p => String(p.bookingId) !== String(id));
+    this._notify();
+    await this.refresh();
+  }
+
   async updateBookingStatus(bookingId, status) {
     const target = this.bookings.find(b => b.bookingId === bookingId || b.id === bookingId);
     if (!target) throw new Error('Booking not found: ' + bookingId);
@@ -224,17 +243,6 @@ class DataStore {
     const created = await unitsApi.create(unitData);
     await this.refresh();
     return created;
-  }
-
-  async updateUnit(unitId, data) {
-    const updated = await unitsApi.update(unitId, data);
-    await this.refresh();
-    return updated;
-  }
-
-  async deleteUnit(unitId) {
-    await unitsApi.delete(unitId);
-    await this.refresh();
   }
 
   async addExternalApartment(data) {

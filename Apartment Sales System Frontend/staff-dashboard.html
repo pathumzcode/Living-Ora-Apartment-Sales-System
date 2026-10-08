@@ -14,12 +14,13 @@
   <!-- Navigation Bar Placeholder -->
   <div id="navbar-placeholder"></div>
 
-  <main class="container" style="padding-top: 2.5rem; padding-bottom: 4rem;">
-    <!-- Staff Header Card -->
-    <div class="card" style="padding: 2rem; margin-bottom: 2rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1.5rem;">
+  <!-- Staff Header (full width above layout) -->
+  <div class="container" style="padding-top: 2.5rem;">
+    <div class="card" style="padding: 2rem; margin-bottom: 1.5rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1.5rem;">
       <div style="display: flex; align-items: center; gap: 1.25rem;">
-        <div style="width: 60px; height: 60px; border-radius: 50%; background-color: var(--primary-light); border: 2px solid var(--primary); display: flex; align-items: center; justify-content: center; font-size: 1.6rem;">
-          💼
+        <div style="width: 64px; height: 64px; border-radius: 50%; overflow: hidden; border: 2px solid var(--primary); background-color: var(--primary-light); display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+          <img id="staff-header-avatar-img" src="" alt="Profile" style="width: 100%; height: 100%; object-fit: cover; display: none;" />
+          <span id="staff-header-avatar-icon" style="font-size: 1.8rem;">💼</span>
         </div>
         <div>
           <span class="badge badge-gold" id="staff-role-label" style="margin-bottom: 0.35rem;">Staff Officer</span>
@@ -29,15 +30,15 @@
           </p>
         </div>
       </div>
-
-      <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
+      <div style="display: flex; gap: 0.75rem; flex-wrap: wrap; align-items: center;">
+        <button id="open-profile-btn" class="btn btn-sm btn-outline">Edit Profile</button>
         <button id="open-add-apt-modal-btn" class="btn btn-sm btn-primary">+ Add Complex</button>
         <button id="open-add-unit-modal-btn" class="btn btn-sm btn-outline">+ Add Suite Unit</button>
       </div>
     </div>
 
     <!-- KPI Summary Cards -->
-    <div class="kpi-grid">
+    <div class="kpi-grid" style="margin-bottom: 0;">
       <div class="kpi-card">
         <div class="kpi-title">Confirmed Sales Revenue</div>
         <div id="kpi-revenue" class="kpi-value" style="color: var(--success);">$0</div>
@@ -55,145 +56,383 @@
         <div id="kpi-complexes" class="kpi-value">0 Complexes</div>
       </div>
     </div>
+  </div>
 
-    <!-- Tabs Navigation -->
-    <div class="tabs-nav">
-      <button id="tab-bookings-btn" class="tab-btn active">Booking Verifications</button>
-      <button id="tab-inventory-btn" class="tab-btn">Unit Stock Inventory</button>
-      <button id="tab-operations-btn" class="tab-btn" style="display: none;">Operations & Staff Roster</button>
-      <button id="tab-promotions-btn" class="tab-btn" style="display: none;">Promotions & Campaigns</button>
-    </div>
+  <!-- Fullscreen Layout: Left Sidebar + Content -->
+  <div class="admin-fullscreen-layout">
 
-    <!-- Booking Requests Panel -->
-    <section id="bookings-panel">
-      <div class="table-responsive">
-        <table class="table">
-          <thead>
-            <tr>
-              <th>Booking ID</th>
-              <th>Client</th>
-              <th>Unit / Suite</th>
-              <th>Down Payment</th>
-              <th>Reserved Date</th>
-              <th>Status</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody id="bookings-tbody">
-            <!-- Injected by js/pages/staff-dashboard.js -->
-          </tbody>
-        </table>
-      </div>
-    </section>
-
-    <!-- Unit Stock Inventory Panel -->
-    <section id="inventory-panel" hidden>
-      <!-- Search / Filter Bar -->
-      <div class="card" style="padding: 1.25rem; margin-bottom: 1.25rem; display: flex; gap: 1rem; flex-wrap: wrap; align-items: flex-end;">
-        <div class="form-group" style="margin: 0; flex: 1; min-width: 180px;">
-          <label class="form-label" style="font-size: 0.82rem; margin-bottom: 0.3rem;" for="inv-filter-apt">Filter by Complex ID</label>
-          <input type="text" id="inv-filter-apt" class="form-input" placeholder="e.g. APT-LO-001" style="padding: 0.45rem 0.75rem;" />
-        </div>
-        <div class="form-group" style="margin: 0; flex: 1; min-width: 160px;">
-          <label class="form-label" style="font-size: 0.82rem; margin-bottom: 0.3rem;" for="inv-filter-status">Filter by Status</label>
-          <select id="inv-filter-status" class="form-select" style="padding: 0.45rem 0.75rem;">
-            <option value="">All Statuses</option>
-            <option value="Available">Available</option>
-            <option value="Reserved">Reserved</option>
-            <option value="Sold">Sold</option>
-          </select>
-        </div>
-        <div style="display: flex; gap: 0.5rem;">
-          <button id="inv-search-btn" class="btn btn-sm btn-primary" style="white-space: nowrap;">🔍 Search</button>
-          <button id="inv-reset-btn" class="btn btn-sm btn-secondary" style="white-space: nowrap;">✕ Reset</button>
-        </div>
+    <!-- LEFT Navigation Sidebar -->
+    <aside class="admin-sidebar admin-left-sidebar staff-left-sidebar">
+      <div class="admin-sidebar-header">
+        <span class="badge badge-gold" style="font-size: 0.72rem; text-transform: uppercase;">Command Deck</span>
+        <h3 style="font-size: 1.15rem; font-weight: 800; margin: 0.35rem 0 0 0;">System Navigation</h3>
+        <p style="color: var(--text-muted); font-size: 0.8rem; margin: 0.2rem 0 0 0;">Select workspace view</p>
       </div>
 
-      <div class="table-responsive">
-        <table class="table">
-          <thead>
-            <tr>
-              <th>Unit Code</th>
-              <th>Location / Suite</th>
-              <th>Floor</th>
-              <th>Configuration</th>
-              <th>Full Price</th>
-              <th>Status</th>
-              <th>Update Status</th>
-              <th style="text-align: right;">Actions</th>
-            </tr>
-          </thead>
-          <tbody id="inventory-tbody">
-            <!-- Injected by js/pages/staff-dashboard.js -->
-          </tbody>
-        </table>
-      </div>
-    </section>
+      <ul class="admin-nav-menu">
+        <li>
+          <button class="admin-nav-item active" data-staff-tab="bookings" id="tab-bookings-btn">
+            <span class="admin-nav-icon">
+              <svg viewBox="0 0 24 24"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+            </span>
+            <span>Booking Verifications</span>
+          </button>
+        </li>
+        <li>
+          <button class="admin-nav-item" data-staff-tab="inventory" id="tab-inventory-btn">
+            <span class="admin-nav-icon">
+              <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+            </span>
+            <span>Unit Stock Inventory</span>
+          </button>
+        </li>
+        <li>
+          <button class="admin-nav-item" data-staff-tab="leads" id="tab-leads-btn">
+            <span class="admin-nav-icon">
+              <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>
+            </span>
+            <span>Assigned Leads</span>
+          </button>
+        </li>
+        <li id="tab-operations-li" style="display: none;">
+          <button class="admin-nav-item" data-staff-tab="operations" id="tab-operations-btn">
+            <span class="admin-nav-icon">
+              <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+            </span>
+            <span>Operations &amp; Staff Roster</span>
+          </button>
+        </li>
+        <li id="tab-promotions-li" style="display: none;">
+          <button class="admin-nav-item" data-staff-tab="promotions" id="tab-promotions-btn">
+            <span class="admin-nav-icon">
+              <svg viewBox="0 0 24 24"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>
+            </span>
+            <span>Promotions &amp; Campaigns</span>
+          </button>
+        </li>
+        <li id="tab-pending-deletions-li" style="display: none;">
+          <button class="admin-nav-item" data-staff-tab="pending-deletions" id="tab-pending-deletions-btn" style="position: relative;">
+            <span class="admin-nav-icon">
+              <svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg>
+            </span>
+            <span>Deletion Approvals</span>
+            <span id="pending-deletions-badge" style="display:none;position:absolute;top:6px;right:10px;background:#e74c3c;color:#fff;font-size:0.68rem;font-weight:700;min-width:18px;height:18px;border-radius:50%;padding:0 4px;line-height:18px;text-align:center;">0</span>
+          </button>
+        </li>
+        <li>
+          <button class="admin-nav-item" data-staff-tab="profile" id="tab-profile-btn">
+            <span class="admin-nav-icon">
+              <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+            </span>
+            <span>My Profile</span>
+          </button>
+        </li>
+      </ul>
 
-    <!-- Operations Director: Department Staff Roster Panel -->
-    <section id="operations-panel" hidden>
-      <div class="card" style="padding: 1.5rem; margin-bottom: 1.5rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
-        <div>
-          <span class="badge badge-gold" style="margin-bottom: 0.35rem;">Directorate Operations</span>
-          <h2 style="font-size: 1.35rem; font-weight: 700;">Departmental Staff Roster & Roles</h2>
-          <p style="color: var(--text-muted); font-size: 0.88rem; margin: 0;">Cross-departmental internal officers assigned by Administration</p>
+      <div class="admin-sidebar-footer">
+        <div style="font-weight: 600; color: var(--text-main);">Living-Ora Core Engine</div>
+        <div style="color: var(--text-muted);">Role Security: <span id="sidebar-role-label" style="color: var(--success); font-weight: 700;">Staff Officer</span></div>
+        <small style="display: block; margin-top: 0.25rem; color: var(--text-dim);">Version 2.4.0 &bull; 2026 Production</small>
+      </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <div class="admin-main-content">
+
+      <!-- Booking Requests Panel -->
+      <section id="bookings-panel">
+        <div class="table-responsive">
+          <table class="table">
+            <thead>
+              <tr>
+                <th>Booking ID</th>
+                <th>Client</th>
+                <th>Unit / Suite</th>
+                <th>Down Payment</th>
+                <th>Reserved Date</th>
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="bookings-tbody">
+              <!-- Injected by js/pages/staff-dashboard.js -->
+            </tbody>
+          </table>
         </div>
-        <div style="font-size: 0.88rem; color: var(--text-muted);">
-          Total Active Staff: <strong id="ops-staff-count" style="color: var(--primary);">0</strong>
+      </section>
+
+      <!-- Unit Stock Inventory Panel -->
+      <section id="inventory-panel" hidden>
+        <div class="table-responsive">
+          <table class="table">
+            <thead>
+              <tr>
+                <th>Unit Code</th>
+                <th>Location / Suite</th>
+                <th>Floor</th>
+                <th>Configuration</th>
+                <th>Full Price</th>
+                <th>Status</th>
+                <th>Update Status</th>
+              </tr>
+            </thead>
+            <tbody id="inventory-tbody">
+              <!-- Injected by js/pages/staff-dashboard.js -->
+            </tbody>
+          </table>
         </div>
-      </div>
+      </section>
 
-      <div class="table-responsive">
-        <table class="table">
-          <thead>
-            <tr>
-              <th>Emp ID</th>
-              <th>Staff Name</th>
-              <th>Department Role</th>
-              <th>Company Email</th>
-              <th>Contact Phone</th>
-              <th>Service Years</th>
-            </tr>
-          </thead>
-          <tbody id="ops-staff-tbody">
-            <!-- Injected by staff-dashboard.js -->
-          </tbody>
-        </table>
-      </div>
-    </section>
-
-    <!-- Operations & Sales Promotions Management Panel -->
-    <section id="promotions-panel" hidden>
-      <div class="card" style="padding: 1.5rem; margin-bottom: 1.5rem;">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+      <!-- Assigned Leads Pipeline Panel -->
+      <section id="leads-panel" hidden>
+        <div class="card" style="padding: 1.5rem; margin-bottom: 1.5rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
           <div>
-            <span class="badge badge-gold" style="margin-bottom: 0.35rem;">Sales & Operations Promotions</span>
-            <h2 style="font-size: 1.35rem; font-weight: 700;">Active Campaign Promotions</h2>
-            <p style="color: var(--text-muted); font-size: 0.88rem; margin: 0;">Promotions are coordinated exclusively by Sales Managers and Operations Directors.</p>
+            <span class="badge badge-gold" style="margin-bottom: 0.35rem;">Client Relationship Management</span>
+            <h2 style="font-size: 1.35rem; font-weight: 700;">Assigned Leads &amp; Prospective Buyers</h2>
+            <p style="color: var(--text-muted); font-size: 0.88rem; margin: 0;">Inquiries and prospects assigned to you by the System Administrator</p>
           </div>
-          <a href="promotions.html" class="btn btn-sm btn-outline" target="_blank">View Public Promotions &rarr;</a>
+          <div style="font-size: 0.88rem; color: var(--text-muted);">
+            Total Assigned: <strong id="staff-leads-count" style="color: var(--primary);">0 Leads</strong>
+          </div>
         </div>
-      </div>
+        <div class="table-responsive">
+          <table class="table">
+            <thead>
+              <tr>
+                <th>Lead ID</th>
+                <th>Client Name</th>
+                <th>Contact Info</th>
+                <th>Interested Tower/Unit</th>
+                <th>Status</th>
+                <th>Est. Budget</th>
+                <th>Notes / Follow-up</th>
+              </tr>
+            </thead>
+            <tbody id="staff-leads-tbody">
+              <!-- Injected by staff-dashboard.js -->
+            </tbody>
+          </table>
+        </div>
+      </section>
 
-      <div class="table-responsive">
-        <table class="table">
-          <thead>
-            <tr>
-              <th>Promo Code</th>
-              <th>Campaign Title</th>
-              <th>Type</th>
-              <th>Discount %</th>
-              <th>Validity</th>
-              <th>Target Scope</th>
-            </tr>
-          </thead>
-          <tbody id="ops-promotions-tbody">
-            <!-- Injected by staff-dashboard.js -->
-          </tbody>
-        </table>
-      </div>
-    </section>
-  </main>
+      <!-- Operations Director: Department Staff Roster Panel -->
+      <section id="operations-panel" hidden>
+        <div class="card" style="padding: 1.5rem; margin-bottom: 1.5rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+          <div>
+            <span class="badge badge-gold" style="margin-bottom: 0.35rem;">Directorate Operations</span>
+            <h2 style="font-size: 1.35rem; font-weight: 700;">Departmental Staff Roster &amp; Roles</h2>
+            <p style="color: var(--text-muted); font-size: 0.88rem; margin: 0;">Cross-departmental internal officers assigned by Administration</p>
+          </div>
+          <div style="font-size: 0.88rem; color: var(--text-muted);">
+            Total Active Staff: <strong id="ops-staff-count" style="color: var(--primary);">0</strong>
+          </div>
+        </div>
+        <div class="table-responsive">
+          <table class="table">
+            <thead>
+              <tr>
+                <th>Emp ID</th>
+                <th>Staff Name</th>
+                <th>Department Role</th>
+                <th>Company Email</th>
+                <th>Contact Phone</th>
+                <th>Service Years</th>
+              </tr>
+            </thead>
+            <tbody id="ops-staff-tbody">
+              <!-- Injected by staff-dashboard.js -->
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- Operations & Sales Promotions Management Panel -->
+      <section id="promotions-panel" hidden>
+        <div class="card" style="padding: 1.5rem; margin-bottom: 1.5rem;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+            <div>
+              <span class="badge badge-gold" style="margin-bottom: 0.35rem;">Sales &amp; Operations Promotions</span>
+              <h2 style="font-size: 1.35rem; font-weight: 700;">Active Campaign Promotions</h2>
+              <p style="color: var(--text-muted); font-size: 0.88rem; margin: 0;">Promotions are coordinated exclusively by Sales Managers and Operations Directors.</p>
+            </div>
+            <a href="promotions.html" class="btn btn-sm btn-outline" target="_blank">View Public Promotions &rarr;</a>
+          </div>
+        </div>
+        <div class="table-responsive">
+          <table class="table">
+            <thead>
+              <tr>
+                <th>Promo Code</th>
+                <th>Campaign Title</th>
+                <th>Type</th>
+                <th>Discount %</th>
+                <th>Validity</th>
+                <th>Target Scope</th>
+              </tr>
+            </thead>
+            <tbody id="ops-promotions-tbody">
+              <!-- Injected by staff-dashboard.js -->
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- Pending Deletions Panel (Operations Director only) -->
+      <section id="pending-deletions-panel" hidden>
+        <div class="card" style="padding: 1.75rem; margin-bottom: 1.5rem; border-left: 4px solid var(--danger, #e74c3c);">
+          <h2 style="font-size: 1.25rem; font-weight: 700; margin-bottom: 0.25rem;">🗑️ Pending User Deletion Requests</h2>
+          <p style="color: var(--text-muted); font-size: 0.875rem; margin-bottom: 0;">Review and approve or reject deletion requests submitted by the Admin. Approved deletions are permanent.</p>
+        </div>
+        <div id="pending-deletions-list"></div>
+      </section>
+
+      <!-- Staff Personal Profile Panel -->
+      <section id="profile-panel" hidden>
+        <div class="card" style="padding: 2.25rem; max-width: 100%;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.75rem; border-bottom: 1px solid var(--border-color); padding-bottom: 1.25rem; flex-wrap: wrap; gap: 1rem;">
+            <div>
+              <span class="badge badge-gold">Staff Identity &amp; Profile</span>
+              <h2 style="font-size: 1.5rem; font-weight: 800; margin-top: 0.35rem;">My Staff Profile</h2>
+              <p style="color: var(--text-muted); font-size: 0.88rem; margin: 0.2rem 0 0 0;">
+                You can update your personal contact info, address, and profile photo. Corporate credentials and role parameters are secured and managed by the System Administrator.
+              </p>
+            </div>
+            <span class="badge badge-primary" style="font-size: 0.85rem; padding: 0.5rem 1rem;" id="staff-profile-role-badge">Role: Staff Officer</span>
+          </div>
+
+          <form id="staff-profile-form">
+            <!-- Profile Photo Section -->
+            <div style="display: flex; gap: 2rem; align-items: center; margin-bottom: 2rem; padding: 1.5rem; background: rgba(255, 255, 255, 0.02); border: 1px solid var(--border-color); border-radius: 12px; flex-wrap: wrap;">
+              <div style="width: 96px; height: 96px; border-radius: 50%; overflow: hidden; border: 3px solid var(--primary); background: var(--bg-surface-subtle); display: flex; align-items: center; justify-content: center; flex-shrink: 0; position: relative;">
+                <img id="staff-profile-avatar-preview" src="" alt="Profile" style="width: 100%; height: 100%; object-fit: cover; display: none;" />
+                <span id="staff-profile-avatar-placeholder" style="font-size: 2.5rem;">👤</span>
+              </div>
+              <div style="flex: 1; min-width: 250px;">
+                <label class="form-label" style="font-weight: 700; color: var(--primary); margin-bottom: 0.5rem;">Profile Picture (Editable)</label>
+                <div style="display: flex; gap: 0.75rem; margin-bottom: 0.5rem; flex-wrap: wrap;">
+                  <input type="file" id="staff-pic-file-input" accept="image/*" class="form-input" style="flex: 1; min-width: 180px; padding: 0.45rem; font-size: 0.85rem;" />
+                </div>
+                <input type="text" id="staff-pic-url-input" class="form-input" placeholder="Or enter an image URL (https://...)" style="font-size: 0.88rem;" />
+                <input type="hidden" id="staff-profile-picture-val" />
+                <small style="color: var(--text-muted); font-size: 0.78rem; display: block; margin-top: 0.35rem;">Upload from your computer or paste an image web link.</small>
+              </div>
+            </div>
+
+            <!-- Editable Personal Details Section -->
+            <div style="margin-bottom: 1.75rem;">
+              <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1rem;">
+                <span class="badge badge-success" style="font-size: 0.75rem;">Editable Details</span>
+                <h3 style="font-size: 1.1rem; font-weight: 700; margin: 0;">Personal Contact Information</h3>
+              </div>
+              
+              <div class="form-row">
+                <div class="form-group" style="flex: 1;">
+                  <label class="form-label" for="staff-profile-personal-email">Personal Email Address *</label>
+                  <input type="email" id="staff-profile-personal-email" class="form-input" placeholder="e.g. personal.email@gmail.com" required />
+                  <small style="color: var(--text-muted); font-size: 0.78rem;">Staff personal email for contact &amp; recovery</small>
+                </div>
+                <div class="form-group" style="flex: 1;">
+                  <label class="form-label" for="staff-profile-phone">Personal Contact Phone (10 digits) *</label>
+                  <input type="tel" id="staff-profile-phone" class="form-input" placeholder="0771234567" maxlength="10" pattern="[0-9]{10}" required />
+                  <small style="color: var(--text-muted); font-size: 0.78rem;">Must contain exactly 10 digits</small>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label" for="staff-profile-address">Residential Address</label>
+                <input type="text" id="staff-profile-address" class="form-input" placeholder="e.g. No. 42, Galle Road, Colombo 03" />
+              </div>
+            </div>
+
+            <!-- Locked Corporate & Identity Fields Section -->
+            <div style="margin-bottom: 2rem; border-top: 1px solid var(--border-color); padding-top: 1.5rem;">
+              <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.5rem;">
+                <span class="badge badge-gold" style="font-size: 0.75rem;">🔒 System Locked</span>
+                <h3 style="font-size: 1.1rem; font-weight: 700; margin: 0;">Official Corporate &amp; Identity Records</h3>
+              </div>
+              <p style="color: #f59e0b; font-size: 0.82rem; margin-bottom: 1.25rem;">
+                🔒 First name, last name, corporate email, date of birth, NIC, and role are official records. Only the System Administrator can modify these parameters.
+              </p>
+
+              <div class="form-row">
+                <div class="form-group" style="flex: 1;">
+                  <label class="form-label">First Name 🔒</label>
+                  <input type="text" id="staff-profile-firstname" class="form-input" readonly disabled style="opacity: 0.7; cursor: not-allowed; background: rgba(255,255,255,0.03);" />
+                </div>
+                <div class="form-group" style="flex: 1;">
+                  <label class="form-label">Last Name 🔒</label>
+                  <input type="text" id="staff-profile-lastname" class="form-input" readonly disabled style="opacity: 0.7; cursor: not-allowed; background: rgba(255,255,255,0.03);" />
+                </div>
+              </div>
+
+              <div class="form-row">
+                <div class="form-group" style="flex: 1;">
+                  <label class="form-label">Corporate / Company Email 🔒</label>
+                  <input type="email" id="staff-profile-company-email" class="form-input" readonly disabled style="opacity: 0.7; cursor: not-allowed; background: rgba(255,255,255,0.03);" />
+                  <small style="color: var(--text-dim); font-size: 0.75rem;">Primary enterprise login email</small>
+                </div>
+                <div class="form-group" style="flex: 1;">
+                  <label class="form-label">NIC / National Identity Card 🔒</label>
+                  <input type="text" id="staff-profile-nic" class="form-input" readonly disabled style="opacity: 0.7; cursor: not-allowed; background: rgba(255,255,255,0.03);" />
+                </div>
+              </div>
+
+              <div class="form-row">
+                <div class="form-group" style="flex: 1;">
+                  <label class="form-label">Date of Birth 🔒</label>
+                  <input type="text" id="staff-profile-dob" class="form-input" readonly disabled style="opacity: 0.7; cursor: not-allowed; background: rgba(255,255,255,0.03);" />
+                </div>
+                <div class="form-group" style="flex: 1;">
+                  <label class="form-label">Age 🔒</label>
+                  <input type="text" id="staff-profile-age" class="form-input" readonly disabled style="opacity: 0.7; cursor: not-allowed; background: rgba(255,255,255,0.03);" />
+                </div>
+                <div class="form-group" style="flex: 1;">
+                  <label class="form-label">Employee ID 🔒</label>
+                  <input type="text" id="staff-profile-empid" class="form-input" readonly disabled style="opacity: 0.7; cursor: not-allowed; background: rgba(255,255,255,0.03);" />
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">Department Role (Admin Only) 🔒</label>
+                <input type="text" id="staff-profile-role" class="form-input" readonly disabled style="opacity: 0.7; cursor: not-allowed; background: rgba(255,255,255,0.03);" />
+                <small style="color: var(--text-dim); font-size: 0.75rem;">Roles can only be assigned or altered by the System Administrator</small>
+              </div>
+            </div>
+
+            <!-- Password Change Section -->
+            <div style="margin-bottom: 2rem; border-top: 1px solid var(--border-color); padding-top: 1.5rem;">
+              <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.5rem;">
+                <span class="badge badge-primary" style="font-size: 0.75rem;">Security Credentials</span>
+                <h3 style="font-size: 1.1rem; font-weight: 700; margin: 0;">Change Account Password</h3>
+              </div>
+              <p style="color: var(--text-muted); font-size: 0.82rem; margin-bottom: 1.25rem;">
+                Leave blank if you do not want to change your password. If updating, passwords must match and contain at least 8 characters.
+              </p>
+
+              <div class="form-row">
+                <div class="form-group" style="flex: 1;">
+                  <label class="form-label" for="staff-profile-new-password">New Password (Min 8 characters)</label>
+                  <input type="password" id="staff-profile-new-password" class="form-input" placeholder="Enter new password (optional)" minlength="8" />
+                </div>
+                <div class="form-group" style="flex: 1;">
+                  <label class="form-label" for="staff-profile-confirm-password">Confirm New Password</label>
+                  <input type="password" id="staff-profile-confirm-password" class="form-input" placeholder="Re-enter to confirm password" minlength="8" />
+                </div>
+              </div>
+            </div>
+
+            <div style="display: flex; align-items: center; gap: 1rem; flex-wrap: wrap;">
+              <button type="submit" id="btn-save-staff-profile" class="btn btn-primary" style="padding: 0.85rem 2.5rem; font-size: 1rem;">
+                Save Personal Details
+              </button>
+              <span id="staff-profile-save-msg" style="display: none; font-size: 0.9rem; font-weight: 600;"></span>
+            </div>
+          </form>
+        </div>
+      </section>
+
+    </div><!-- end admin-main-content -->
+  </div><!-- end admin-fullscreen-layout -->
 
   <!-- Add Complex Modal -->
   <div id="add-apt-modal" class="modal-overlay">
@@ -303,108 +542,6 @@
       </div>
     </div>
   </div>
-
-  <!-- Edit Suite Unit Modal -->
-  <div id="edit-unit-modal" class="modal-overlay">
-    <div class="modal-box">
-      <div class="modal-header">
-        <div>
-          <span class="badge badge-gold">Edit Inventory Record</span>
-          <h2 class="modal-title" style="margin-top: 0.25rem;">Edit Suite Unit</h2>
-        </div>
-        <button class="modal-close" data-modal-close>&times;</button>
-      </div>
-      <div class="modal-body">
-        <form id="edit-unit-form">
-          <input type="hidden" id="edit-unit-id" />
-          <div class="form-group">
-            <label class="form-label" for="edit-unit-apt">Parent Apartment Complex</label>
-            <input type="text" id="edit-unit-apt" class="form-input" placeholder="e.g. APT-LO-001" />
-          </div>
-          <div class="form-row">
-            <div class="form-group">
-              <label class="form-label" for="edit-unit-location">Unit Suite Title *</label>
-              <input type="text" id="edit-unit-location" class="form-input" placeholder="e.g. 14th Floor — Corner Ocean Suite" required />
-            </div>
-            <div class="form-group">
-              <label class="form-label" for="edit-unit-floor">Floor Number *</label>
-              <input type="number" id="edit-unit-floor" class="form-input" min="1" required />
-            </div>
-          </div>
-          <div class="form-row">
-            <div class="form-group">
-              <label class="form-label" for="edit-unit-price">Purchase Price ($ USD) *</label>
-              <input type="number" id="edit-unit-price" class="form-input" min="1" required />
-            </div>
-            <div class="form-group">
-              <label class="form-label" for="edit-unit-beds">Bedrooms</label>
-              <input type="number" id="edit-unit-beds" class="form-input" min="1" max="10" />
-            </div>
-            <div class="form-group">
-              <label class="form-label" for="edit-unit-baths">Bathrooms</label>
-              <input type="number" id="edit-unit-baths" class="form-input" min="1" max="10" />
-            </div>
-          </div>
-          <div class="form-row">
-            <div class="form-group">
-              <label class="form-label" for="edit-unit-ac">Climate Control</label>
-              <select id="edit-unit-ac" class="form-select">
-                <option value="AC">Central AC</option>
-                <option value="Non-AC">Non-AC</option>
-              </select>
-            </div>
-            <div class="form-group">
-              <label class="form-label" for="edit-unit-furnitures">Furnishing Level</label>
-              <select id="edit-unit-furnitures" class="form-select">
-                <option value="Fully Furnished">Fully Furnished</option>
-                <option value="Partially Furnished">Partially Furnished</option>
-                <option value="Unfurnished">Unfurnished</option>
-              </select>
-            </div>
-            <div class="form-group">
-              <label class="form-label" for="edit-unit-status">Availability Status</label>
-              <select id="edit-unit-status" class="form-select">
-                <option value="Available">Available</option>
-                <option value="Reserved">Reserved</option>
-                <option value="Sold">Sold</option>
-              </select>
-            </div>
-          </div>
-          <div class="form-group">
-            <label class="form-label" for="edit-unit-about">Suite Notes</label>
-            <textarea id="edit-unit-about" class="form-textarea" placeholder="Describe view, finishes, balcony layout..."></textarea>
-          </div>
-          <div style="display: flex; justify-content: flex-end; gap: 0.75rem; margin-top: 1rem; border-top: 1px solid var(--border-color); padding-top: 1rem;">
-            <button type="button" class="btn btn-secondary" data-modal-close>Cancel</button>
-            <button type="submit" class="btn btn-primary">Save Changes</button>
-          </div>
-        </form>
-      </div>
-    </div>
-  </div>
-
-  <!-- Delete Unit Confirmation Modal -->
-  <div id="delete-unit-modal" class="modal-overlay">
-    <div class="modal-box" style="max-width: 440px;">
-      <div class="modal-header">
-        <h2 class="modal-title" style="color: var(--danger);">Confirm Unit Deletion</h2>
-        <button class="modal-close" data-modal-close>&times;</button>
-      </div>
-      <div class="modal-body">
-        <p style="color: var(--text-muted); font-size: 0.95rem; margin-bottom: 1.25rem;">
-          Are you sure you want to permanently delete unit <strong id="delete-unit-code" style="color: var(--text-main);"></strong> from the inventory?
-          <br /><small style="color: var(--warning);">This action cannot be undone. Units with active bookings cannot be deleted.</small>
-        </p>
-        <div style="display: flex; justify-content: flex-end; gap: 0.75rem;">
-          <button type="button" class="btn btn-secondary" data-modal-close>Cancel</button>
-          <button type="button" id="confirm-delete-unit-btn" class="btn btn-danger">Delete Unit</button>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Footer Placeholder -->
-  <div id="footer-placeholder"></div>
 
   <!-- Script Module -->
   <script type="module" src="js/pages/staff-dashboard.js"></script>

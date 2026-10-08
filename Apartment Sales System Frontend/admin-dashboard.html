@@ -14,223 +14,71 @@
   <!-- Navigation Bar Placeholder -->
   <div id="navbar-placeholder"></div>
 
-  <main class="container" style="padding-top: 2.5rem; padding-bottom: 4rem;">
-    <!-- Admin Header -->
-    <div class="card" style="padding: 2rem; margin-bottom: 2rem;">
-      <span class="badge badge-gold" style="margin-bottom: 0.5rem;">System Control Center</span>
-      <h1 style="font-size: 2rem; font-weight: 800;">Administrator Operations & Security</h1>
-      <p style="color: var(--text-muted); font-size: 0.95rem;">Manage staff role permissions, client verification, account security, and audit events.</p>
-    </div>
-
-    <!-- Admin KPI Stats -->
-    <div class="kpi-grid">
-      <div class="kpi-card">
-        <div class="kpi-title">Total Users</div>
-        <div id="stat-total-users" class="kpi-value">0</div>
-      </div>
-      <div class="kpi-card">
-        <div class="kpi-title">Active Users</div>
-        <div id="stat-active-users" class="kpi-value" style="color: var(--success);">0</div>
-      </div>
-      <div class="kpi-card">
-        <div class="kpi-title">Pending Verifications</div>
-        <div id="stat-pending-verifications" class="kpi-value" style="color: var(--warning);">0</div>
-      </div>
-      <div class="kpi-card">
-        <div class="kpi-title">Locked Accounts</div>
-        <div id="stat-locked-accounts" class="kpi-value" style="color: var(--danger);">0</div>
-      </div>
-      <div class="kpi-card">
-        <div class="kpi-title">Internal Staff Users</div>
-        <div id="stat-internal-users" class="kpi-value" style="color: var(--primary);">0</div>
-      </div>
-    </div>
-
-    <!-- Admin Navigation Tabs -->
-    <div class="tabs-nav">
-      <button class="tab-btn active" data-admin-tab="dashboard">Dashboard Overview</button>
-      <button class="tab-btn" data-admin-tab="users">Internal Staff Accounts</button>
-      <button class="tab-btn" data-admin-tab="external">External Clients & Agents</button>
-      <button class="tab-btn" data-admin-tab="verifications">Verification Requests</button>
-      <button class="tab-btn" data-admin-tab="inventory">Inventory Management</button>
-      <button class="tab-btn" data-admin-tab="audit">Audit & Logs</button>
-    </div>
-
-    <!-- Tab 1: Dashboard Overview -->
-    <section id="tab-dashboard" class="admin-tab-panel">
-      <div class="grid-2">
-        <div class="card" style="padding: 1.5rem;">
-          <h3 style="font-size: 1.25rem; font-weight: 700; margin-bottom: 1rem;">Administrator Governance Areas</h3>
-          <ul style="list-style: square; padding-left: 1.25rem; color: var(--text-muted); line-height: 1.8; font-size: 0.92rem;">
-            <li>Role-Based Access Control (RBAC) across departments</li>
-            <li>KYC Verification for external client & agent registrations</li>
-            <li>Immediate account suspension / security locking</li>
-            <li>Audit trail verification and administrative logging</li>
-            <li>System integrity and API endpoint monitoring</li>
-          </ul>
-        </div>
-        <div class="card" style="padding: 1.5rem;">
-          <h3 style="font-size: 1.25rem; font-weight: 700; margin-bottom: 1rem;">System Architecture Status</h3>
-          <div style="display: flex; flex-direction: column; gap: 0.75rem; font-size: 0.9rem;">
-            <div style="display: flex; justify-content: space-between; border-bottom: 1px solid var(--border-color); padding-bottom: 0.5rem;">
-              <span>Database Connection</span>
-              <strong style="color: var(--success);">Spring Data JPA / MySQL Active</strong>
-            </div>
-            <div style="display: flex; justify-content: space-between; border-bottom: 1px solid var(--border-color); padding-bottom: 0.5rem;">
-              <span>REST API Gateway</span>
-              <strong style="color: var(--info);">http://localhost:8080/api</strong>
-            </div>
-            <div style="display: flex; justify-content: space-between;">
-              <span>Offline Resilience</span>
-              <strong style="color: var(--primary);">LocalStorage Cache Enabled</strong>
-            </div>
+  <div class="admin-fullscreen-layout">
+    <!-- Main Full-Screen Content Area -->
+    <main class="admin-main-content">
+      <!-- Admin Header -->
+      <div class="card" style="padding: 1.75rem 2rem; margin-bottom: 2rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1.5rem;">
+        <div style="display: flex; align-items: center; gap: 1.5rem;">
+          <div id="admin-header-avatar" style="width: 70px; height: 70px; border-radius: 50%; overflow: hidden; border: 3px solid var(--primary); background: rgba(201, 169, 110, 0.15); display: flex; align-items: center; justify-content: center; flex-shrink: 0; box-shadow: 0 4px 14px rgba(201, 169, 110, 0.25);">
+            <img id="admin-header-avatar-img" src="" alt="Admin Avatar" style="width: 100%; height: 100%; object-fit: cover; display: none;" />
+            <span id="admin-header-avatar-initials" style="font-size: 1.6rem; font-weight: 800; color: var(--primary); display: flex; align-items: center; justify-content: center;">A</span>
+          </div>
+          <div>
+            <span class="badge badge-gold" style="margin-bottom: 0.4rem;">System Control Center</span>
+            <h1 id="admin-header-title" style="font-size: 1.85rem; font-weight: 800; margin: 0; color: var(--text-main);">Administrator Operations & Security</h1>
+            <p id="admin-header-subtitle" style="color: var(--text-muted); font-size: 0.92rem; margin-top: 0.25rem; margin-bottom: 0;">Manage staff role permissions, client verification, lead pipelines, account security, and audit events.</p>
           </div>
         </div>
+        <div>
+          <button type="button" id="btn-admin-edit-profile" class="btn btn-outline" style="font-size: 0.9rem; padding: 0.65rem 1.25rem; display: inline-flex; align-items: center; gap: 0.5rem; border-color: var(--primary); color: var(--primary);">
+            ✏️ Edit Profile
+          </button>
+        </div>
       </div>
-    </section>
 
-    <!-- Tab 2: Internal Users -->
-    <section id="tab-users" class="admin-tab-panel" hidden>
-      <div class="grid-2" style="align-items: flex-start; gap: 2rem;">
-        <!-- Register/Edit Form -->
-        <div class="card" style="padding: 1.75rem;">
-          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem;">
+      <!-- Admin KPI Stats -->
+      <div class="kpi-grid">
+        <div class="kpi-card">
+          <div class="kpi-title">Total Users</div>
+          <div id="stat-total-users" class="kpi-value">0</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-title">Active Users</div>
+          <div id="stat-active-users" class="kpi-value" style="color: var(--success);">0</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-title">Active Leads</div>
+          <div id="stat-total-leads" class="kpi-value" style="color: var(--accent-gold);">0</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-title">Pending Verifications</div>
+          <div id="stat-pending-verifications" class="kpi-value" style="color: var(--warning);">0</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-title">Internal Staff Users</div>
+          <div id="stat-internal-users" class="kpi-value" style="color: var(--primary);">0</div>
+        </div>
+      </div>
+
+      <!-- Tab 1: Dashboard Overview -->
+      <section id="tab-dashboard" class="admin-tab-panel">
+        <!-- Internal Staff Accounts Table inside Dashboard Overview with Register Lead Button -->
+        <div class="card" style="padding: 1.75rem; margin-bottom: 2rem;">
+          <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; margin-bottom: 1.25rem; border-bottom: 1px solid var(--border-color); padding-bottom: 1.25rem;">
             <div>
-              <span class="badge badge-gold" id="form-mode-badge">Internal Role Assignment</span>
-              <h3 style="font-size: 1.35rem; font-weight: 700; margin-top: 0.25rem;" id="form-headline">Assign Staff Role & Details</h3>
-            </div>
-            <button type="button" id="btn-reset-form" class="btn btn-sm btn-secondary" style="font-size: 0.8rem;">+ New Registration</button>
-          </div>
-
-          <form id="admin-internal-user-form">
-            <input type="hidden" id="editing-empid" />
-
-            <!-- Auto-Generated Emp ID Header Display -->
-            <div style="background: rgba(201, 169, 110, 0.08); border: 1px dashed var(--primary); border-radius: 8px; padding: 0.85rem 1rem; margin-bottom: 1.25rem; display: flex; justify-content: space-between; align-items: center;">
-              <div>
-                <small style="color: var(--text-muted); display: block; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.5px;">Assigned Employee ID</small>
-                <span id="display-empid" style="font-size: 1.2rem; font-weight: 800; color: var(--primary); font-family: monospace;">EMP-LO-101</span>
+              <div style="display: flex; align-items: center; gap: 0.6rem;">
+                <span class="badge badge-gold">Staff Governance</span>
+                <span class="badge badge-success" id="overview-staff-badge">Active Roster</span>
               </div>
-              <button type="button" id="btn-regenerate-empid" class="btn btn-sm btn-outline" style="font-size: 0.75rem; padding: 0.3rem 0.6rem;">
-                ↻ New Emp ID
+              <h2 style="font-size: 1.45rem; font-weight: 800; margin: 0.35rem 0 0 0;">Internal Staff Accounts Directory</h2>
+              <p style="color: var(--text-muted); font-size: 0.88rem; margin: 0.2rem 0 0 0;">Role-based internal personnel, assigned department titles, credentials, and active permissions.</p>
+            </div>
+            <div style="display: flex; gap: 0.75rem; align-items: center; flex-wrap: wrap;">
+              <button type="button" id="btn-open-lead-modal" class="btn btn-primary" style="font-size: 0.92rem; padding: 0.7rem 1.3rem; box-shadow: 0 4px 12px rgba(201, 169, 110, 0.25);">
+                🎯 Register New Lead
               </button>
             </div>
-
-            <!-- Role Assignment & Department Characteristics -->
-            <div class="form-group">
-              <label class="form-label" for="admin-user-role">Assign Department Role *</label>
-              <select id="admin-user-role" class="form-select" required>
-                <option value="SALES_MANAGER" data-desc="Manages client deals, inventory negotiations, down payments, and team sales pipeline.">Sales Manager</option>
-                <option value="OPERATIONS_DIRECTOR" data-desc="Supervises operations, departmental governance, staff performance, and inventory logistics.">Operations Director</option>
-                <option value="CUSTOMER_RELATIONS_OFFICER" data-desc="Liaison for customer inquiries, KYC documentation, and client assistance.">Customer Relations Officer</option>
-                <option value="FINANCE_PAYMENTS_OFFICER" data-desc="Audits payment proofs, verifies down payments, and monitors installment schedules.">Finance & Payments Officer</option>
-                <option value="PROPERTY_DEVELOPMENT_MANAGER" data-desc="Oversees apartment towers, construction progress, floor plans, and amenities.">Property Development Manager</option>
-                <option value="MARKETING_MANAGER" data-desc="Directs marketing campaigns, public branding, and partner network promotions.">Marketing Manager</option>
-                <option value="ADMIN" data-desc="Full system administration, access governance, security lockouts, and auditing.">System Administrator</option>
-              </select>
-              <small id="role-characteristic-hint" style="display: block; margin-top: 0.35rem; color: var(--text-muted); font-size: 0.82rem; font-style: italic;">
-                Manages client deals, inventory negotiations, down payments, and team sales pipeline.
-              </small>
-            </div>
-
-            <!-- Personal Details -->
-            <div style="margin-top: 1.25rem; margin-bottom: 0.75rem; border-top: 1px solid var(--border-color); padding-top: 1rem;">
-              <h4 style="font-size: 0.95rem; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-muted); margin-bottom: 0.85rem;">Personal Information</h4>
-            </div>
-
-            <div class="form-row">
-              <div class="form-group">
-                <label class="form-label" for="admin-user-firstname">First Name *</label>
-                <input type="text" id="admin-user-firstname" class="form-input" placeholder="e.g. Kasun" required />
-              </div>
-              <div class="form-group">
-                <label class="form-label" for="admin-user-lastname">Last Name *</label>
-                <input type="text" id="admin-user-lastname" class="form-input" placeholder="e.g. Perera" required />
-              </div>
-            </div>
-
-            <div class="form-row">
-              <div class="form-group">
-                <label class="form-label" for="admin-user-nic">NIC / National ID *</label>
-                <input type="text" id="admin-user-nic" class="form-input" placeholder="e.g. 199412304560" required />
-              </div>
-              <div class="form-group">
-                <label class="form-label" for="admin-user-phone">Phone Number *</label>
-                <input type="tel" id="admin-user-phone" class="form-input" placeholder="+94 77 123 4567" required />
-              </div>
-            </div>
-
-            <div class="form-group">
-              <label class="form-label" for="admin-user-address">Residential Address</label>
-              <input type="text" id="admin-user-address" class="form-input" placeholder="e.g. No. 42, Galle Road, Colombo 03" />
-            </div>
-
-            <div class="form-row">
-              <div class="form-group">
-                <label class="form-label" for="admin-user-dob">Date of Birth</label>
-                <input type="date" id="admin-user-dob" class="form-input" />
-              </div>
-              <div class="form-group">
-                <label class="form-label" for="admin-user-age">Age</label>
-                <input type="number" id="admin-user-age" class="form-input" placeholder="30" min="18" max="75" />
-              </div>
-              <div class="form-group">
-                <label class="form-label" for="admin-user-serviceyears">Service Years</label>
-                <input type="number" id="admin-user-serviceyears" class="form-input" placeholder="3" min="0" max="50" value="1" />
-              </div>
-            </div>
-
-            <!-- Credentials Generation Section -->
-            <div style="margin-top: 1.25rem; margin-bottom: 0.75rem; border-top: 1px solid var(--border-color); padding-top: 1rem;">
-              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
-                <h4 style="font-size: 0.95rem; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-muted); margin: 0;">Access Credentials</h4>
-                <button type="button" id="btn-generate-credentials" class="btn btn-sm btn-primary" style="font-size: 0.82rem; padding: 0.4rem 0.85rem;">
-                  ⚡ Generate Role Email & Password
-                </button>
-              </div>
-              <small style="color: var(--text-muted); font-size: 0.8rem; display: block; margin-bottom: 0.85rem;">
-                Generates corporate email format (<code style="color: var(--primary);">firstname.lastname@livingora.lk</code>) and initial password (<code style="color: var(--primary);">NIC@LivingOra</code>).
-              </small>
-            </div>
-
-            <div class="form-group">
-              <label class="form-label" for="admin-user-email">Role Login Email *</label>
-              <input type="email" id="admin-user-email" class="form-input" placeholder="firstname.lastname@livingora.lk" required />
-            </div>
-
-            <div class="form-group">
-              <label class="form-label" for="admin-user-password">Initial Password *</label>
-              <div style="display: flex; gap: 0.5rem;">
-                <input type="text" id="admin-user-password" class="form-input" placeholder="e.g. 199412304560@LivingOra" required />
-                <button type="button" id="btn-copy-creds" class="btn btn-sm btn-secondary" title="Copy Credentials">📋 Copy</button>
-              </div>
-            </div>
-
-            <!-- Preview Card for Generated Credentials -->
-            <div id="credentials-preview-card" style="display: none; background: rgba(34, 197, 94, 0.08); border: 1px solid rgba(34, 197, 94, 0.3); border-radius: 8px; padding: 0.85rem 1rem; margin-bottom: 1.25rem;">
-              <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.35rem;">
-                <span style="color: var(--success); font-weight: 700; font-size: 0.85rem;">✓ Generated Role Credentials Ready</span>
-              </div>
-              <div style="font-size: 0.85rem; color: var(--text-main); font-family: monospace;">
-                <div><strong>Email:</strong> <span id="preview-email">-</span></div>
-                <div><strong>Password:</strong> <span id="preview-password">-</span></div>
-              </div>
-            </div>
-
-            <button type="submit" id="btn-submit-internal-user" class="btn btn-primary btn-block" style="margin-top: 1rem; font-size: 1rem; padding: 0.85rem;">
-              Assign & Save Staff Role
-            </button>
-          </form>
-        </div>
-
-        <!-- Internal Users Directory Table -->
-        <div>
-          <div class="card" style="padding: 1.25rem; margin-bottom: 1.25rem; display: flex; justify-content: space-between; align-items: center;">
-            <div>
-              <h3 style="font-size: 1.15rem; font-weight: 700;">Internal Staff Directory</h3>
-              <p style="color: var(--text-muted); font-size: 0.85rem; margin: 0;">Authorized department officers and leadership</p>
-            </div>
-            <span class="badge badge-gold" id="count-internal-staff">0 Staff Active</span>
           </div>
 
           <div class="table-responsive">
@@ -238,17 +86,249 @@
               <thead>
                 <tr>
                   <th>Emp ID</th>
-                  <th>Name</th>
-                  <th>Assigned Role</th>
-                  <th>Company Email</th>
+                  <th>Staff Name</th>
+                  <th>Assigned Department Role</th>
+                  <th>Official Email</th>
                   <th>NIC & Phone</th>
+                  <th>Tenure</th>
                   <th>Actions</th>
                 </tr>
               </thead>
-              <tbody id="internal-users-tbody"></tbody>
+              <tbody id="overview-internal-users-tbody"></tbody>
             </table>
           </div>
         </div>
+
+        <!-- Leads Pipeline Management Table in Dashboard Overview -->
+        <div class="card" style="padding: 1.75rem; margin-bottom: 2rem;">
+          <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; margin-bottom: 1.25rem; border-bottom: 1px solid var(--border-color); padding-bottom: 1rem;">
+            <div>
+              <div style="display: flex; align-items: center; gap: 0.5rem;">
+                <span class="badge badge-gold">Sales Pipeline</span>
+                <span class="badge badge-primary" id="lead-count-badge">0 Active Leads</span>
+              </div>
+              <h2 style="font-size: 1.35rem; font-weight: 800; margin: 0.35rem 0 0 0;">Client Leads & Inquiries Pipeline</h2>
+              <p style="color: var(--text-muted); font-size: 0.88rem; margin: 0.2rem 0 0 0;">Assign prospective leads to internal staff officers, update lead stages, or manage client requirements.</p>
+            </div>
+          </div>
+
+          <div class="table-responsive">
+            <table class="table">
+              <thead>
+                <tr>
+                  <th>Lead ID</th>
+                  <th>Client Name</th>
+                  <th>Contact Info</th>
+                  <th>Interested Property / Unit</th>
+                  <th>Assigned Staff</th>
+                  <th>Status</th>
+                  <th>Estimated Budget</th>
+                  <th style="text-align: right;">Actions</th>
+                </tr>
+              </thead>
+              <tbody id="leads-tbody"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="grid-2">
+          <div class="card" style="padding: 1.5rem;">
+            <h3 style="font-size: 1.25rem; font-weight: 700; margin-bottom: 1rem;">Administrator Governance Areas</h3>
+            <ul style="list-style: square; padding-left: 1.25rem; color: var(--text-muted); line-height: 1.8; font-size: 0.92rem;">
+              <li>Role-Based Access Control (RBAC) across departments</li>
+              <li>Role-Patterned Employee IDs (<code>EMP-SM-####</code>, <code>EMP-OPS-####</code>, <code>EMP-CRO-####</code>, etc.)</li>
+              <li>KYC Verification for external client & agent registrations</li>
+              <li>Leads acquisition, internal assignment, update & removal governance</li>
+              <li>Immediate account suspension / security locking</li>
+              <li>Audit trail verification and administrative logging</li>
+            </ul>
+          </div>
+          <div class="card" style="padding: 1.5rem;">
+            <h3 style="font-size: 1.25rem; font-weight: 700; margin-bottom: 1rem;">System Architecture Status</h3>
+            <div style="display: flex; flex-direction: column; gap: 0.75rem; font-size: 0.9rem;">
+              <div style="display: flex; justify-content: space-between; border-bottom: 1px solid var(--border-color); padding-bottom: 0.5rem;">
+                <span>Database Connection</span>
+                <strong style="color: var(--success);">Spring Data JPA / MySQL Active</strong>
+              </div>
+              <div style="display: flex; justify-content: space-between; border-bottom: 1px solid var(--border-color); padding-bottom: 0.5rem;">
+                <span>REST API Gateway</span>
+                <strong style="color: var(--info);">http://localhost:8080/api</strong>
+              </div>
+              <div style="display: flex; justify-content: space-between;">
+                <span>Offline Resilience & State</span>
+                <strong style="color: var(--primary);">Live Memory & Storage Cache Active</strong>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+
+    <!-- Tab 2: Internal Users -->
+    <section id="tab-users" class="admin-tab-panel" hidden>
+      <!-- Register/Edit Form Full Screen -->
+      <div class="card" style="padding: 2.25rem; max-width: 100%;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.75rem; border-bottom: 1px solid var(--border-color); padding-bottom: 1.25rem;">
+          <div>
+            <span class="badge badge-gold" id="form-mode-badge">Internal Role Assignment</span>
+            <h2 style="font-size: 1.5rem; font-weight: 800; margin-top: 0.35rem;" id="form-headline">Assign Staff Role & Details</h2>
+            <p style="color: var(--text-muted); font-size: 0.88rem; margin: 0.2rem 0 0 0;">Provision departmental credentials, assign internal roles, and configure staff access parameters.</p>
+          </div>
+          <button type="button" id="btn-reset-form" class="btn btn-sm btn-secondary" style="font-size: 0.85rem; padding: 0.5rem 1rem;">+ New Registration</button>
+        </div>
+
+        <form id="admin-internal-user-form">
+          <input type="hidden" id="editing-empid" />
+
+          <!-- Auto-Generated Emp ID Header Display -->
+          <div style="background: rgba(201, 169, 110, 0.08); border: 1px dashed var(--primary); border-radius: 8px; padding: 1rem 1.25rem; margin-bottom: 1.5rem; display: flex; justify-content: space-between; align-items: center;">
+            <div>
+              <small style="color: var(--text-muted); display: block; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.5px;">Assigned Employee ID</small>
+              <span id="display-empid" style="font-size: 1.35rem; font-weight: 800; color: var(--primary); font-family: monospace;">AUTO-GENERATED</span>
+            </div>
+            <button type="button" id="btn-regenerate-empid" class="btn btn-sm btn-outline" style="font-size: 0.8rem; padding: 0.4rem 0.85rem;">
+              ↻ Refresh Suggested ID
+            </button>
+          </div>
+
+          <!-- Role Assignment & Department Characteristics -->
+          <div class="form-group" style="margin-bottom: 1.5rem;">
+            <label class="form-label" for="admin-user-role" style="font-size: 0.95rem; font-weight: 600;">Assign Department Role *</label>
+            <select id="admin-user-role" class="form-select" style="font-size: 0.95rem; padding: 0.75rem;" required>
+              <option value="SALES_MANAGER" data-desc="Manages client deals, inventory negotiations, down payments, and team sales pipeline.">Sales Manager</option>
+              <option value="OPERATIONS_DIRECTOR" data-desc="Supervises operations, departmental governance, staff performance, and inventory logistics.">Operations Director</option>
+              <option value="CUSTOMER_RELATIONS_OFFICER" data-desc="Liaison for customer inquiries, KYC documentation, and client assistance.">Customer Relations Officer</option>
+              <option value="FINANCE_PAYMENTS_OFFICER" data-desc="Audits payment proofs, verifies down payments, and monitors installment schedules.">Finance & Payments Officer</option>
+              <option value="PROPERTY_DEVELOPMENT_MANAGER" data-desc="Oversees apartment towers, construction progress, floor plans, and amenities.">Property Development Manager</option>
+              <option value="MARKETING_MANAGER" data-desc="Directs marketing campaigns, public branding, and partner network promotions.">Marketing Manager</option>
+              <option value="ADMIN" data-desc="Full system administration, access governance, security lockouts, and auditing.">System Administrator</option>
+            </select>
+            <small id="role-characteristic-hint" style="display: block; margin-top: 0.5rem; color: var(--text-muted); font-size: 0.85rem; font-style: italic;">
+              Manages client deals, inventory negotiations, down payments, and team sales pipeline.
+            </small>
+          </div>
+
+          <!-- Personal Details -->
+          <div style="margin-top: 1.75rem; margin-bottom: 1rem; border-top: 1px solid var(--border-color); padding-top: 1.25rem;">
+            <h4 style="font-size: 1rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; color: var(--primary); margin-bottom: 1rem;">Personal Information</h4>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group" style="flex: 1;">
+              <label class="form-label" for="admin-user-firstname">First Name *</label>
+              <input type="text" id="admin-user-firstname" class="form-input" placeholder="e.g. Kasun" required />
+            </div>
+            <div class="form-group" style="flex: 1;">
+              <label class="form-label" for="admin-user-lastname">Last Name *</label>
+              <input type="text" id="admin-user-lastname" class="form-input" placeholder="e.g. Perera" required />
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group" style="flex: 1;">
+              <label class="form-label" for="admin-user-nic">NIC / National ID *</label>
+              <input type="text" id="admin-user-nic" class="form-input" placeholder="e.g. 199412304560" required />
+            </div>
+            <div class="form-group" style="flex: 1;">
+              <label class="form-label" for="admin-user-phone">Personal Contact Phone (10 digits) *</label>
+              <input type="tel" id="admin-user-phone" class="form-input" placeholder="0771234567" maxlength="10" pattern="[0-9]{10}" required />
+              <small id="admin-phone-help" style="color: var(--text-muted); font-size: 0.78rem;">Must contain exactly 10 digits</small>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group" style="flex: 1;">
+              <label class="form-label" for="admin-user-personal-email">Personal Email Address *</label>
+              <input type="email" id="admin-user-personal-email" class="form-input" placeholder="e.g. kasun.personal@gmail.com" required />
+              <small style="color: var(--text-muted); font-size: 0.78rem;">Staff personal email for contact &amp; recovery</small>
+            </div>
+            <div class="form-group" style="flex: 1;">
+              <label class="form-label" for="admin-user-address">Residential Address</label>
+              <input type="text" id="admin-user-address" class="form-input" placeholder="e.g. No. 42, Galle Road, Colombo 03" />
+            </div>
+          </div>
+
+          <!-- Profile Picture Section -->
+          <div class="form-group" style="margin-bottom: 1.25rem;">
+            <label class="form-label">Profile Picture</label>
+            <div style="display: flex; gap: 1.25rem; align-items: center; background: rgba(255,255,255,0.02); border: 1px solid var(--border-color); border-radius: 8px; padding: 1rem;">
+              <div style="width: 72px; height: 72px; border-radius: 50%; overflow: hidden; border: 2px solid var(--primary); background: rgba(201, 169, 110, 0.1); display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                <img id="admin-user-pic-preview" src="" alt="Preview" style="width: 100%; height: 100%; object-fit: cover; display: none;" />
+                <span id="admin-user-pic-placeholder" style="font-size: 2rem;">👤</span>
+              </div>
+              <div style="flex: 1;">
+                <div style="display: flex; gap: 0.5rem; margin-bottom: 0.5rem;">
+                  <input type="file" id="admin-user-pic-file" accept="image/*" class="form-input" style="padding: 0.4rem; font-size: 0.82rem;" />
+                </div>
+                <input type="text" id="admin-user-pic-url" class="form-input" placeholder="Or paste image URL (e.g. https://...)" />
+                <input type="hidden" id="admin-user-profile-picture" value="" />
+              </div>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group" style="flex: 1;">
+              <label class="form-label" for="admin-user-dob">Date of Birth *</label>
+              <input type="date" id="admin-user-dob" class="form-input" required />
+              <small style="color: var(--text-muted); font-size: 0.78rem;">Select birth date to automatically calculate age</small>
+            </div>
+            <div class="form-group" style="flex: 1;">
+              <label class="form-label" for="admin-user-age">Age (Min 18 years) *</label>
+              <input type="number" id="admin-user-age" class="form-input" placeholder="Auto-calculated" min="18" max="100" readonly style="background: rgba(255,255,255,0.05); cursor: not-allowed;" required />
+              <div id="admin-age-warning" style="display: none; color: #ef4444; font-size: 0.8rem; margin-top: 0.35rem; font-weight: 600;">
+                ⚠️ User must be at least 18 years old to register!
+              </div>
+            </div>
+            <div class="form-group" style="flex: 1;">
+              <label class="form-label" for="admin-user-serviceyears">Service Years</label>
+              <input type="number" id="admin-user-serviceyears" class="form-input" placeholder="0" min="0" max="50" value="0" />
+            </div>
+          </div>
+
+          <!-- Credentials Generation Section -->
+          <div style="margin-top: 1.75rem; margin-bottom: 1rem; border-top: 1px solid var(--border-color); padding-top: 1.25rem;">
+            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.75rem; margin-bottom: 0.75rem;">
+              <h4 style="font-size: 1rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; color: var(--primary); margin: 0;">Access Credentials</h4>
+              <button type="button" id="btn-generate-credentials" class="btn btn-sm btn-primary" style="font-size: 0.85rem; padding: 0.45rem 1rem;">
+                ⚡ Generate Role Email & Password
+              </button>
+            </div>
+            <small style="color: var(--text-muted); font-size: 0.82rem; display: block; margin-bottom: 1rem;">
+              Generates corporate email format (<code style="color: var(--primary);">firstname.lastname@livingora.lk</code>) and initial password (<code style="color: var(--primary);">NIC@LivingOra</code>).
+            </small>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group" style="flex: 1;">
+              <label class="form-label" for="admin-user-email">Role Login Email *</label>
+              <input type="email" id="admin-user-email" class="form-input" placeholder="firstname.lastname@livingora.lk" required />
+            </div>
+            <div class="form-group" style="flex: 1;">
+              <label class="form-label" for="admin-user-password">Initial Password *</label>
+              <div style="display: flex; gap: 0.5rem;">
+                <input type="text" id="admin-user-password" class="form-input" placeholder="e.g. 199412304560@LivingOra" required />
+                <button type="button" id="btn-copy-creds" class="btn btn-sm btn-secondary" title="Copy Credentials">📋 Copy</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Preview Card for Generated Credentials -->
+          <div id="credentials-preview-card" style="display: none; background: rgba(34, 197, 94, 0.08); border: 1px solid rgba(34, 197, 94, 0.3); border-radius: 8px; padding: 1rem 1.25rem; margin-bottom: 1.5rem;">
+            <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.35rem;">
+              <span style="color: var(--success); font-weight: 700; font-size: 0.9rem;">✓ Generated Role Credentials Ready</span>
+            </div>
+            <div style="font-size: 0.9rem; color: var(--text-main); font-family: monospace; display: flex; gap: 2rem; flex-wrap: wrap;">
+              <div><strong>Email:</strong> <span id="preview-email">-</span></div>
+              <div><strong>Password:</strong> <span id="preview-password">-</span></div>
+            </div>
+          </div>
+
+          <div style="margin-top: 1.5rem;">
+            <button type="submit" id="btn-submit-internal-user" class="btn btn-primary" style="font-size: 1.05rem; padding: 0.85rem 2.5rem;">
+              Assign & Save Staff Role
+            </button>
+          </div>
+        </form>
       </div>
     </section>
 
@@ -289,72 +369,169 @@
       </div>
     </section>
 
-
-    <!-- Tab 5: Inventory Management -->
-    <section id="tab-inventory" class="admin-tab-panel" hidden>
-      <!-- Search / Filter Bar -->
-      <div class="card" style="padding: 1.25rem; margin-bottom: 1.25rem; display: flex; gap: 1rem; flex-wrap: wrap; align-items: flex-end;">
-        <div class="form-group" style="margin: 0; flex: 1; min-width: 180px;">
-          <label class="form-label" style="font-size: 0.82rem; margin-bottom: 0.3rem;" for="admin-inv-filter-apt">Filter by Complex ID</label>
-          <input type="text" id="admin-inv-filter-apt" class="form-input" placeholder="e.g. APT-LO-001" style="padding: 0.45rem 0.75rem;" />
-        </div>
-        <div class="form-group" style="margin: 0; flex: 1; min-width: 160px;">
-          <label class="form-label" style="font-size: 0.82rem; margin-bottom: 0.3rem;" for="admin-inv-filter-status">Filter by Status</label>
-          <select id="admin-inv-filter-status" class="form-select" style="padding: 0.45rem 0.75rem;">
-            <option value="">All Statuses</option>
-            <option value="Available">Available</option>
-            <option value="Reserved">Reserved</option>
-            <option value="Sold">Sold</option>
-          </select>
-        </div>
-        <div style="display: flex; gap: 0.5rem;">
-          <button id="admin-inv-search-btn" class="btn btn-sm btn-primary" style="white-space: nowrap;">&#128269; Search</button>
-          <button id="admin-inv-reset-btn" class="btn btn-sm btn-secondary" style="white-space: nowrap;">&#10005; Reset</button>
-        </div>
-      </div>
-
-      <div class="card" style="padding: 1.25rem; margin-bottom: 1.25rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
-        <div>
-          <span class="badge badge-gold" style="margin-bottom: 0.25rem;">Unit Inventory Registry</span>
-          <h3 style="font-size: 1.15rem; font-weight: 700; margin: 0;">All Apartment Unit Inventory</h3>
-          <p style="color: var(--text-muted); font-size: 0.85rem; margin: 0;">Full inventory view across all developments. Edit and manage units from the Staff Dashboard.</p>
-        </div>
-        <span class="badge badge-gold" id="admin-inv-count">0 Units</span>
-      </div>
-
-      <div class="table-responsive">
-        <table class="table">
-          <thead>
-            <tr>
-              <th>Unit ID</th>
-              <th>Location / Suite</th>
-              <th>Apartment Complex</th>
-              <th>Floor</th>
-              <th>Bedrooms</th>
-              <th>Price</th>
-              <th>Status</th>
-            </tr>
-          </thead>
-          <tbody id="admin-inventory-tbody">
-            <tr><td colspan="7" style="text-align: center; color: var(--text-muted); padding: 2rem;">Loading inventory...</td></tr>
-          </tbody>
-        </table>
-      </div>
-    </section>
-
-    <!-- Tab 6: Audit Logs -->
+    <!-- Tab 5: Audit Logs -->
     <section id="tab-audit" class="admin-tab-panel" hidden>
       <div class="card" style="padding: 1.75rem;">
         <h3 style="font-size: 1.25rem; margin-bottom: 1.25rem;">Security & Operational Audit Trail</h3>
         <div id="audit-logs-list"></div>
       </div>
     </section>
-  </main>
+    </main>
 
-  <!-- Footer Placeholder -->
-  <div id="footer-placeholder"></div>
+    <!-- Right-Side Navigation Sidebar -->
+    <aside class="admin-right-sidebar">
+      <div class="admin-sidebar-header">
+        <span class="badge badge-gold" style="font-size: 0.72rem; text-transform: uppercase;">Command Deck</span>
+        <h3 style="font-size: 1.15rem; font-weight: 800; margin: 0.35rem 0 0 0;">System Navigation</h3>
+        <p style="color: var(--text-muted); font-size: 0.8rem; margin: 0.2rem 0 0 0;">Select workspace view</p>
+      </div>
+
+      <ul class="admin-nav-menu">
+        <li>
+          <button class="admin-nav-item tab-btn active" data-admin-tab="dashboard">
+            <span class="admin-nav-icon">📊</span>
+            <span>Dashboard Overview</span>
+          </button>
+        </li>
+        <li>
+          <button class="admin-nav-item tab-btn" data-admin-tab="users">
+            <span class="admin-nav-icon">👥</span>
+            <span>Internal Role Assignment</span>
+          </button>
+        </li>
+        <li>
+          <button class="admin-nav-item tab-btn" data-admin-tab="external">
+            <span class="admin-nav-icon">🏢</span>
+            <span>External Clients & Agents</span>
+          </button>
+        </li>
+        <li>
+          <button class="admin-nav-item tab-btn" data-admin-tab="verifications">
+            <span class="admin-nav-icon">🛡️</span>
+            <span>Verification Requests</span>
+          </button>
+        </li>
+        <li>
+          <button class="admin-nav-item tab-btn" data-admin-tab="audit">
+            <span class="admin-nav-icon">📜</span>
+            <span>Audit & Logs</span>
+          </button>
+        </li>
+      </ul>
+
+      <div class="admin-sidebar-footer">
+        <div style="font-weight: 600; color: var(--text-main); margin-bottom: 0.25rem;">Living-Ora Core Engine</div>
+        <div>Role Security: <span style="color: var(--success); font-weight: 700;">ADMIN</span></div>
+        <small style="color: var(--text-dim); display: block; margin-top: 0.25rem;">Version 2.4.0 &bull; 2026 Production</small>
+      </div>
+    </aside>
+  </div>
+
+  <!-- Register / Edit Lead Modal -->
+  <div id="lead-modal" class="modal-overlay">
+    <div class="modal-box" style="max-width: 650px;">
+      <div class="modal-header">
+        <div>
+          <span class="badge badge-gold" id="lead-modal-badge">Lead Acquisition</span>
+          <h2 class="modal-title" id="lead-modal-title" style="margin-top: 0.25rem; font-size: 1.45rem;">Register New Lead</h2>
+        </div>
+        <button type="button" class="modal-close" id="close-lead-modal-btn">&times;</button>
+      </div>
+
+      <div class="modal-body">
+        <form id="admin-lead-form">
+          <input type="hidden" id="editing-lead-id" value="" />
+
+          <!-- Lead ID Display -->
+          <div style="background: rgba(201, 169, 110, 0.08); border: 1px dashed var(--primary); border-radius: 8px; padding: 0.75rem 1rem; margin-bottom: 1.25rem; display: flex; justify-content: space-between; align-items: center;">
+            <div>
+              <small style="color: var(--text-muted); display: block; font-size: 0.75rem; text-transform: uppercase;">Lead Reference ID</small>
+              <span id="display-lead-id" style="font-size: 1.15rem; font-weight: 800; color: var(--primary); font-family: monospace;">LEAD-2026-101</span>
+            </div>
+            <span class="badge badge-primary" id="lead-status-pill">New Inquiry</span>
+          </div>
+
+          <!-- Client Personal Information -->
+          <div class="form-row">
+            <div class="form-group" style="flex: 1;">
+              <label class="form-label" for="lead-client-name">Client / Prospective Buyer Full Name *</label>
+              <input type="text" id="lead-client-name" class="form-input" placeholder="e.g. Priyantha Jayasuriya" required />
+            </div>
+            <div class="form-group" style="flex: 1;">
+              <label class="form-label" for="lead-client-phone">Contact Phone *</label>
+              <input type="tel" id="lead-client-phone" class="form-input" placeholder="e.g. +94 77 987 6543" required />
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group" style="flex: 1;">
+              <label class="form-label" for="lead-client-email">Email Address</label>
+              <input type="email" id="lead-client-email" class="form-input" placeholder="e.g. priyantha@example.com" />
+            </div>
+            <div class="form-group" style="flex: 1;">
+              <label class="form-label" for="lead-budget">Estimated Budget ($ USD) *</label>
+              <input type="number" id="lead-budget" class="form-input" placeholder="185000" min="10000" required />
+            </div>
+          </div>
+
+          <!-- Interest & Assigned Staff -->
+          <div class="form-row">
+            <div class="form-group" style="flex: 1;">
+              <label class="form-label" for="lead-interested-property">Interested Apartment / Tower *</label>
+              <input type="text" id="lead-interested-property" class="form-input" placeholder="e.g. Horizon Residence - Unit 14B" required />
+            </div>
+            <div class="form-group" style="flex: 1;">
+              <label class="form-label" for="lead-assigned-staff">Assign Internal Staff Officer *</label>
+              <select id="lead-assigned-staff" class="form-select" required>
+                <!-- Populated dynamically with internal staff -->
+              </select>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group" style="flex: 1;">
+              <label class="form-label" for="lead-status">Lead Stage / Status *</label>
+              <select id="lead-status" class="form-select" required>
+                <option value="NEW">New Inquiry</option>
+                <option value="CONTACTED">Contacted & Qualified</option>
+                <option value="SITE_VISIT">Site Visit Scheduled</option>
+                <option value="NEGOTIATION">Price & Payment Negotiation</option>
+                <option value="WON">Converted / Reserved</option>
+                <option value="LOST">Lost / Dropped</option>
+              </select>
+            </div>
+            <div class="form-group" style="flex: 1;">
+              <label class="form-label" for="lead-source">Lead Source</label>
+              <select id="lead-source" class="form-select">
+                <option value="Web Portal">Web Portal Direct</option>
+                <option value="Sales Agent Referral">Sales Agent Referral</option>
+                <option value="Direct Walk-In">Direct Walk-In</option>
+                <option value="Social Campaign">Social Campaign</option>
+                <option value="Corporate Partner">Corporate Partner</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="lead-notes">Client Requirements & Follow-up Notes</label>
+            <textarea id="lead-notes" class="form-input" rows="3" placeholder="Client prefers higher floor with sea view and 20% down payment plan..."></textarea>
+          </div>
+
+          <div style="display: flex; gap: 0.75rem; margin-top: 1.25rem;">
+            <button type="submit" id="btn-save-lead" class="btn btn-primary" style="flex: 2; padding: 0.85rem;">
+              Save & Register Lead
+            </button>
+            <button type="button" id="btn-cancel-lead-modal" class="btn btn-secondary" style="flex: 1;">
+              Cancel
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
 
   <!-- Script Module -->
   <script type="module" src="js/pages/admin-dashboard.js"></script>
 </body>
 </html>
+

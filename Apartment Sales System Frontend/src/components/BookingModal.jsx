@@ -1,24 +1,58 @@
 import React, { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useStore } from '../context/StoreContext';
-import { X, Calculator, ShieldCheck, Upload, CheckCircle2, DollarSign } from 'lucide-react';
+import { X, Calculator, ShieldCheck, Upload, CheckCircle2, DollarSign, Tag } from 'lucide-react';
+import { promotionsApi } from '../services/api';
 
 export const BookingModal = ({ unit, onClose, onSuccess }) => {
   const { user } = useAuth();
   const { createBooking } = useStore();
 
-  const [downPaymentPercent, setDownPaymentPercent] = useState(20); // 20%
-  const [months, setMonths] = useState(36); // 36 months
+  const [downPaymentPercent, setDownPaymentPercent] = useState(20);
+  const [months, setMonths] = useState(36);
   const [paymentMethod, setPaymentMethod] = useState('Bank Transfer');
   const [additions, setAdditions] = useState('Standard Executive Finish');
   const [receiptFile, setReceiptFile] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submittedSuccess, setSubmittedSuccess] = useState(false);
 
+  const [promoCode, setPromoCode] = useState('');
+  const [appliedDiscount, setAppliedDiscount] = useState(0);
+  const [promoStatus, setPromoStatus] = useState('');
+
   const unitPrice = unit ? unit.unitPrice : 0;
-  const downPaymentAmount = (unitPrice * downPaymentPercent) / 100;
-  const remainingAmount = unitPrice - downPaymentAmount;
+  const discountedPrice = unitPrice - (unitPrice * (appliedDiscount / 100));
+  const downPaymentAmount = (discountedPrice * downPaymentPercent) / 100;
+  const remainingAmount = discountedPrice - downPaymentAmount;
   const monthlyInstallment = remainingAmount / months;
+
+  const handleApplyPromo = async () => {
+    if (!promoCode.trim()) return;
+    setPromoStatus('Checking...');
+    try {
+      const promo = await promotionsApi.getByCode(promoCode.toUpperCase());
+      const getComputedStatus = () => {
+        if (promo.status === 'INACTIVE') return 'INACTIVE';
+        const today = new Date();
+        today.setHours(0,0,0,0);
+        const start = new Date(promo.startDate);
+        const end = new Date(promo.endDate);
+        if (today < start) return 'SCHEDULED';
+        if (today > end) return 'EXPIRED';
+        return 'ACTIVE';
+      };
+      if (getComputedStatus() === 'ACTIVE') {
+        setAppliedDiscount(promo.discountPrecentage);
+        setPromoStatus(`Applied ${promo.discountPrecentage}% discount!`);
+      } else {
+        setAppliedDiscount(0);
+        setPromoStatus(`Promo is ${getComputedStatus()}`);
+      }
+    } catch (err) {
+      setAppliedDiscount(0);
+      setPromoStatus('Invalid promo code');
+    }
+  };
 
   const handleSubmitBooking = async (e) => {
     e.preventDefault();
@@ -30,13 +64,13 @@ export const BookingModal = ({ unit, onClose, onSuccess }) => {
         userEmail: user?.email || 'client@livingora.com',
         unitId: unit.unitId,
         unitLocation: unit.location,
-        paymentAmount: unitPrice,
+        paymentAmount: discountedPrice,
         downPayment: downPaymentAmount,
         paymentMethod,
         paymentProof: receiptFile ? receiptFile.name : `receipt_${unit.unitId}_downpayment.pdf`,
         additions,
         months,
-        unitPrice
+        unitPrice: discountedPrice
       });
       setIsSubmitting(false);
       setSubmittedSuccess(true);
@@ -82,11 +116,21 @@ export const BookingModal = ({ unit, onClose, onSuccess }) => {
               <span className="badge badge-gold" style={{ marginBottom: '0.5rem' }}>Reserve Unit</span>
               <h2 style={{ fontSize: '1.6rem' }}>Unit Reservation & Payment Schedule</h2>
               <p style={{ color: 'var(--text-secondary)', fontSize: '0.88rem' }}>
-                Unit {unit.unitId} &bull; Floor {unit.floor} &bull; Total Price: <strong style={{ color: 'var(--text-gold)' }}>${unitPrice.toLocaleString()}</strong>
+                Unit {unit.unitId} &bull; Floor {unit.floor} &bull; 
+                Total Price: <strong style={{ color: 'var(--text-gold)', textDecoration: appliedDiscount > 0 ? 'line-through' : 'none', marginRight: appliedDiscount > 0 ? '0.5rem' : '0' }}>${unitPrice.toLocaleString()}</strong>
+                {appliedDiscount > 0 && <strong style={{ color: '#34d399' }}>${discountedPrice.toLocaleString()}</strong>}
               </p>
             </div>
 
             <form onSubmit={handleSubmitBooking}>
+              {/* Promo Code Entry */}
+              <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center', marginBottom: '1rem' }}>
+                 <Tag size={16} color="var(--primary-gold)" />
+                 <input type="text" value={promoCode} onChange={(e) => setPromoCode(e.target.value)} placeholder="Enter Promo Code" className="form-input" style={{ width: '200px', textTransform: 'uppercase' }} />
+                 <button type="button" onClick={handleApplyPromo} className="btn btn-sm btn-gold">Apply</button>
+                 {promoStatus && <span style={{ fontSize: '0.8rem', color: appliedDiscount > 0 ? 'var(--success)' : 'var(--error)' }}>{promoStatus}</span>}
+              </div>
+
               {/* Down Payment Calculator */}
               <div style={{ background: 'rgba(217, 119, 6, 0.06)', border: '1px solid var(--border-glass-gold)', borderRadius: 'var(--radius-md)', padding: '1.25rem', marginBottom: '1.5rem' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '1rem', color: 'var(--text-gold)', fontWeight: 600 }}>

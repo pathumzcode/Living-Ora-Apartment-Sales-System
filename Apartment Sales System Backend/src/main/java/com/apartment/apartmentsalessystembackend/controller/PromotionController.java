@@ -28,7 +28,52 @@ public class PromotionController {
     }
 
     @PostMapping
-    public ResponseEntity<Promotion> createPromotion(@Valid @RequestBody PromotionRequest request) {
+    public ResponseEntity<Promotion> createPromotion(
+            @RequestHeader(value = "X-Staff-Role", required = false) String role,
+            @Valid @RequestBody PromotionRequest request) {
+        if (!isAuthorizedManager(role)) {
+            throw new com.apartment.apartmentsalessystembackend.exception.ForbiddenException("Only Sales or Operational Managers can create promotions.");
+        }
         return ResponseEntity.ok(promotionService.createPromotion(request));
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<Promotion> updatePromotion(
+            @RequestHeader(value = "X-Staff-Role", required = false) String role,
+            @PathVariable String id,
+            @Valid @RequestBody PromotionRequest request) {
+        if (!isAuthorizedManager(role)) {
+            throw new com.apartment.apartmentsalessystembackend.exception.ForbiddenException("Only Sales or Operational Managers can update promotions.");
+        }
+        return ResponseEntity.ok(promotionService.updatePromotion(id, request));
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deletePromotion(
+            @RequestHeader(value = "X-Staff-Role", required = false) String role,
+            @PathVariable String id) {
+        if (!isAuthorizedManager(role)) {
+            throw new com.apartment.apartmentsalessystembackend.exception.ForbiddenException("Only Sales or Operational Managers can delete promotions.");
+        }
+        promotionService.deletePromotion(id);
+        return ResponseEntity.noContent().build();
+    }
+
+    @PatchMapping("/{id}/toggle")
+    public ResponseEntity<Promotion> toggleStatus(
+            @RequestHeader(value = "X-Staff-Role", required = false) String role,
+            @PathVariable String id) {
+        if (!isAuthorizedManager(role)) {
+            throw new com.apartment.apartmentsalessystembackend.exception.ForbiddenException("Only Sales or Operational Managers can change promotion status.");
+        }
+        return ResponseEntity.ok(promotionService.toggleStatus(id));
+    }
+
+    private boolean isAuthorizedManager(String role) {
+        // role header இல்லாதவர்களுக்கு (main branch போல்) access கொடுக்கிறோம்
+        if (role == null || role.isEmpty()) {
+            return true;
+        }
+        return "SALES_MANAGER".equals(role) || "OPERATIONAL_MANAGER".equals(role) || "OPERATIONS_DIRECTOR".equals(role);
     }
 }

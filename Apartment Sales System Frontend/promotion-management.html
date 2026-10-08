@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Promotion Management | Living-Ora</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+
+  <!-- Navigation Bar Placeholder -->
+  <div id="navbar-placeholder"></div>
+
+  <main class="container" style="padding-top: 2.5rem; padding-bottom: 4rem;">
+
+    <!-- Page Header -->
+    <div class="card" style="padding: 2rem; margin-bottom: 2rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1.5rem;">
+      <div>
+        <span class="badge badge-gold" style="margin-bottom: 0.5rem;">Marketing Control</span>
+        <h1 style="font-size: 2rem; font-weight: 800;">Promotion &amp; Special Offer Management</h1>
+        <p style="color: var(--text-muted); font-size: 0.95rem;">
+          Create, manage and monitor all promotions, discount codes and special offers.
+        </p>
+      </div>
+      <button id="open-create-modal-btn" class="btn btn-primary">+ New Promotion</button>
+    </div>
+
+    <!-- KPI Cards -->
+    <div class="kpi-grid" style="margin-bottom: 2rem;">
+      <div class="kpi-card">
+        <div class="kpi-title">Total Promotions</div>
+        <div id="kpi-total" class="kpi-value">0</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-title">Currently Active</div>
+        <div id="kpi-active" class="kpi-value" style="color: var(--success);">0</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-title">Scheduled</div>
+        <div id="kpi-scheduled" class="kpi-value" style="color: var(--info);">0</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-title">Expired</div>
+        <div id="kpi-expired" class="kpi-value" style="color: var(--text-muted);">0</div>
+      </div>
+    </div>
+
+    <!-- Search & Filter Bar -->
+    <div class="card" style="padding: 1.25rem 1.5rem; margin-bottom: 1.5rem; display: flex; gap: 1rem; flex-wrap: wrap; align-items: center;">
+      <input type="search" id="search-input" class="form-input" style="flex:1; min-width:200px;"
+             placeholder="Search by promotion title…" />
+      <select id="status-filter" class="form-select" style="width:180px;">
+        <option value="">All Statuses</option>
+        <option value="ACTIVE">Active</option>
+        <option value="INACTIVE">Inactive</option>
+        <option value="SCHEDULED">Scheduled</option>
+        <option value="EXPIRED">Expired</option>
+      </select>
+      <button id="search-btn" class="btn btn-outline btn-sm">Search</button>
+      <button id="clear-search-btn" class="btn btn-sm" style="color:var(--text-muted);">Clear</button>
+    </div>
+
+    <!-- Notification Banner (hidden by default) -->
+    <div id="notification-banner" style="display:none; padding:1rem 1.5rem; border-radius:8px; margin-bottom:1.5rem; font-weight:500;"></div>
+
+    <!-- Promotions Table -->
+    <div class="table-responsive">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Title</th>
+            <th>Type</th>
+            <th>Discount %</th>
+            <th>Apartment</th>
+            <th>Start Date</th>
+            <th>End Date</th>
+            <th>Status</th>
+            <th>Promo Code</th>
+            <th style="width:180px;">Actions</th>
+          </tr>
+        </thead>
+        <tbody id="promotions-tbody">
+          <tr><td colspan="10" style="text-align:center; padding:2rem; color:var(--text-muted);">Loading promotions…</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+  </main>
+
+  <!-- Footer Placeholder -->
+  <div id="footer-placeholder"></div>
+
+  <!-- ============================================================ -->
+  <!--  Create / Edit Promotion Modal                               -->
+  <!-- ============================================================ -->
+  <div id="promotion-modal" class="modal-overlay">
+    <div class="modal-box" style="max-width:680px;">
+      <div class="modal-header">
+        <h2 class="modal-title" id="modal-title">Create Promotion</h2>
+        <button class="modal-close" data-modal-close>&times;</button>
+      </div>
+      <div class="modal-body">
+        <form id="promotion-form" novalidate>
+          <input type="hidden" id="form-promotion-id" />
+
+          <div class="form-row">
+            <div class="form-group" style="flex:2;">
+              <label class="form-label" for="form-title">Promotion Title *</label>
+              <input type="text" id="form-title" class="form-input" placeholder="e.g. Year-End Grand Sale" required />
+              <span class="field-error" id="err-title" style="color:var(--danger);font-size:0.8rem;display:none;"></span>
+            </div>
+            <div class="form-group" style="flex:1;">
+              <label class="form-label" for="form-type">Type</label>
+              <select id="form-type" class="form-select">
+                <option value="Discount Code">Discount Code</option>
+                <option value="Seasonal Offer">Seasonal Offer</option>
+                <option value="Early Bird">Early Bird</option>
+                <option value="Loyalty Reward">Loyalty Reward</option>
+                <option value="Flash Sale">Flash Sale</option>
+                <option value="Package Deal">Package Deal</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label" for="form-code">Promotion Code *</label>
+              <input type="text" id="form-code" class="form-input" placeholder="e.g. ORA2026" required
+                     style="text-transform:uppercase;" />
+              <span class="field-error" id="err-code" style="color:var(--danger);font-size:0.8rem;display:none;"></span>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="form-discount">Discount % *</label>
+              <input type="number" id="form-discount" class="form-input" placeholder="5.00" min="0" max="100" step="0.01" required />
+              <span class="field-error" id="err-discount" style="color:var(--danger);font-size:0.8rem;display:none;"></span>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label" for="form-start">Start Date *</label>
+              <input type="date" id="form-start" class="form-input" required />
+              <span class="field-error" id="err-start" style="color:var(--danger);font-size:0.8rem;display:none;"></span>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="form-end">End Date *</label>
+              <input type="date" id="form-end" class="form-input" required />
+              <span class="field-error" id="err-end" style="color:var(--danger);font-size:0.8rem;display:none;"></span>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="form-about">Description</label>
+            <textarea id="form-about" class="form-textarea" rows="3"
+                      placeholder="Describe the promotion offer and benefits…"></textarea>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="form-eligibility">Eligibility Criteria</label>
+            <input type="text" id="form-eligibility" class="form-input"
+                   placeholder="e.g. All new bookings above $250,000" />
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label" for="form-button-text">Button Text</label>
+              <input type="text" id="form-button-text" class="form-input" placeholder="e.g. Claim 10% Off" />
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="form-validity">Validity Period</label>
+              <input type="text" id="form-validity" class="form-input" placeholder="e.g. Limited Time" />
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="form-banner">Banner Image URL</label>
+            <input type="text" id="form-banner" class="form-input"
+                   placeholder="https://… or images/luxury-complex-marina.jpg" />
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label" for="form-assigned-apt">Assigned Apartment</label>
+              <select id="form-assigned-apt" class="form-select">
+                <option value="">All Apartments (Global)</option>
+                <!-- Populated dynamically by JS -->
+              </select>
+              <small style="color:var(--text-muted);font-size:0.78rem;">Leave as "All Apartments" to apply this promotion to any residence.</small>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="form-status">Status</label>
+              <select id="form-status" class="form-select">
+                <option value="ACTIVE">Active</option>
+                <option value="INACTIVE">Inactive (Draft)</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Form-level error -->
+          <div id="form-error" style="display:none; color:var(--danger); padding:0.75rem; background:rgba(220,53,69,0.08); border-radius:6px; margin-bottom:1rem; font-size:0.9rem;"></div>
+
+          <div style="display:flex; gap:1rem;">
+            <button type="submit" class="btn btn-primary" style="flex:1;" id="form-submit-btn">
+              Save Promotion
+            </button>
+            <button type="button" class="btn btn-outline" data-modal-close>Cancel</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================================ -->
+  <!--  Delete Confirmation Modal                                   -->
+  <!-- ============================================================ -->
+  <div id="delete-modal" class="modal-overlay">
+    <div class="modal-box" style="max-width:440px;">
+      <div class="modal-header">
+        <h2 class="modal-title">Confirm Deletion</h2>
+        <button class="modal-close" data-modal-close>&times;</button>
+      </div>
+      <div class="modal-body">
+        <p style="margin-bottom:1.5rem; color:var(--text-muted);">
+          Are you sure you want to delete promotion
+          <strong id="delete-promo-title" style="color:var(--text-main);"></strong>?
+          This action is irreversible.
+        </p>
+        <div style="display:flex; gap:1rem;">
+          <button id="confirm-delete-btn" class="btn btn-danger" style="flex:1;">Yes, Delete</button>
+          <button class="btn btn-outline" data-modal-close style="flex:1;">Cancel</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Script Module -->
+  <script type="module" src="js/pages/promotion-management.js"></script>
+</body>
+</html>

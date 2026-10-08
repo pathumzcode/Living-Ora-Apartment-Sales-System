@@ -4,6 +4,23 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 
 public class BookingResponse {
+    private String uid;
+    private String userEmail;
+    private BigDecimal downPayment;
+    private String paymentMethod;
+    private String paymentStatus;
+
+    public String getUid() { return uid; }
+    public void setUid(String uid) { this.uid = uid; }
+    public String getUserEmail() { return userEmail; }
+    public void setUserEmail(String userEmail) { this.userEmail = userEmail; }
+    public BigDecimal getDownPayment() { return downPayment; }
+    public void setDownPayment(BigDecimal downPayment) { this.downPayment = downPayment; }
+    public String getPaymentMethod() { return paymentMethod; }
+    public void setPaymentMethod(String paymentMethod) { this.paymentMethod = paymentMethod; }
+    public String getPaymentStatus() { return paymentStatus; }
+    public void setPaymentStatus(String paymentStatus) { this.paymentStatus = paymentStatus; }
+
     private Long id;
     private String bookingId;
     private String unitId;
