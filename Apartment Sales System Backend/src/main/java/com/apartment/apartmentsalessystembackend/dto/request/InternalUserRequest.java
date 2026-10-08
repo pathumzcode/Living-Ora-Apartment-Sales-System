@@ -12,7 +12,9 @@ public class InternalUserRequest {
     @NotBlank(message = "Last name is required") @Size(max = 100) private String lastName;
     @NotBlank(message = "Role is required") @Size(max = 50) private String role;
     @NotBlank(message = "Email is required") @Email(message = "Email should be valid") private String email;
-    @NotBlank(message = "NIC is required") @Size(max = 20) private String nic;
+    @NotBlank(message = "NIC is required")
+    @Size(min = 12, max = 12, message = "NIC must be exactly 12 characters")
+    @Pattern(regexp = "\\d+", message = "NIC must contain only numbers") private String nic;
     @NotBlank(message = "Phone number is required") @Pattern(regexp = "^[0-9]{10}$", message = "Phone number must contain exactly 10 digits") private String phoneNumber;
     @Email(message = "Personal email should be valid") private String personalEmail;
     @Size(max = 255) private String address;

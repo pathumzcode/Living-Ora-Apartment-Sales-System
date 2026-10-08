@@ -97,7 +97,7 @@ export function completeAuth(response) {
     isCustomer: response.customer,
     isSalesAgent: response.salesAgent,
     status: response.status || 'Verified',
-    profilePicture: response.profilePicture || 'images/luxury-interior-lounge.jpg',
+    profilePicture: response.profilePicture || '',
     name: `${response.firstName || ''} ${response.lastName || ''}`.trim()
   };
 
@@ -123,76 +123,9 @@ export async function login(email, password) {
       throw err;
     }
 
-    // If backend is unreachable, allow built-in demo credentials so admin operations can be previewed/demonstrated
-    console.warn('Backend server is unreachable. Checking demo credentials...');
-    if (normalizedEmail === 'admin@livingora.lk' && password === '12345678') {
-      return completeAuth({
-        token: 'demo-admin-jwt-token',
-        uid: 'EMP-INT-1001',
-        empId: 'EMP-INT-1001',
-        email: 'admin@livingora.lk',
-        firstName: 'Living-Ora',
-        lastName: 'Administrator',
-        role: 'ADMIN',
-        externalUser: false,
-        customer: false,
-        salesAgent: false,
-        status: 'Verified'
-      });
-    }
-
-    if (normalizedEmail === 'operations.director@livingora.lk' && password === '12345678') {
-      return completeAuth({
-        token: 'demo-ops-jwt-token',
-        uid: 'EMP-OPS-1001',
-        empId: 'EMP-OPS-1001',
-        email: 'operations.director@livingora.lk',
-        firstName: 'Operations',
-        lastName: 'Director',
-        role: 'OPERATIONS_DIRECTOR',
-        externalUser: false,
-        customer: false,
-        salesAgent: false,
-        status: 'Verified'
-      });
-    }
-
-    // Check newly registered internal staff accounts from local database cache
-    try {
-      const internalUsersStr = localStorage.getItem('livingora_demo_internal_users');
-      if (internalUsersStr) {
-        const internalList = JSON.parse(internalUsersStr);
-        const matched = internalList.find(u =>
-          (u.email?.toLowerCase() === normalizedEmail || u.companyEmail?.toLowerCase() === normalizedEmail)
-        );
-
-        if (matched) {
-          const expectedPassword = matched.password || `${matched.nic || '123'}@LivingOra`;
-          if (password === expectedPassword || password === '12345678') {
-            return completeAuth({
-              token: 'demo-internal-jwt-token-' + (matched.empId || matched.uid),
-              uid: matched.empId || matched.uid,
-              empId: matched.empId || matched.uid,
-              email: matched.companyEmail || matched.email,
-              firstName: matched.firstName || '',
-              lastName: matched.lastName || '',
-              role: matched.role || 'SALES_MANAGER',
-              externalUser: false,
-              customer: false,
-              salesAgent: false,
-              status: 'Verified'
-            });
-          } else {
-            throw new Error('Invalid credentials. The password entered does not match our records.');
-          }
-        }
-      }
-    } catch (e) {
-      if (e.message && e.message.includes('Invalid credentials')) throw e;
-    }
-
+    // Backend is unreachable — all authentication must go through the database.
     throw new Error(
-      'Invalid email or password. No verified account found in userVerification table for: ' + email
+      'Unable to connect to the server. Please ensure the backend is running and try again.'
     );
   }
 }

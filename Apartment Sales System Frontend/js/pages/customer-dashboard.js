@@ -188,4 +188,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   store.subscribe(renderReservations);
   await store.ready;
   renderReservations();
+
+  // Re-render if store updates
+  store.subscribe(() => renderReservations());
 });

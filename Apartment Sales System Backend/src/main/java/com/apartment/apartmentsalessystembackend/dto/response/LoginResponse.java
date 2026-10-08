@@ -10,6 +10,7 @@ public class LoginResponse {
     private boolean externalUser;
     private boolean customer;
     private boolean salesAgent;
+    private String profilePicture;
 
     public LoginResponse() {}
 
@@ -28,6 +29,11 @@ public class LoginResponse {
     public LoginResponse(String token, String uid, String email, String firstName, String lastName, String role, boolean externalUser) {
         this(token, uid, email, firstName, lastName, role);
         this.externalUser = externalUser;
+    }
+
+    public LoginResponse(String token, String uid, String email, String firstName, String lastName, String role, boolean externalUser, String profilePicture) {
+        this(token, uid, email, firstName, lastName, role, externalUser);
+        this.profilePicture = profilePicture;
     }
 
     public String getToken() {
@@ -83,4 +89,12 @@ public class LoginResponse {
     public boolean isExternalUser() { return externalUser; }
     public boolean isCustomer() { return customer; }
     public boolean isSalesAgent() { return salesAgent; }
+
+    public String getProfilePicture() {
+        return profilePicture;
+    }
+
+    public void setProfilePicture(String profilePicture) {
+        this.profilePicture = profilePicture;
+    }
 }

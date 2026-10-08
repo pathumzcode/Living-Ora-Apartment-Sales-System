@@ -138,7 +138,7 @@ class InternalUserValidationAndProfileTests {
     @Test
     void adminCreateUpdateAndDeletePersistToTheDatabase() {
         String email = "crud.user@livingora.lk";
-        String nic = "C" + Long.toString(System.nanoTime());
+        String nic = String.format("%012d", Math.abs(System.nanoTime() % 1000000000000L));
         InternalUserRequest createRequest = internalUserRequest(email, "0775551234");
         createRequest.setNic(nic);
 
@@ -178,7 +178,7 @@ class InternalUserValidationAndProfileTests {
         userVerificationRepository.save(orphan);
 
         InternalUserRequest request = internalUserRequest("next.sales@livingora.lk", "0775559999");
-        request.setNic("N" + Long.toString(System.nanoTime()));
+        request.setNic(String.format("%012d", Math.abs(System.nanoTime() % 1000000000000L)));
         request.setPersonalEmail("next.sales.personal@example.com");
         request.setEmpId("EMP-SM-1001");
 
