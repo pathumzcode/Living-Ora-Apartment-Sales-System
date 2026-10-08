@@ -254,35 +254,10 @@ export const StoreProvider = ({ children }) => {
     return newUnit;
   };
 
-  const deleteApartment = (id) => {
-    setApartments((prev) => prev.filter(a => a.apartmentId !== id && a.id !== id));
-  };
-
-  const deleteUnit = (id) => {
-    setUnits((prev) => prev.filter(u => u.unitId !== id));
-  };
-
   const addPromotion = async (promoData) => {
     const newPromo = await promotionsApi.create(promoData);
     setPromotions((prev) => [newPromo, ...prev]);
     return newPromo;
-  };
-
-  const updatePromotion = async (id, promoData) => {
-    const updated = await promotionsApi.update(id, promoData);
-    setPromotions((prev) => prev.map(p => p.promotionId === id ? updated : p));
-    return updated;
-  };
-
-  const deletePromotion = async (id) => {
-    await promotionsApi.delete(id);
-    setPromotions((prev) => prev.filter(p => p.promotionId !== id));
-  };
-
-  const togglePromotionStatus = async (id) => {
-    const updated = await promotionsApi.toggleStatus(id);
-    setPromotions((prev) => prev.map(p => p.promotionId === id ? updated : p));
-    return updated;
   };
 
   const addExternalApartment = async (exData) => {
@@ -305,13 +280,8 @@ export const StoreProvider = ({ children }) => {
         updateBookingStatus,
         updateUnitStatus,
         addApartment,
-        deleteApartment,
         addUnit,
-        deleteUnit,
         addPromotion,
-        updatePromotion,
-        deletePromotion,
-        togglePromotionStatus,
         addExternalApartment
       }}
     >

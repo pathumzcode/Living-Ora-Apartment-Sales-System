@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Tag, Sparkles, Copy, Check } from 'lucide-react';
 
-export const PromotionBanner = ({ promotion, isManager, onEdit, onDelete, onToggle }) => {
+export const PromotionBanner = ({ promotion, onClaimPromo }) => {
   const [copied, setCopied] = useState(false);
 
   if (!promotion) return null;
@@ -12,23 +12,6 @@ export const PromotionBanner = ({ promotion, isManager, onEdit, onDelete, onTogg
     setTimeout(() => setCopied(false), 2000);
   };
 
-  const getComputedStatus = () => {
-    if (promotion.status === 'INACTIVE') return 'INACTIVE';
-    const today = new Date();
-    today.setHours(0,0,0,0);
-    const start = new Date(promotion.startDate);
-    const end = new Date(promotion.endDate);
-    if (today < start) return 'SCHEDULED';
-    if (today > end) return 'EXPIRED';
-    return 'ACTIVE';
-  };
-
-  const computedStatus = getComputedStatus();
-  let statusColor = 'var(--text-muted)';
-  if (computedStatus === 'ACTIVE') statusColor = 'var(--success)';
-  if (computedStatus === 'INACTIVE') statusColor = 'var(--error)';
-  if (computedStatus === 'SCHEDULED') statusColor = 'var(--primary-gold)';
-
   return (
     <div 
       className="glass-panel animate-fade-in" 
@@ -37,8 +20,7 @@ export const PromotionBanner = ({ promotion, isManager, onEdit, onDelete, onTogg
         overflow: 'hidden', 
         borderRadius: 'var(--radius-lg)', 
         border: '1px solid var(--border-glass-gold)',
-        marginBottom: '2.5rem',
-        opacity: computedStatus === 'INACTIVE' || computedStatus === 'EXPIRED' ? 0.6 : 1
+        marginBottom: '2.5rem'
       }}
     >
       {/* Background image overlay */}
@@ -61,9 +43,6 @@ export const PromotionBanner = ({ promotion, isManager, onEdit, onDelete, onTogg
             <span style={{ fontSize: '0.82rem', color: 'var(--text-gold)', fontWeight: 600 }}>
               Save Up To {promotion.discountPrecentage}% Off
             </span>
-            <span style={{ fontSize: '0.75rem', fontWeight: 'bold', color: statusColor, padding: '2px 8px', border: `1px solid ${statusColor}`, borderRadius: '12px' }}>
-              {computedStatus}
-            </span>
           </div>
 
           <h2 style={{ fontSize: '1.8rem', marginBottom: '0.5rem', color: 'var(--text-primary)' }}>
@@ -75,20 +54,10 @@ export const PromotionBanner = ({ promotion, isManager, onEdit, onDelete, onTogg
           </p>
 
           <div style={{ display: 'flex', gap: '1rem', alignItems: 'center', fontSize: '0.82rem', color: 'var(--text-muted)' }}>
-            <span>Valid: <strong style={{ color: 'var(--text-secondary)' }}>{promotion.startDate} to {promotion.endDate}</strong></span>
+            <span>Valid Period: <strong style={{ color: 'var(--text-secondary)' }}>{promotion.validityPeriod}</strong></span>
             &bull;
             <span>Criteria: <strong style={{ color: 'var(--text-secondary)' }}>{promotion.eligibilityCriteria}</strong></span>
           </div>
-          
-          {isManager && (
-             <div style={{ display: 'flex', gap: '0.5rem', marginTop: '1rem' }}>
-                <button onClick={() => onToggle(promotion.promotionId)} className="btn btn-sm btn-glass">
-                   {promotion.status === 'INACTIVE' ? 'Activate' : 'Deactivate'}
-                </button>
-                <button onClick={() => onEdit(promotion)} className="btn btn-sm btn-glass">Edit</button>
-                <button onClick={() => onDelete(promotion.promotionId)} className="btn btn-sm" style={{ borderColor: 'var(--error)', color: 'var(--error)' }}>Delete</button>
-             </div>
-          )}
         </div>
 
         {/* Promo Code Box */}
@@ -104,7 +73,6 @@ export const PromotionBanner = ({ promotion, isManager, onEdit, onDelete, onTogg
             onClick={handleCopyCode} 
             className="btn btn-gold btn-sm" 
             style={{ width: '100%' }}
-            disabled={computedStatus !== 'ACTIVE'}
           >
             {copied ? <><Check size={14} /> Code Copied!</> : <><Copy size={14} /> Copy Promo Code</>}
           </button>
