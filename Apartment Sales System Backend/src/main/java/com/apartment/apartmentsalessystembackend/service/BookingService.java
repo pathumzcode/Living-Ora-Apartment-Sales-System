@@ -16,6 +16,9 @@ import com.apartment.apartmentsalessystembackend.repository.ExternalUserReposito
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.apartment.apartmentsalessystembackend.strategy.booking.BookingStatusStrategy;
+import com.apartment.apartmentsalessystembackend.strategy.booking.BookingStatusStrategyRegistry;
+
 import java.time.LocalDateTime;
 import org.springframework.transaction.annotation.Transactional;
 import java.util.Arrays;
@@ -23,6 +26,9 @@ import java.util.List;
 
 @Service
 public class BookingService {
+
+    @Autowired
+    private BookingStatusStrategyRegistry bookingStatusStrategyRegistry;
 
     @Autowired
     private BookingRepository bookingRepository;
@@ -137,7 +143,7 @@ public class BookingService {
         if (customer.getUserVerification() != null) {
             booking.setUid(customer.getUserVerification().getVerificationId());
         }
-        
+
         Booking savedBooking = bookingRepository.save(booking);
 
         // Create initial down payment record
@@ -164,31 +170,17 @@ public class BookingService {
         return toResponse(savedBooking);
     }
 
-    @org.springframework.transaction.annotation.Transactional
+    @Transactional
     public BookingResponse updateBookingStatus(Long id, String status) {
-        if (status == null || !Arrays.asList("Pending Approval", "Approved", "Rejected", "Cancelled", "Expired").contains(status)) {
-            throw new BadRequestException("Unsupported booking status");
-        }
+        BookingStatusStrategy strategy = bookingStatusStrategyRegistry.resolve(status);
         Booking booking = bookingRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Booking not found: " + id));
         if ("Approved".equalsIgnoreCase(booking.getStatus()) && !"Approved".equalsIgnoreCase(status)) {
             throw new BadRequestException("An approved booking cannot be changed from this workflow");
         }
-        booking.setStatus(status);
 
-        if ("Approved".equalsIgnoreCase(status)) {
-            Unit unit = unitRepository.findById(booking.getUnitId()).orElse(null);
-            if (unit != null) {
-                unit.setAvailability("Sold");
-                unitRepository.save(unit);
-            }
-        } else if ("Rejected".equalsIgnoreCase(status) || "Cancelled".equalsIgnoreCase(status) || "Expired".equalsIgnoreCase(status)) {
-            Unit unit = unitRepository.findById(booking.getUnitId()).orElse(null);
-            if (unit != null) {
-                unit.setAvailability("Available");
-                unitRepository.save(unit);
-            }
-        }
+        booking.setStatus(status);
+        strategy.apply(booking);
 
         Booking updated = bookingRepository.save(booking);
         return toResponse(updated);

@@ -1004,9 +1004,19 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  updateKPIs();
-  renderBookings();
-  renderInventory();
+  // Wait for backend data before rendering (prevents empty bookings table)
+  store.ready.then(() => {
+    updateKPIs();
+    renderBookings();
+    renderInventory();
+  });
+
+  // Re-render when store data updates (e.g. new bookings arrive)
+  store.subscribe(() => {
+    updateKPIs();
+    renderBookings();
+    renderInventory();
+  });
 
   // Add Complex Modal Form
   const addAptBtn = document.getElementById('open-add-apt-modal-btn');
