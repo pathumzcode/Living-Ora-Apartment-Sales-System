@@ -274,10 +274,23 @@ public class UserService {
             internalUser.setAddress(request.getAddress().trim());
         }
 
-        // Sync UserVerification email
+        if (request.getPassword() != null && !request.getPassword().isBlank()) {
+            if (request.getPassword().trim().length() < 8) {
+                throw new BadRequestException("Password must contain at least 8 characters");
+            }
+            String hashedPassword = passwordHasher.hash(request.getPassword().trim());
+            internalUser.setPassword(hashedPassword);
+            internalUser.setcEmailPassword(hashedPassword);
+        }
+
+        // Sync UserVerification email and password
         UserVerification verification = internalUser.getUserVerification();
         if (verification != null) {
             verification.setEmail(personalEmail);
+            if (request.getPassword() != null && !request.getPassword().isBlank()) {
+                String hashedPassword = passwordHasher.hash(request.getPassword().trim());
+                verification.setPassword(hashedPassword);
+            }
             userVerificationRepository.save(verification);
         }
 

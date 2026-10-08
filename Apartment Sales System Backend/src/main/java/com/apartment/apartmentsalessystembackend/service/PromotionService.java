@@ -26,6 +26,9 @@ public class PromotionService {
     }
 
     public Promotion createPromotion(PromotionRequest request) {
+        if (promotionRepository.findByPromotionCode(request.getPromotionCode()).isPresent()) {
+            throw new BadRequestException("Promotion code already exists: " + request.getPromotionCode());
+        }
         if (request.getEndDate().isBefore(request.getStartDate())) {
             throw new BadRequestException("Promotion end date cannot be before start date");
         }
@@ -50,3 +53,4 @@ public class PromotionService {
         return promotionRepository.save(entity);
     }
 }
+

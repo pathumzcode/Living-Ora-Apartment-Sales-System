@@ -144,6 +144,9 @@ public class DataInitializer implements CommandLineRunner {
             // on a detached entity (causes LazyInitializationException outside a session).
             existingAdmin.setRole("ADMIN");
             existingAdmin.setPassword(adminPasswordHash);
+            if (existingAdmin.getProfilePicture() == null || existingAdmin.getProfilePicture().isBlank()) {
+                existingAdmin.setProfilePicture("https://ui-avatars.com/api/?name=Admin+LivingOra");
+            }
             internalUserRepository.save(existingAdmin);
 
             // Fetch and update the UserVerification record independently via the repository.
@@ -177,6 +180,7 @@ public class DataInitializer implements CommandLineRunner {
         admin.setAddress("Living-Ora Head Office");
         admin.setAge(35);
         admin.setDateOfBirth(LocalDate.now().minusYears(35));
+        admin.setProfilePicture("https://ui-avatars.com/api/?name=Admin+LivingOra");
         admin.setPersonalEmail("admin@livingora.lk");
         admin.setCompanyEmail("admin@livingora.lk");
         admin.setJoinedDate(LocalDate.now());
