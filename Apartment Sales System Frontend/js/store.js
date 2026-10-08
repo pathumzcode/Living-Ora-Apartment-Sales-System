@@ -79,6 +79,7 @@ class DataStore {
     this.promotions = [];
     this.externalApartments = [];
     this.bookings = [];
+    this.bookingsError = null;
     this.payments = [];
 
     this.isBackendConnected = false;
@@ -150,6 +151,9 @@ class DataStore {
 
       if (bRes.status === 'fulfilled' && Array.isArray(bRes.value)) {
         this.bookings = bRes.value;
+        this.bookingsError = null;
+      } else {
+        this.bookingsError = bRes.reason?.message || 'Unable to load bookings';
       }
 
       if (pRes.status === 'fulfilled' && Array.isArray(pRes.value)) {
@@ -200,6 +204,21 @@ class DataStore {
     });
     await this.refresh();
     return result;
+  }
+
+  async updateBooking(id, data) {
+    const updated = await bookingsApi.update(id, data);
+    this.bookings = this.bookings.map(b => b.id === id ? updated : b);
+    this._notify();
+    return updated;
+  }
+
+  async deleteBooking(id) {
+    await bookingsApi.delete(id);
+    this.bookings = this.bookings.filter(b => b.id !== id);
+    this.payments = this.payments.filter(p => String(p.bookingId) !== String(id));
+    this._notify();
+    await this.refresh();
   }
 
   async updateBookingStatus(bookingId, status) {

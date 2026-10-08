@@ -1,174 +1,191 @@
-import { store } from '../store.js';
-import { requireAuth, getCurrentUser, logout } from '../auth.js';
+﻿import { store } from '../store.js';
+import { bookingsApi } from '../api.js';
+import { requireAuth, getCurrentUser } from '../auth.js';
 import { renderNavbar, renderFooter, formatPrice } from '../ui.js';
 
-const API_BASE = 'http://localhost:8080/api';
+const escapeHtml = value => String(value ?? '').replace(/[&<>"']/g, char =>
+  ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[char]));
+const money = value => value == null ? 'Not provided' : formatPrice(value);
+
+// A missing identity must never match another missing identity.
+export const belongsToCustomer = (booking, user) => Boolean(
+  (user?.email && booking.userEmail && user.email.toLowerCase() === booking.userEmail.toLowerCase()) ||
+  (user?.uid && booking.uid && String(user.uid) === String(booking.uid))
+);
 
 document.addEventListener('DOMContentLoaded', async () => {
   if (!requireAuth()) return;
-
   renderNavbar();
   renderFooter();
-
   const user = getCurrentUser();
+  document.getElementById('client-name').textContent = user.name || `${user.firstName || ''} ${user.lastName || ''}`;
+  document.getElementById('client-email').textContent = user.email || '';
+  document.getElementById('client-uid').textContent = user.uid || user.empId || '';
+  document.getElementById('client-status').textContent = user.status || 'Verified Client';
 
-  // Populate client greeting
-  const clientNameEl   = document.getElementById('client-name');
-  const clientEmailEl  = document.getElementById('client-email');
-  const clientUidEl    = document.getElementById('client-uid');
-  const clientStatusEl = document.getElementById('client-status');
+  const container = document.getElementById('reservations-list');
+  const message = document.getElementById('booking-feedback');
+  const dialog = document.getElementById('booking-dialog');
+  const dialogBody = document.getElementById('booking-dialog-body');
+  const dialogTitle = document.getElementById('booking-dialog-title');
+  const closeButton = document.getElementById('booking-dialog-close');
+  let selected = null;
+  let busy = false;
+  let opener = null;
 
-  if (clientNameEl)   clientNameEl.textContent   = user.name || `${user.firstName || ''} ${user.lastName || ''}`.trim() || 'Valued Client';
-  if (clientEmailEl)  clientEmailEl.textContent  = user.email || '';
-  if (clientUidEl)    clientUidEl.textContent    = user.uid || user.empId || 'USR-EXT-5001';
-  if (clientStatusEl) clientStatusEl.textContent = user.status || 'Verified Client';
-
-  // ── Promotions ──────────────────────────────────────────────────────────────
-  const promoContainer = document.getElementById('client-promotions-list');
-
-  async function loadAndRenderPromotions() {
-    if (!promoContainer) return;
-    promoContainer.innerHTML = `<p style="color:var(--text-muted);font-size:0.9rem;">Loading promotions...</p>`;
-
-    try {
-      const res = await fetch(`${API_BASE}/promotions`);
-      if (!res.ok) throw new Error('Failed to fetch promotions');
-      const allPromos = await res.json();
-
-      const today = new Date();
-      today.setHours(0, 0, 0, 0);
-
-      const activePromos = allPromos.filter(p => {
-        if (p.status === 'INACTIVE') return false;
-        const start = new Date(p.startDate);
-        const end   = new Date(p.endDate);
-        return today >= start && today <= end;
-      });
-
-      if (activePromos.length === 0) {
-        promoContainer.innerHTML = `
-          <div class="card" style="padding:1.5rem;text-align:center;color:var(--text-muted);">
-            No active promotions available at the moment. Check back soon!
-          </div>`;
-        return;
-      }
-
-      promoContainer.innerHTML = `
-        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:1.25rem;">
-          ${activePromos.map(p => `
-            <div class="card" style="padding:1.5rem;display:flex;flex-direction:column;gap:0.75rem;border:1px solid var(--primary,#d4af37);">
-              <div style="display:flex;justify-content:space-between;align-items:flex-start;">
-                <span class="badge badge-gold">${p.promotionType || 'Offer'}</span>
-                <strong style="color:var(--primary,#d4af37);font-size:1.1rem;">${p.discountPrecentage ? p.discountPrecentage + '% OFF' : ''}</strong>
-              </div>
-              <h3 style="font-size:1.15rem;font-weight:700;color:var(--text-main);">${p.promotionTitle}</h3>
-              <p style="color:var(--text-muted);font-size:0.85rem;line-height:1.45;">${p.about || ''}</p>
-              ${p.eligibilityCriteria ? `<p style="font-size:0.8rem;color:var(--text-dim);">&#128203; ${p.eligibilityCriteria}</p>` : ''}
-              <div style="background:var(--bg-dark,#1a1a1a);border:1px dashed var(--primary,#d4af37);border-radius:8px;padding:0.75rem 1rem;display:flex;justify-content:space-between;align-items:center;">
-                <div>
-                  <small style="display:block;color:var(--text-dim);font-size:0.7rem;text-transform:uppercase;letter-spacing:1px;">Promo Code</small>
-                  <strong style="font-size:1.2rem;color:var(--primary,#d4af37);letter-spacing:2px;font-family:monospace;">${p.promotionCode}</strong>
-                </div>
-                <button class="btn btn-sm btn-outline copy-promo-btn" data-code="${p.promotionCode}" style="white-space:nowrap;">
-                  &#128203; Copy
-                </button>
-              </div>
-              <p style="font-size:0.78rem;color:var(--text-dim);text-align:right;">
-                Valid: ${new Date(p.startDate).toLocaleDateString('en-US',{month:'short',day:'numeric'})} &ndash; ${new Date(p.endDate).toLocaleDateString('en-US',{year:'numeric',month:'short',day:'numeric'})}
-              </p>
-            </div>
-          `).join('')}
-        </div>`;
-
-      // Copy button logic
-      promoContainer.querySelectorAll('.copy-promo-btn').forEach(btn => {
-        btn.addEventListener('click', () => {
-          const code = btn.getAttribute('data-code');
-          navigator.clipboard.writeText(code).then(() => {
-            const orig = btn.innerHTML;
-            btn.innerHTML = '&#10003; Copied!';
-            btn.style.color = 'var(--success)';
-            btn.style.borderColor = 'var(--success)';
-            setTimeout(() => {
-              btn.innerHTML = orig;
-              btn.style.color = '';
-              btn.style.borderColor = '';
-            }, 2000);
-          }).catch(() => { prompt('Copy this code:', code); });
-        });
-      });
-
-    } catch (err) {
-      console.error('[CustomerDashboard] Promotions error:', err);
-      promoContainer.innerHTML = `<div class="card" style="padding:1.5rem;color:var(--text-muted);">Unable to load promotions right now.</div>`;
-    }
+  function feedback(text, error = false) {
+    message.textContent = text;
+    message.setAttribute('role', error ? 'alert' : 'status');
+    message.style.color = error ? 'var(--danger)' : 'var(--text-main)';
   }
 
-  // ── Reservations ─────────────────────────────────────────────────────────────
-  const reservationsContainer = document.getElementById('reservations-list');
-
   function renderReservations() {
-    if (!reservationsContainer) return;
-
-    const allBookings  = store.getBookings();
-    const userBookings = allBookings.filter(b => b.userEmail === user.email || b.uid === user.uid);
-
-    if (userBookings.length === 0) {
-      reservationsContainer.innerHTML = `
-        <div class="card" style="padding:3rem;text-align:center;">
-          <p style="color:var(--text-muted);font-size:1.1rem;margin-bottom:1.5rem;">You have no active unit reservations yet.</p>
-          <a href="apartments.html" class="btn btn-primary">Browse Available Residences</a>
-        </div>`;
+    if (store.bookingsError) {
+      container.innerHTML = '<div class="card booking-empty"><p>Unable to load your bookings. Please try again.</p><button class="btn btn-primary" data-action="retry">Retry</button></div>';
       return;
     }
-
-    reservationsContainer.innerHTML = userBookings.map(b => {
-      let badgeClass = 'badge-warning';
-      if (b.status === 'Approved')  badgeClass = 'badge-success';
-      if (b.status === 'Rejected')  badgeClass = 'badge-danger';
-
-      return `
-        <div class="card" style="margin-bottom:1.5rem;padding:1.5rem;">
-          <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:1rem;border-bottom:1px solid var(--border-color);padding-bottom:1rem;margin-bottom:1rem;">
-            <div>
-              <span class="badge ${badgeClass}" style="margin-bottom:0.5rem;">${b.status}</span>
-              <h3 style="font-size:1.35rem;color:var(--text-main);">${b.unitLocation || `Unit ${b.unitId}`}</h3>
-              <p style="color:var(--text-muted);font-size:0.88rem;">
-                Booking Code: <strong style="color:var(--primary);">${b.bookingId}</strong> &bull; Reserved: ${b.bookingDate}
-              </p>
-            </div>
-            <div style="text-align:right;">
-              <span style="display:block;font-size:0.8rem;color:var(--text-dim);">Down Payment</span>
-              <strong style="font-size:1.4rem;color:var(--primary);">${formatPrice(b.downPayment)}</strong>
-            </div>
-          </div>
-
-          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:1rem;background-color:var(--bg-dark);padding:1rem;border-radius:var(--radius-md);font-size:0.88rem;">
-            <div>
-              <span style="display:block;color:var(--text-dim);">Payment Method</span>
-              <strong>${b.paymentMethod || 'Bank Transfer'}</strong>
-            </div>
-            <div>
-              <span style="display:block;color:var(--text-dim);">Payment Receipt</span>
-              <span style="color:var(--info);">&#128196; ${b.paymentProof || 'receipt.pdf'}</span>
-            </div>
-            <div>
-              <span style="display:block;color:var(--text-dim);">Customizations</span>
-              <strong>${b.additions || 'Standard Luxury Finish'}</strong>
-            </div>
-            <div>
-              <span style="display:block;color:var(--text-dim);">Reservation Expiry</span>
-              <strong style="color:var(--danger);">${b.expireDate || 'N/A'}</strong>
-            </div>
-          </div>
-        </div>`;
+    const bookings = store.getBookings().filter(b => belongsToCustomer(b, user));
+    if (!bookings.length) {
+      container.innerHTML = '<div class="card booking-empty"><p>You have no reservations yet.</p><a href="apartments.html" class="btn btn-primary">Browse Available Residences</a></div>';
+      return;
+    }
+    container.innerHTML = bookings.map(b => {
+      const approved = b.status === 'Approved';
+      const verified = b.paymentStatus === 'VERIFIED';
+      const unit = store.getUnits().find(u => u.unitId === b.unitId);
+      const badge = approved ? 'badge-success' : ['Rejected', 'Cancelled', 'Expired'].includes(b.status) ? 'badge-danger' : 'badge-warning';
+      return `<article class="card booking-card">
+        <div class="booking-card-header">
+          <div><span class="badge ${badge}">${escapeHtml(b.status)}</span>
+            <h3>${escapeHtml(b.unitLocation || unit?.location || `Unit ${b.unitId}`)}</h3>
+            <p>Booking Code: <strong>${escapeHtml(b.bookingId)}</strong></p></div>
+          <div><span class="booking-label">Down Payment</span><strong>${escapeHtml(money(b.downPayment))}</strong></div>
+        </div>
+        <dl class="booking-details">
+          <div><dt>Reserved On</dt><dd>${escapeHtml(b.bookingDate)}</dd></div>
+          <div><dt>Reservation Expiry</dt><dd>${escapeHtml(b.expireDate)}</dd></div>
+          <div><dt>Requested Customizations</dt><dd>${escapeHtml(b.additions || 'Standard Finish')}</dd></div>
+          <div><dt>Payment Status</dt><dd>${escapeHtml(b.paymentStatus || 'Not provided')}</dd></div>
+        </dl>
+        <div class="booking-actions">
+          <button class="btn btn-primary" data-action="view" data-id="${escapeHtml(b.id)}">View Booking</button>
+          <button class="btn btn-outline" data-action="edit" data-id="${escapeHtml(b.id)}" ${approved ? 'disabled' : ''}>Edit</button>
+          <button class="btn btn-danger" data-action="delete" data-id="${escapeHtml(b.id)}" ${approved || verified ? 'disabled' : ''}>Delete</button>
+        </div>
+        ${approved ? '<p class="booking-note">Approved bookings cannot be edited or deleted.</p>' : verified ? '<p class="booking-note">Bookings with verified payments cannot be deleted.</p>' : ''}
+      </article>`;
     }).join('');
   }
 
-  // Load promotions from backend (async)
-  loadAndRenderPromotions();
+  function closeDialog() { if (!busy) dialog.close(); }
+  closeButton.addEventListener('click', closeDialog);
+  dialog.addEventListener('cancel', event => { if (busy) event.preventDefault(); });
+  dialog.addEventListener('close', () => { selected = null; opener?.focus(); });
 
-  // Wait for store to be ready then render reservations
+  function setBusy(value) {
+    busy = value;
+    dialog.setAttribute('aria-busy', String(value));
+    dialog.querySelectorAll('button, input, textarea').forEach(el => { el.disabled = value; });
+  }
+
+  function showDialogError(error) {
+    const errorEl = document.getElementById('booking-dialog-error');
+    errorEl.textContent = error.message || 'Unable to complete the request. Please try again.';
+  }
+
+  container.addEventListener('click', async event => {
+    const button = event.target.closest('button[data-action]');
+    if (!button || button.disabled) return;
+    if (button.dataset.action === 'retry') {
+      button.disabled = true;
+      button.textContent = 'Loading...';
+      await store.refresh();
+      return;
+    }
+    const booking = store.getBookings().find(b => String(b.id) === button.dataset.id && belongsToCustomer(b, user));
+    if (!booking) return;
+    opener = button;
+    feedback('');
+    dialogTitle.textContent = 'Loading booking...';
+    dialogBody.innerHTML = '<p role="status">Loading current booking details...</p><p id="booking-dialog-error" role="alert"></p>';
+    dialog.showModal();
+    setBusy(true);
+    try {
+      selected = await bookingsApi.getById(booking.id);
+      if (!belongsToCustomer(selected, user)) throw new Error('This booking is not available for your account.');
+      const mode = button.dataset.action;
+      dialogTitle.textContent = `${mode === 'edit' ? 'Edit' : mode === 'delete' ? 'Delete' : 'View'} Booking ${selected.bookingId}`;
+      if (mode === 'edit') {
+        if (selected.status === 'Approved') throw new Error('Approved bookings cannot be edited.');
+        dialogBody.innerHTML = `<form id="booking-edit-form">
+          <div class="form-group"><label class="form-label" for="booking-date">Booking Date</label><input class="form-input" id="booking-date" name="bookingDate" type="date" required value="${escapeHtml(selected.bookingDate)}"></div>
+          <div class="form-group"><label class="form-label" for="booking-expiry">Expiry Date</label><input class="form-input" id="booking-expiry" name="expireDate" type="date" required min="${escapeHtml(selected.bookingDate)}" value="${escapeHtml(selected.expireDate)}"></div>
+          <div class="form-group"><label class="form-label" for="booking-additions">Additions / Customizations</label><textarea class="form-textarea" id="booking-additions" name="additions" maxlength="45" rows="3">${escapeHtml(selected.additions)}</textarea><small>Up to 45 characters.</small></div>
+          <p id="booking-dialog-error" role="alert"></p>
+          <div class="booking-actions"><button class="btn btn-primary" type="submit">Save Changes</button><button class="btn btn-outline" type="button" data-close>Cancel</button></div>
+        </form>`;
+        document.getElementById('booking-date').addEventListener('input', event => {
+          document.getElementById('booking-expiry').min = event.target.value;
+        });
+        document.getElementById('booking-edit-form').addEventListener('submit', async event => {
+          event.preventDefault();
+          if (busy) return;
+          const data = Object.fromEntries(new FormData(event.target));
+          if (data.expireDate < data.bookingDate) {
+            showDialogError(new Error('Expiry date must be on or after the booking date.'));
+            return;
+          }
+          setBusy(true);
+          try {
+            await store.updateBooking(selected.id, data);
+            setBusy(false);
+            dialog.close();
+            feedback('Booking updated successfully.');
+          } catch (error) { showDialogError(error); }
+          finally { setBusy(false); }
+        });
+      } else if (mode === 'delete') {
+        if (selected.status === 'Approved' || selected.paymentStatus === 'VERIFIED') {
+          throw new Error('Approved bookings and bookings with verified payments cannot be deleted.');
+        }
+        dialogBody.innerHTML = `<p>Delete reservation <strong>${escapeHtml(selected.bookingId)}</strong> for unit <strong>${escapeHtml(selected.unitId)}</strong>?</p>
+          <p>This permanently removes the booking and its unverified payment records. This cannot be undone.</p>
+          <p id="booking-dialog-error" role="alert"></p>
+          <div class="booking-actions"><button class="btn btn-outline" data-close>Keep Booking</button><button class="btn btn-danger" id="confirm-booking-delete">Delete Booking</button></div>`;
+        document.getElementById('confirm-booking-delete').addEventListener('click', async () => {
+          if (busy) return;
+          setBusy(true);
+          try {
+            await store.deleteBooking(selected.id);
+            setBusy(false);
+            dialog.close();
+            feedback('Booking deleted successfully.');
+          } catch (error) { showDialogError(error); }
+          finally { setBusy(false); }
+        });
+      } else {
+        const details = [['Booking Code', selected.bookingId], ['Unit', selected.unitId], ['Status', selected.status],
+          ['Booking Date', selected.bookingDate], ['Expiry Date', selected.expireDate], ['Additions', selected.additions || 'Standard Finish'],
+          ['Apartment Price', money(selected.paymentAmount)], ['Down Payment', money(selected.downPayment)],
+          ['Payment Method', selected.paymentMethod || 'Not provided'], ['Payment Status', selected.paymentStatus || 'Not provided'],
+          ['Payment Receipt', selected.paymentProof || 'Not provided']];
+        dialogBody.innerHTML = `<dl class="booking-details">${details.map(([label, value]) => `<div><dt>${escapeHtml(label)}</dt><dd>${escapeHtml(value)}</dd></div>`).join('')}</dl>
+          <p id="booking-dialog-error" role="alert"></p><div class="booking-actions"><button class="btn btn-primary" data-close>Close</button></div>`;
+      }
+      dialogBody.querySelectorAll('[data-close]').forEach(el => el.addEventListener('click', closeDialog));
+    } catch (error) {
+      dialogTitle.textContent = 'Booking unavailable';
+      dialogBody.querySelector('[role="status"]')?.remove();
+      showDialogError(error);
+    }
+    finally {
+      setBusy(false);
+      (dialogBody.querySelector('input, [data-close]') || closeButton).focus();
+    }
+  });
+
+  container.innerHTML = '<p role="status">Loading your reservations...</p>';
+  store.subscribe(renderReservations);
   await store.ready;
   renderReservations();
 
